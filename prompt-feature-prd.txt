@@ -1,0 +1,122 @@
+# Build Prompt: AI Citation Tracker (MVP Proxy Method)
+
+Paste this directly into your coding agent.
+
+---
+
+Build a citation-checking function that simulates what an AI answer engine would say for a given prompt, using search + an LLM, rather than calling a real answer-engine API. This is the MVP version of the AI Citation Tracker — cheaper and faster to ship than direct Perplexity/Anthropic/OpenAI integration, and it slots into the same `citation_checks` table already in the schema, just with `provider: 'proxy'`.
+
+## Flow
+
+For a given `(trackedPrompt, siteDomain)` pair:
+
+1. **Search step** — call Tavily (fallback to Exa if Tavily fails or returns < 3 results) with the tracked prompt text. Retrieve the top 6–8 results: `{ title, url, snippet }`.
+2. **Answer generation step** — pass those results to Kimi with a strict prompt (below) instructing it to answer *only* using the provided sources, and to cite every claim with a bracketed source number like `[1]`, `[2]`.
+3. **Parse step** — extract which bracket numbers actually appear in the generated answer, map them back to the source URLs from step 1, and get the final list of "sources actually used."
+4. **Match step** — check whether `siteDomain` (or any of its subpages) appears among the sources actually used. Also run the same check against each tracked competitor domain, so you get a relative comparison, not just a yes/no.
+5. **Store** — one `citation_checks` row: `provider: 'proxy'`, `brand_mentioned` (bool), `citation_urls` (the sources actually cited), `raw_response` (the generated answer, for debugging/transparency), `checked_at`.
+
+## Function signature
+
+```ts
+async function checkCitationProxy(
+  trackedPrompt: string,
+  siteDomain: string,
+  competitorDomains: string[]
+): Promise<{
+  brandMentioned: boolean;
+  competitorsMentioned: string[];
+  citedSources: { url: string; title: string }[];
+  rawAnswer: string;
+}>
+```
+
+## Search call (Tavily primary, Exa fallback)
+
+```ts
+// Tavily
+const searchResults = await tavily.search({
+  query: trackedPrompt,
+  max_results: 8,
+  search_depth: 'basic',
+});
+
+// If Tavily returns fewer than 3 results or errors, fall back to Exa
+if (!searchResults || searchResults.results.length < 3) {
+  const exaResults = await exa.search(trackedPrompt, { numResults: 8, useAutoprompt: true });
+  // normalize exaResults into the same { title, url, snippet } shape
+}
+```
+
+## Kimi answer-generation prompt (use exactly this structure)
+
+```
+You are answering a user's question using ONLY the sources provided below.
+Do not use any outside knowledge. If the sources don't contain enough
+information to answer, say so.
+
+Question: {trackedPrompt}
+
+Sources:
+[1] {source1.title} — {source1.url}
+{source1.snippet}
+
+[2] {source2.title} — {source2.url}
+{source2.snippet}
+
+... (up to 8 sources)
+
+Instructions:
+- Write a natural, direct answer to the question, 3-5 sentences.
+- Every factual claim must be followed by the bracket number of the source
+  it came from, e.g. "X is a good option for this [2]."
+- Only cite sources that you actually used to support a specific claim —
+  do not cite a source just because it appeared in the list.
+- Do not fabricate sources or claims not supported by the text above.
+```
+
+## Parse step (extract which sources were actually used)
+
+```ts
+function extractCitedSources(answer: string, sources: SearchResult[]): SearchResult[] {
+  const citedIndices = new Set<number>();
+  const matches = answer.matchAll(/\[(\d+)\]/g);
+  for (const match of matches) {
+    citedIndices.add(parseInt(match[1], 10));
+  }
+  return sources.filter((_, i) => citedIndices.has(i + 1));
+}
+```
+
+Don't just check whether the domain appears anywhere in the raw source list — a source can be *retrieved* by the search step without ever being *cited* in the generated answer. Only sources that show up in the parsed bracket references count as "used."
+
+## Domain matching
+
+```ts
+function domainMatches(url: string, targetDomain: string): boolean {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, '');
+    const target = targetDomain.replace(/^www\./, '');
+    return hostname === target || hostname.endsWith(`.${target}`);
+  } catch {
+    return false;
+  }
+}
+```
+
+## Wiring into the existing schema
+
+- Reuse the `citation_checks` table already defined — just add `'proxy'` as a valid value in the `provider` column alongside `'perplexity'`, `'anthropic'`, `'openai'`.
+- Call `checkCitationProxy` from the same place `analyzePromptWithProvider`-equivalents are called for the real providers — same loop, same scheduling, same `citation_history` API route. The proxy method is a drop-in provider, not a separate feature.
+- In the UI, label results from this provider clearly as "AI visibility simulation" rather than implying it's a live ChatGPT/Perplexity answer — this matters for trust once you add real providers later and users start comparing the two.
+
+## Cost/error handling notes
+
+- Expect roughly $0.01–0.03 per check (one search call + one Kimi call). Cheap enough to run this as the default for Starter tier, saving real Perplexity/Anthropic/OpenAI calls for Growth+ tiers.
+- Wrap both the search call and the Kimi call in try/catch; if either fails, mark the check as `status: 'failed'` rather than silently storing a false negative (a failed check should never be recorded as "not cited").
+- Log the raw Tavily/Exa response and the raw Kimi answer for the first ~50 checks in production so you can manually spot-check accuracy before trusting it at scale.
+
+-----------
+
+tavily api key: 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
+tavily docs: https://docs.tavily.com/

@@ -1,0 +1,23 @@
+Build these 3 new features:
+
+1. AI Crawlability & Bot Access Audit
+
+Checks whether GPTBot, ClaudeBot, PerplexityBot, Google-Extended, and standard crawlers can actually reach the site — robots.txt rules, meta robots tags, JS-rendering issues that block content extraction. Pure HTTP/Firecrawl checks, zero LLM cost, ships fastest of everything on this list. Directly answers "can AI even see my site," which is a prerequisite question ahead of citation tracking anyway.
+
+2. Brand Mention & Backlink Discovery (via Exa)
+
+Exa's neural search is well-suited to "who is talking about or linking to this brand across the web" — not an AI-engine citation check, but a genuine authority/visibility signal that's a reasonable proxy while the real thing is paused. Surfaces unlinked mentions (good outreach targets) and existing backlinks. This is close to a legitimate substitute data source for what Source Intelligence needed.
+
+3. Content Gap Finder (via Tavily/Exa, not LLM-answer-based)
+
+Instead of asking an LLM to answer a prompt and checking citations, compare what actually ranks in search results for target queries against the user's own content coverage. Tavily/Exa search results are the input, no answer-generation step needed — same underlying idea as competitor content-gap analysis, but as its own lightweight standalone feature you can ship without waiting on the full Competitor Analysis build. 
+
+Use these resources:
+1. EXA API KEY: 338b08b8-1f3a-4b20-9e2c-4260e42dbbd7
+2. EXA search api docs: https://exa.ai/docs/reference/search-api-guide-for-coding-agents
+3. EXA contents api docs: https://exa.ai/docs/reference/contents-api-guide-for-coding-agents
+4. EXA Websets api docs: https://exa.ai/docs/websets/api-guide-for-coding-agents
+5. Firecrawl docs(if this is relevant): https://docs.firecrawl.dev/introduction#scrape
+
+* Use whichever EXA api is best and relevant.
+* Connect supabase properly without any errors. 

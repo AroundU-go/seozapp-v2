@@ -1,0 +1,116 @@
+import { Html, Head, Main, NextScript } from 'next/document';
+
+export default function Document() {
+  return (
+    <Html lang="en">
+      <Head>
+        {/* Google tag (gtag.js) */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-TWFT8MWFHJ"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', 'G-TWFT8MWFHJ');
+            `
+          }}
+        />
+        <link rel="icon" type="image/jpeg" href="/seozapp-logo.jpeg" />
+        <link rel="shortcut icon" href="/seozapp-logo.jpeg" />
+        <link rel="apple-touch-icon" href="/seozapp-logo.jpeg" />
+        
+        <meta name="description"
+          content="SEOzapp analyzes 25+ on-page SEO factors instantly. Get AI readiness scores, keyword insights, backlink analysis, and a prioritized fix action plan — all in one click." />
+        <meta name="theme-color" content="#75DDFF" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://seozapp.com/" />
+        <meta property="og:title" content="SEOzapp: Full stack SEO Audit Tool" />
+        <meta property="og:description"
+          content="Analyze 20+ on-page SEO factors instantly. AI readiness scores, keyword insights, backlink analysis, and a prioritized fix action plan — all in one click." />
+        <meta property="og:site_name" content="SEOzapp" />
+        <meta property="og:image" content="https://seozapp.com/favicon.jpg" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@ItsUddipan" />
+        <meta name="twitter:title" content="SEOzapp: Full stack SEO Audit Tool" />
+        <meta name="twitter:description"
+          content="Analyze 25+ on-page SEO factors instantly. AI readiness scores, keyword insights, backlink analysis, and a prioritized fix action plan." />
+        <meta name="twitter:image" content="https://seozapp.com/favicon.jpg" />
+
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "name": "SEOzapp",
+                  "url": "https://seozapp.com",
+                  "logo": "https://seozapp.com/favicon.jpg",
+                  "sameAs": ["https://x.com/ItsUddipan"]
+                },
+                {
+                  "@type": "WebSite",
+                  "name": "SEOzapp",
+                  "url": "https://seozapp.com",
+                  "description": "One-click SEO audit tool with AI readiness scoring, keyword insights, and backlink analysis.",
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://seozapp.com/analyze?url={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                  }
+                },
+                {
+                  "@type": "WebApplication",
+                  "name": "SEOzapp",
+                  "url": "https://seozapp.com",
+                  "applicationCategory": "SEO Tool",
+                  "operatingSystem": "All",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD",
+                    "description": "1 free SEO audit included"
+                  }
+                }
+              ]
+            })
+          }}
+        />
+
+        {/* PostHog Analytics */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group identify setPersonProperties setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags resetGroups onFeatureFlags addFeatureFlagsHandler onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+              posthog.init('phc_qNOO1WW9JAyG9KcoNZHsO8wcjx278fcvq8g8h1eRT05',{api_host:'https://us.i.posthog.com',defaults:'2026-01-30'})
+            `
+          }}
+        />
+
+        <meta name="google-site-verification" content="uBshYfQXK7hscynxU-zz5T1gn8UKwkH4CYno4lrX2O4" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;430;450;480;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      </Head>
+      <body className="antialiased font-sans text-foreground bg-background">
+        <script dangerouslySetInnerHTML={{ __html: `
+          const savedTheme = localStorage.getItem('theme');
+          if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          }
+        `}} />
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  );
+}

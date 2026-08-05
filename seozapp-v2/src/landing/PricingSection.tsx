@@ -1,0 +1,194 @@
+import { Check, Sparkles, Building2, Zap, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
+
+interface FeatureLogo {
+  src?: string;
+  alt: string;
+  text?: string;
+}
+
+interface PricingFeatureItem {
+  text: string;
+  logos?: FeatureLogo[];
+}
+
+interface PricingTier {
+  name: string;
+  price: string;
+  period?: string;
+  description: string;
+  quota: string;
+  features: (string | PricingFeatureItem)[];
+  highlight?: boolean;
+  badge?: string;
+  cta: string;
+}
+
+const v2Tiers: PricingTier[] = [
+  {
+    name: 'Starter',
+    price: '$49',
+    period: '/month',
+    description: 'For solopreneurs, small SaaS, and marketers tracking core AI search visibility.',
+    quota: '2 domains & 3 competitors',
+    features: [
+      '2 domains + 3 competitors',
+      {
+        text: 'AI citation engine',
+        logos: [
+          { src: '/icon2.png', alt: 'ChatGPT' },
+          { src: '/icon4.png', alt: 'Gemini' },
+        ],
+      },
+      '25 prompts',
+      'Competitor intelligence (3 competitors)',
+      'Unlimited technical SEO audits',
+      'GEO (Generative Engine Optimization)',
+      'AI Crawlability and bot access audit',
+    ],
+    cta: 'Get started free',
+  },
+  {
+    name: 'Pro',
+    price: '$99',
+    period: '/month',
+    description: 'For growing SEO agencies & teams dominating AI search across competitor landscapes.',
+    quota: '5 domains & 5 competitors',
+    features: [
+      '5 domains + 5 competitors',
+      {
+        text: 'Prompt Monitoring',
+        logos: [
+          { src: '/icon2.png', alt: 'ChatGPT' },
+          { src: '/icon3.png', alt: 'Perplexity' },
+          { src: '/icon1.png', alt: 'Claude' },
+          { src: '/icon4.png', alt: 'Gemini' },
+          { text: '𝕏', alt: 'Grok' },
+        ],
+      },
+      'Region based tracking',
+      'Brand mention and Competitor intelligence',
+    ],
+    highlight: true,
+    badge: 'Most Popular',
+    cta: 'Get started free',
+  },
+  {
+    name: 'Enterprise / Scale',
+    price: '$249',
+    period: '/month',
+    description: 'For large agencies & enterprise brands requiring unlimited tracking scope.',
+    quota: 'Unlimited domains + competitors',
+    features: [
+      'Unlimited domains + Competitors',
+      'White label PDF export',
+      'Weekly crawl updates',
+      'Everything in Pro but unlimited',
+    ],
+    cta: 'Contact Sales ($249)',
+  },
+];
+
+export function PricingSection() {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  return (
+    <section id="pricing" className="py-24 px-6 bg-[#fafafb] relative border-t border-[#17191c]/10">
+      <div className="max-w-[1200px] mx-auto text-[#17191c]">
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <span className="text-xs font-semibold text-[#5d2a1a] bg-[#fbe1d1] px-3 py-1 rounded-full uppercase tracking-wider">
+            Predictable SaaS Pricing
+          </span>
+          <h2 className="font-signifier font-normal text-4xl sm:text-5xl tracking-tight">
+            Transparent plans for modern AI Search &amp; SEO teams
+          </h2>
+          <p className="text-[#777b86] text-lg font-normal">
+            No surprise credits. Scale your AI search citation frequency and competitor benchmark coverage.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {v2Tiers.map((tier) => (
+            <div
+              key={tier.name}
+              className={`rounded-3xl p-8 transition-all flex flex-col justify-between relative ${
+                tier.highlight
+                  ? 'bg-[#17191c] text-[#ffffff] shadow-xl border-2 border-[#17191c] scale-105'
+                  : 'bg-[#ffffff] text-[#17191c] border border-[#17191c]/10 shadow-sm hover:border-[#17191c]/30'
+              }`}
+            >
+              {tier.badge && (
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#5d2a1a] text-[#ffffff] text-[11px] font-bold px-3 py-0.5 rounded-full uppercase">
+                  {tier.badge}
+                </span>
+              )}
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold">{tier.name}</h3>
+                  <p className={`text-xs mt-1 leading-relaxed ${tier.highlight ? 'text-white/70' : 'text-[#777b86]'}`}>
+                    {tier.description}
+                  </p>
+                </div>
+
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold">{tier.price}</span>
+                  <span className={`text-sm ${tier.highlight ? 'text-white/70' : 'text-[#777b86]'}`}>
+                    {tier.period}
+                  </span>
+                </div>
+
+                <div className={`text-xs font-medium py-1.5 px-3 rounded-lg inline-block ${tier.highlight ? 'bg-white/10 text-white' : 'bg-[#fafafb] text-[#17191c] border border-[#17191c]/10'}`}>
+                  {tier.quota}
+                </div>
+
+                <ul className="space-y-3 text-xs pt-4 border-t border-[#17191c]/10">
+                  {tier.features.map((feature, i) => {
+                    const isObj = typeof feature !== 'string';
+                    const text = isObj ? feature.text : feature;
+                    const logos = isObj ? feature.logos : undefined;
+
+                    return (
+                      <li key={i} className="flex items-center gap-2.5">
+                        <Check className={`w-4 h-4 flex-shrink-0 ${tier.highlight ? 'text-[#fbe1d1]' : 'text-[#17191c]'}`} />
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span>{text}</span>
+                          {logos && (
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border ${tier.highlight ? 'bg-white/10 border-white/20' : 'bg-[#17191c]/5 border-[#17191c]/10'}`}>
+                              {logos.map((logo, idx) => (
+                                logo.src ? (
+                                  <img key={idx} src={logo.src} alt={logo.alt} className="w-3.5 h-3.5 object-contain rounded-full bg-white p-0.5" />
+                                ) : (
+                                  <span key={idx} className={`text-[10px] font-bold px-0.5 leading-none ${tier.highlight ? 'text-white' : 'text-[#17191c]'}`}>{logo.text}</span>
+                                )
+                              ))}
+                            </span>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+
+              <button
+                onClick={() => setShowOnboarding(true)}
+                className={`w-full rounded-xl py-3 text-sm font-medium transition-all mt-8 ${
+                  tier.highlight
+                    ? 'bg-[#ffffff] text-[#17191c] hover:bg-[#fafafb]'
+                    : 'bg-[#17191c] text-[#ffffff] hover:bg-[#17191c]/90'
+                }`}
+              >
+                {tier.cta}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Onboarding Modal Trigger */}
+      <OnboardingModal isOpen={showOnboarding} onClose={() => setShowOnboarding(false)} />
+    </section>
+  );
+}
