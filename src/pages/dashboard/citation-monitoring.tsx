@@ -216,7 +216,14 @@ export default function CitationMonitoringPage() {
         }),
       });
 
-      const data = await res.json();
+      const rawText = await res.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        setErrorMsg(`Server returned non-JSON response (${res.status}): ${rawText.slice(0, 100)}`);
+        return;
+      }
 
       if (!res.ok || data.error) {
         setErrorMsg(data.error || `HTTP ${res.status}`);

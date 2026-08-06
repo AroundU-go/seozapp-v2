@@ -59,7 +59,14 @@ export async function queryDataForSeoLlm(
       return await fallbackProxy(engineId, prompt, brandName, competitors);
     }
 
-    const json = await response.json();
+    const rawText = await response.text();
+    let json: any;
+    try {
+      json = JSON.parse(rawText);
+    } catch {
+      console.warn(`[DataForSEO] Non-JSON response for ${engineId} ("${rawText.slice(0, 100)}"), using fallback proxy`);
+      return await fallbackProxy(engineId, prompt, brandName, competitors);
+    }
     const task = json.tasks?.[0];
 
     if (!task || task.status_code !== 20000 || !task.result?.[0]) {
