@@ -97,7 +97,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
     { name: 'SEO Tracking', href: '/dashboard/seo-tracking', icon: BarChart3 },
     { name: 'Prompt Monitoring', href: '/dashboard/citation-monitoring', icon: TrendingUp },
-    { name: 'Bulk AI Readiness', href: '/dashboard/bulk-crawl', icon: Layers },
     { name: 'Competitor Intelligence', href: '/dashboard/competitors', icon: Users },
     { name: 'AI Citation', href: '/dashboard/aeo', icon: Sparkles, highlight: true },
     { name: 'Source Intelligence', href: '/dashboard/source-intelligence', icon: Share2 },
