@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   BarChart3,
   TrendingUp,
-  Layers,
   Users,
   Globe,
   Sparkles,
@@ -15,9 +14,20 @@ import {
   Bot,
   Link2,
   Target,
+  Plus,
+  ChevronDown,
+  Check,
+  Lock,
+  X,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PostAuthSetupModal } from '@/components/dashboard/PostAuthSetupModal';
+import { PricingModal } from '@/components/pricing/PricingModal';
+
+export interface TrackedSite {
+  domain: string;
+  competitor: string;
+}
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -32,6 +42,17 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const { user, signOut, isAdmin, paymentType } = useAuth();
   const [displayDomain, setDisplayDomain] = useState(activeDomain);
   const [showSetupModal, setShowSetupModal] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+
+  // Multi-domain management according to pricing tiers ($49 Starter: 2 sites, $99 Pro: 5 sites)
+  const maxSites = (isAdmin || paymentType === 'enterprise') ? 999 : (paymentType === 'pro' ? 5 : 2);
+  const [sites, setSites] = useState<TrackedSite[]>([]);
+  const [activeSiteIndex, setActiveSiteIndex] = useState<number>(0);
+  const [showAddSiteModal, setShowAddSiteModal] = useState<boolean>(false);
+  const [newDomain, setNewDomain] = useState<string>('');
+  const [newCompetitor, setNewCompetitor] = useState<string>('');
+  const [addError, setAddError] = useState<string | null>(null);
+  const [showDomainDropdown, setShowDomainDropdown] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -41,8 +62,87 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       } else if (activeDomain && activeDomain !== 'acme-software.com') {
         setDisplayDomain(activeDomain);
       }
+
+      // Load tracked sites list
+      const rawSites = localStorage.getItem('user_tracked_sites');
+      if (rawSites) {
+        try {
+          const parsed = JSON.parse(rawSites);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setSites(parsed);
+            const activeDom = storedDomain || activeDomain;
+            const idx = parsed.findIndex((s: TrackedSite) => s.domain.toLowerCase() === activeDom?.toLowerCase());
+            if (idx !== -1) setActiveSiteIndex(idx);
+            return;
+          }
+        } catch (e) {}
+      }
+
+      // Initial fallback list if empty
+      const initDom = storedDomain || activeDomain || 'acme-software.com';
+      const initComp = localStorage.getItem('tracked_competitor') || '';
+      const initialSites = [{ domain: initDom, competitor: initComp }];
+      setSites(initialSites);
+      localStorage.setItem('user_tracked_sites', JSON.stringify(initialSites));
     }
   }, [activeDomain]);
+
+  const handleSelectSite = (index: number) => {
+    setActiveSiteIndex(index);
+    const site = sites[index];
+    if (site) {
+      setDisplayDomain(site.domain);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('tracked_domain', site.domain);
+        if (site.competitor) {
+          localStorage.setItem('tracked_competitor', site.competitor);
+        } else {
+          localStorage.removeItem('tracked_competitor');
+        }
+      }
+    }
+    setShowDomainDropdown(false);
+  };
+
+  const handleAddSite = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddError(null);
+
+    const cleanDom = newDomain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const cleanComp = newCompetitor.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+    if (!cleanDom) {
+      setAddError('Please enter a valid site domain.');
+      return;
+    }
+
+    if (sites.length >= maxSites) {
+      setAddError(`Your plan allows a maximum of ${maxSites} sites (1 competitor per site). Upgrade your plan to add more sites.`);
+      return;
+    }
+
+    if (sites.some((s) => s.domain.toLowerCase() === cleanDom)) {
+      setAddError('This site domain is already in your domain list.');
+      return;
+    }
+
+    const updatedSites = [...sites, { domain: cleanDom, competitor: cleanComp }];
+    setSites(updatedSites);
+    setActiveSiteIndex(updatedSites.length - 1);
+    setDisplayDomain(cleanDom);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user_tracked_sites', JSON.stringify(updatedSites));
+      localStorage.setItem('tracked_domain', cleanDom);
+      if (cleanComp) {
+        localStorage.setItem('tracked_competitor', cleanComp);
+      }
+    }
+
+    setNewDomain('');
+    setNewCompetitor('');
+    setShowAddSiteModal(false);
+  };
 
   // Check if logged-in user needs post-auth brand/website setup modal
   useEffect(() => {
@@ -66,7 +166,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             localStorage.setItem(userKey, 'true');
           }
         } else if (data.success && data.workspace) {
-          // Workspace exists for user -> existing user, do not show setup modal
           const domain = data.workspace.name ? `${data.workspace.name.toLowerCase().replace(/\s+/g, '')}.com` : 'acme-software.com';
           setDisplayDomain(domain);
           if (typeof window !== 'undefined') {
@@ -74,14 +173,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             localStorage.setItem(userKey, 'true');
           }
         } else {
-          // If existing user with any historical activity, do not show setup modal
           const hasExistingActivity = isAdmin || paymentType === 'pro' || paymentType === 'enterprise';
           if (hasExistingActivity) {
             if (typeof window !== 'undefined') {
               localStorage.setItem(userKey, 'true');
             }
           } else {
-            // New user without workspace or activity -> Show setup modal once
             setShowSetupModal(true);
           }
         }
@@ -120,9 +217,86 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   return (
     <div className="min-h-screen bg-[#fafafb] text-[#17191c] font-sohne flex">
-      {/* Post Auth Setup Modal if domain missing */}
+      {/* Post Auth Setup Modal */}
       {showSetupModal && (
         <PostAuthSetupModal onComplete={handleSetupComplete} />
+      )}
+
+      {/* Pricing Upgrade Modal */}
+      {showPricingModal && (
+        <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} />
+      )}
+
+      {/* Modal to Add New Site Domain + 1 Competitor */}
+      {showAddSiteModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-[#17191c]/15 shadow-2xl max-w-md w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-[#17191c]/10 pb-3">
+              <div>
+                <h3 className="text-lg font-bold text-[#17191c]">Add Site to Your Domains</h3>
+                <p className="text-xs text-[#777b86] mt-0.5">
+                  Your plan allows {maxSites} site{maxSites > 1 ? 's' : ''} (1 competitor per site).
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAddSiteModal(false)}
+                className="text-[#777b86] hover:text-[#17191c] p-1 rounded-lg hover:bg-[#fafafb]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddSite} className="space-y-4">
+              {addError && (
+                <div className="p-3 bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-xl text-xs text-[#ef4444] font-medium">
+                  {addError}
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-[#17191c]">Site Domain *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. mybrand.com"
+                  value={newDomain}
+                  onChange={(e) => setNewDomain(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-[#fafafb] border border-[#17191c]/15 rounded-xl text-sm text-[#17191c] focus:outline-none focus:border-[#17191c]"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-[#17191c]">Corresponding Competitor (1 Allowed)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. rivaldomain.com"
+                  value={newCompetitor}
+                  onChange={(e) => setNewCompetitor(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-[#fafafb] border border-[#17191c]/15 rounded-xl text-sm text-[#17191c] focus:outline-none focus:border-[#17191c]"
+                />
+                <p className="text-[11px] text-[#777b86]">
+                  Mapped 1:1 with your site for competitor intelligence benchmarking.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddSiteModal(false)}
+                  className="px-4 py-2 text-xs font-medium text-[#777b86] hover:text-[#17191c]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-[#17191c] text-white rounded-xl text-xs font-semibold hover:bg-[#17191c]/90 transition-all shadow-sm"
+                >
+                  Add Site ({sites.length + 1}/{maxSites})
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* Vertical Left Sidebar Panel */}
@@ -171,15 +345,91 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </nav>
         </div>
 
-        {/* Sidebar Bottom / Active Domain + User Account Section */}
+        {/* Sidebar Bottom / Your Domains + User Account Section */}
         <div className="pt-5 border-t border-[#17191c]/10 space-y-4">
-          {/* Active Domain Info */}
-          <div className="bg-[#fafafb] border border-[#17191c]/10 rounded-xl p-2.5 flex items-center gap-2.5 text-[13px]">
-            <Globe className="w-4 h-4 text-[#777b86] flex-shrink-0" />
-            <div className="truncate">
-              <div className="text-[10px] text-[#979799] uppercase font-normal">Tracked Domain</div>
-              <div className="text-[#17191c] font-semibold truncate">{displayDomain}</div>
+          {/* Your Domains Section */}
+          <div className="bg-[#fafafb] border border-[#17191c]/10 rounded-xl p-3 relative">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] text-[#979799] uppercase font-bold tracking-wider">
+                Your Domains ({sites.length}/{maxSites})
+              </span>
+              {sites.length < maxSites ? (
+                <button
+                  onClick={() => {
+                    setAddError(null);
+                    setShowAddSiteModal(true);
+                  }}
+                  className="text-[10px] font-semibold text-[#5d2a1a] bg-[#fbe1d1] hover:bg-[#5d2a1a] hover:text-white px-2 py-0.5 rounded-md transition-colors flex items-center gap-0.5"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Add</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowPricingModal(true)}
+                  className="text-[10px] font-semibold text-[#777b86] hover:text-[#17191c] flex items-center gap-1"
+                >
+                  <Lock className="w-3 h-3 text-[#777b86]" />
+                  <span>Max ({maxSites})</span>
+                </button>
+              )}
             </div>
+
+            {/* Active Domain Selector */}
+            <button
+              onClick={() => setShowDomainDropdown(!showDomainDropdown)}
+              className="w-full bg-white border border-[#17191c]/10 hover:border-[#17191c]/30 rounded-lg p-2 flex items-center justify-between text-left transition-all shadow-2xs"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <Globe className="w-4 h-4 text-[#17191c] flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="text-[12px] font-semibold text-[#17191c] truncate">
+                    {sites[activeSiteIndex]?.domain || displayDomain}
+                  </div>
+                  <div className="text-[10px] text-[#777b86] truncate">
+                    {sites[activeSiteIndex]?.competitor ? `Competitor: ${sites[activeSiteIndex].competitor}` : '1 competitor allowed'}
+                  </div>
+                </div>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-[#777b86] flex-shrink-0 ml-1" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {showDomainDropdown && (
+              <div className="absolute left-0 right-0 bottom-full mb-1 bg-white border border-[#17191c]/15 rounded-xl shadow-lg z-50 p-1.5 space-y-1">
+                {sites.map((site, i) => (
+                  <button
+                    key={site.domain}
+                    onClick={() => handleSelectSite(i)}
+                    className={`w-full text-left p-2 rounded-lg text-xs flex items-center justify-between transition-colors ${
+                      i === activeSiteIndex ? 'bg-[#17191c] text-white font-medium' : 'hover:bg-[#fafafb] text-[#17191c]'
+                    }`}
+                  >
+                    <div className="truncate pr-1">
+                      <div className="font-semibold truncate">{site.domain}</div>
+                      <div className={`text-[10px] truncate ${i === activeSiteIndex ? 'text-white/70' : 'text-[#777b86]'}`}>
+                        {site.competitor ? `Competitor: ${site.competitor}` : 'No competitor set'}
+                      </div>
+                    </div>
+                    {i === activeSiteIndex && <Check className="w-3.5 h-3.5 text-[#fbe1d1] flex-shrink-0" />}
+                  </button>
+                ))}
+
+                {sites.length < maxSites && (
+                  <button
+                    onClick={() => {
+                      setShowDomainDropdown(false);
+                      setAddError(null);
+                      setShowAddSiteModal(true);
+                    }}
+                    className="w-full text-left p-2 rounded-lg text-xs font-semibold text-[#5d2a1a] bg-[#fbe1d1]/50 hover:bg-[#fbe1d1] flex items-center gap-1.5 transition-colors mt-1 border-t border-[#17191c]/5"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add New Site ({sites.length}/{maxSites})</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Account Profile & Sign Out Section */}
@@ -194,7 +444,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 </div>
                 <div className="text-[10px] text-[#5d2a1a] font-medium truncate flex items-center gap-1">
                   {isAdmin && <ShieldCheck className="w-3 h-3 text-[#5d2a1a] inline" />}
-                  <span>{isAdmin ? 'Super Admin (Unlimited)' : paymentType || 'Starter Plan'}</span>
+                  <span>{isAdmin ? 'Super Admin (Unlimited)' : paymentType || 'Starter Plan ($49/mo)'}</span>
                 </div>
               </div>
             </div>
