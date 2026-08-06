@@ -11,11 +11,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       let query = supabaseV2Admin
         .from(V2_TABLES.PROMPT_RUNS)
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('run_at', { ascending: false })
         .limit(100);
 
-      if (userEmail) {
-        query = query.eq('user_email', userEmail);
+      if (userEmail && brandName) {
+        query = query.or(`user_email.ilike.${userEmail},brand_name.ilike.%${brandName}%`);
+      } else if (userEmail) {
+        query = query.ilike('user_email', userEmail);
       } else if (brandName) {
         query = query.ilike('brand_name', `%${brandName}%`);
       }
@@ -24,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (error) throw error;
       return res.status(200).json({ success: true, runs: data || [] });
     } catch (err: any) {
-      console.warn('GET prompt-runs error (returning empty array):', err.message);
+      console.warn('GET prompt-runs error:', err.message);
       return res.status(200).json({ success: true, runs: [] });
     }
   }
@@ -55,11 +57,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       for (const singlePrompt of promptList) {
         for (const engineId of targetEngines) {
-          // Exclusively execute via Apify Actor
           const resItem = await runApifyLlmPrompt(engineId, singlePrompt, brandName.trim(), competitors);
 
           const citedUrls = (resItem.citedSources || []).map((s: any) => s.url);
           const snippet = (resItem.rawAnswer || '').slice(0, 500);
+          const nowIso = new Date().toISOString();
 
           const runItem = {
             id: `pr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
@@ -75,7 +77,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             isLiveSearch: true,
             providerType: 'apify',
             competitorsMentioned: resItem.competitorsMentioned || [],
-            createdAt: new Date().toISOString(),
+            createdAt: nowIso,
+            runAt: nowIso,
           };
 
           // Save to Supabase
@@ -90,6 +93,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               position: runItem.position,
               sentiment: runItem.sentiment,
               response_snippet: snippet,
+              run_at: nowIso,
             });
           } catch (dbErr: any) {
             console.warn('Supabase prompt_run insert failed (non-blocking):', dbErr.message);

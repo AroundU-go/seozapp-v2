@@ -127,19 +127,22 @@ export default function CitationMonitoringPage() {
         const res = await fetch(`/api/v2/prompt-monitor?${queryStr}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.runs) && data.runs.length > 0) {
-          const dbResults: PromptResult[] = data.runs.map((r: any) => ({
-            id: r.id || `pr_${r.created_at}`,
-            prompt: r.prompt_text,
-            brandName: r.brand_name,
-            engineId: (r.llm_provider as AiEngineId) || 'chatgpt',
-            region: (r.region as RegionCode) || 'US',
-            cited: r.cited,
-            position: r.position || (r.cited ? 'Cited' : 'Uncited'),
-            sentiment: r.sentiment || 'neutral',
-            responseSnippet: r.response_snippet || '',
-            lastRun: r.created_at ? new Date(r.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'Saved',
-            createdAt: r.created_at,
-          }));
+          const dbResults: PromptResult[] = data.runs.map((r: any) => {
+            const ts = r.run_at || r.created_at;
+            return {
+              id: r.id || `pr_${ts}`,
+              prompt: r.prompt_text,
+              brandName: r.brand_name,
+              engineId: (r.llm_provider as AiEngineId) || 'chatgpt',
+              region: (r.region as RegionCode) || 'US',
+              cited: r.cited,
+              position: r.position || (r.cited ? 'Cited' : 'Uncited'),
+              sentiment: r.sentiment || 'neutral',
+              responseSnippet: r.response_snippet || '',
+              lastRun: ts ? new Date(ts).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'Saved',
+              createdAt: ts || new Date().toISOString(),
+            };
+          });
 
           setPromptResults((prev) => {
             const existingIds = new Set(prev.map((p) => p.id));
