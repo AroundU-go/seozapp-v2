@@ -54,13 +54,17 @@ export default function CitationMonitoringPage() {
   const fetchHistory = async () => {
     setLoadingHistory(true);
     try {
-      const res = await fetch(`/api/v2/prompt-monitor?userEmail=${encodeURIComponent(user?.email || '')}`);
+      const emailParam = user?.email ? `userEmail=${encodeURIComponent(user.email)}` : '';
+      const brandParam = brandName ? `brandName=${encodeURIComponent(brandName)}` : '';
+      const queryStr = [emailParam, brandParam].filter(Boolean).join('&');
+
+      const res = await fetch(`/api/v2/prompt-monitor?${queryStr}`);
       const data = await res.json();
       if (data.success && data.runs) {
         const formatted = data.runs.map((item: any) => ({
-          id: item.id,
+          id: item.id || `pr_${item.created_at}`,
           title: item.prompt_text || item.brand_name,
-          subtitle: `Brand: ${item.brand_name || 'N/A'} • Provider: ${item.llm_provider || 'proxy'}`,
+          subtitle: `Brand: ${item.brand_name || 'N/A'} • Provider: ${item.llm_provider || 'Apify/Proxy'}`,
           timestamp: item.run_at || item.created_at || new Date().toISOString(),
           badge: item.cited ? 'Cited' : 'Uncited',
           data: item,
@@ -112,16 +116,19 @@ export default function CitationMonitoringPage() {
     }
   }, []);
 
-  // Fetch Supabase prompt history when user is available
+  // Fetch Supabase prompt history on load
   useEffect(() => {
     async function loadHistory() {
-      if (!user?.email) return;
       try {
-        const res = await fetch(`/api/v2/prompt-monitor?userEmail=${encodeURIComponent(user.email)}`);
+        const emailParam = user?.email ? `userEmail=${encodeURIComponent(user.email)}` : '';
+        const brandParam = brandName ? `brandName=${encodeURIComponent(brandName)}` : '';
+        const queryStr = [emailParam, brandParam].filter(Boolean).join('&');
+
+        const res = await fetch(`/api/v2/prompt-monitor?${queryStr}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.runs) && data.runs.length > 0) {
           const dbResults: PromptResult[] = data.runs.map((r: any) => ({
-            id: r.id,
+            id: r.id || `pr_${r.created_at}`,
             prompt: r.prompt_text,
             brandName: r.brand_name,
             engineId: (r.llm_provider as AiEngineId) || 'chatgpt',
@@ -135,7 +142,6 @@ export default function CitationMonitoringPage() {
           }));
 
           setPromptResults((prev) => {
-            // Merge & deduplicate by prompt + brandName + date
             const existingIds = new Set(prev.map((p) => p.id));
             const newItems = dbResults.filter((item) => !existingIds.has(item.id));
             const merged = [...newItems, ...prev];
@@ -151,7 +157,7 @@ export default function CitationMonitoringPage() {
     }
 
     loadHistory();
-  }, [user]);
+  }, [user, brandName]);
 
   const handleToggleEngine = (id: AiEngineId) => {
     setSelectedEngines((prev) =>

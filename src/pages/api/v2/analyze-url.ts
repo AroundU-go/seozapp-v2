@@ -8,10 +8,13 @@ import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const userEmail = (req.query.userEmail as string || '').toLowerCase().trim();
+    const domain = (req.query.domain as string || '').toLowerCase().trim();
     try {
-      let query = supabaseV2Admin.from(V2_TABLES.SEO_SNAPSHOTS).select('*').order('scraped_at', { ascending: false }).limit(20);
+      let query = supabaseV2Admin.from(V2_TABLES.SEO_SNAPSHOTS).select('*').order('scraped_at', { ascending: false }).limit(50);
       if (userEmail) {
         query = query.eq('user_email', userEmail);
+      } else if (domain) {
+        query = query.ilike('domain', `%${domain}%`);
       }
       const { data, error } = await query;
       if (error) throw error;

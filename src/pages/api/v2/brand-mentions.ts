@@ -22,17 +22,20 @@ export interface ProcessedMention {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const userEmail = (req.query.userEmail as string || '').toLowerCase().trim();
+    const brandName = (req.query.brandName as string || '').toLowerCase().trim();
     try {
-      let query = supabaseV2Admin.from(V2_TABLES.BRAND_MENTIONS).select('*').order('created_at', { ascending: false }).limit(20);
+      let query = supabaseV2Admin.from(V2_TABLES.BRAND_MENTIONS).select('*').order('created_at', { ascending: false }).limit(50);
       if (userEmail) {
         query = query.eq('user_email', userEmail);
+      } else if (brandName) {
+        query = query.ilike('brand_name', `%${brandName}%`);
       }
       const { data, error } = await query;
       if (error) throw error;
-      return res.status(200).json({ success: true, records: data || [] });
+      return res.status(200).json({ success: true, mentions: data || [] });
     } catch (err: any) {
       console.warn('GET brand-mentions error (returning empty):', err.message);
-      return res.status(200).json({ success: true, records: [] });
+      return res.status(200).json({ success: true, mentions: [] });
     }
   }
 

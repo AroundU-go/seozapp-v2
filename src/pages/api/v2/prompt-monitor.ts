@@ -1,15 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { runApifyLlmPrompt } from '@/lib/providers/apifyClient';
 import { queryDataForSeoLlm } from '@/lib/providers/dataForSeoClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const userEmail = (req.query.userEmail as string || '').toLowerCase().trim();
+    const brandName = (req.query.brandName as string || '').toLowerCase().trim();
+
     try {
-      let query = supabaseV2Admin.from(V2_TABLES.PROMPT_RUNS).select('*').order('created_at', { ascending: false }).limit(50);
+      let query = supabaseV2Admin
+        .from(V2_TABLES.PROMPT_RUNS)
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
       if (userEmail) {
         query = query.eq('user_email', userEmail);
+      } else if (brandName) {
+        query = query.ilike('brand_name', `%${brandName}%`);
       }
+
       const { data, error } = await query;
       if (error) throw error;
       return res.status(200).json({ success: true, runs: data || [] });
@@ -22,7 +33,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     const { promptText, prompts, brandName, userEmail, region = 'US', competitors = [], engines = [] } = req.body;
 
-    // Collect list of prompt texts
     const promptList: string[] = [];
     if (Array.isArray(prompts)) {
       prompts.forEach((p: string) => {
@@ -37,7 +47,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'At least one prompt and brandName are required' });
     }
 
-    // Determine target engines (default to chatgpt, perplexity, claude, gemini if none supplied)
     const targetEngines: string[] = Array.isArray(engines) && engines.length > 0 
       ? engines 
       : ['chatgpt', 'perplexity', 'claude', 'gemini'];
@@ -47,10 +56,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       for (const singlePrompt of promptList) {
         for (const engineId of targetEngines) {
-          const resItem = await queryDataForSeoLlm(engineId, singlePrompt, brandName.trim(), region, competitors);
+          let resItem: any;
+          let providerType = 'apify';
 
-          const citedUrls = resItem.citedSources.map((s) => s.url);
-          const snippet = resItem.rawAnswer.slice(0, 500);
+          // Attempt Apify Actor call first
+          try {
+            resItem = await runApifyLlmPrompt(engineId, singlePrompt, brandName.trim(), competitors);
+          } catch (apifyErr: any) {
+            console.warn(`[PromptMonitor] Apify failed for ${engineId}, falling back to DataForSEO/Proxy:`, apifyErr.message);
+            resItem = await queryDataForSeoLlm(engineId, singlePrompt, brandName.trim(), region, competitors);
+            providerType = 'dataforseo';
+          }
+
+          const citedUrls = (resItem.citedSources || []).map((s: any) => s.url);
+          const snippet = (resItem.rawAnswer || '').slice(0, 500);
 
           const runItem = {
             id: `pr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
@@ -64,11 +83,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             responseSnippet: snippet,
             citedUrls,
             isLiveSearch: true,
-            competitorsMentioned: resItem.competitorsMentioned,
+            providerType,
+            competitorsMentioned: resItem.competitorsMentioned || [],
             createdAt: new Date().toISOString(),
           };
 
-          // Attempt non-blocking save to Supabase
+          // Save to Supabase
           try {
             await supabaseV2Admin.from(V2_TABLES.PROMPT_RUNS).insert({
               user_email: userEmail || null,

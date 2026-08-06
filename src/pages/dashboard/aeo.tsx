@@ -45,11 +45,16 @@ export default function AiCitationPage() {
   const fetchHistory = async () => {
     setLoadingHistory(true);
     try {
-      const res = await fetch(`/api/v2/aeo-audit?userEmail=${encodeURIComponent(user?.email || '')}`);
+      const cleanDomain = url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+      const emailParam = user?.email ? `userEmail=${encodeURIComponent(user.email)}` : '';
+      const domainParam = cleanDomain ? `domain=${encodeURIComponent(cleanDomain)}` : '';
+      const queryStr = [emailParam, domainParam].filter(Boolean).join('&');
+
+      const res = await fetch(`/api/v2/aeo-audit?${queryStr}`);
       const data = await res.json();
       if (data.success && data.audits) {
         const formatted = data.audits.map((item: any) => ({
-          id: item.id,
+          id: item.id || `aeo_${item.created_at}`,
           title: item.domain || item.url,
           subtitle: `Brand: ${item.brand_name || 'N/A'} • URL: ${item.url}`,
           timestamp: item.created_at || new Date().toISOString(),
@@ -103,9 +108,13 @@ export default function AiCitationPage() {
   // Load latest audit from Supabase DB
   useEffect(() => {
     async function loadDbAudit() {
-      if (!user?.email) return;
       try {
-        const res = await fetch(`/api/v2/aeo-audit?userEmail=${encodeURIComponent(user.email)}`);
+        const cleanDomain = url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+        const emailParam = user?.email ? `userEmail=${encodeURIComponent(user.email)}` : '';
+        const domainParam = cleanDomain ? `domain=${encodeURIComponent(cleanDomain)}` : '';
+        const queryStr = [emailParam, domainParam].filter(Boolean).join('&');
+
+        const res = await fetch(`/api/v2/aeo-audit?${queryStr}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.audits) && data.audits.length > 0) {
           const latestAudit = data.audits[0].audit_data;
@@ -122,7 +131,7 @@ export default function AiCitationPage() {
     }
 
     loadDbAudit();
-  }, [user]);
+  }, [user, url]);
 
   const handleToggleEngine = (id: AiEngineId) => {
     setSelectedEngines((prev) =>
