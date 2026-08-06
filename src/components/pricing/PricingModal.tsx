@@ -205,12 +205,12 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span>{text}</span>
                           {logos && (
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border ${tier.highlight ? 'bg-white/10 border-white/20' : 'bg-[#17191c]/5 border-[#17191c]/10'}`}>
+                            <span className="inline-flex items-center gap-1.5 ml-1">
                               {logos.map((logo, idx) => (
                                 logo.src ? (
-                                  <img key={idx} src={logo.src} alt={logo.alt} className="w-3.5 h-3.5 object-contain rounded-full bg-white p-0.5" />
+                                  <img key={idx} src={logo.src} alt={logo.alt} className="w-5 h-5 object-contain rounded-full shadow-2xs" />
                                 ) : (
-                                  <span key={idx} className={`text-[10px] font-bold px-0.5 leading-none ${tier.highlight ? 'text-white' : 'text-[#17191c]'}`}>{logo.text}</span>
+                                  <span key={idx} className={`text-[11px] font-bold px-0.5 leading-none ${tier.highlight ? 'text-white' : 'text-[#17191c]'}`}>{logo.text}</span>
                                 )
                               ))}
                             </span>
