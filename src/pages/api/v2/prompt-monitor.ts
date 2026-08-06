@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { runApifyLlmPrompt } from '@/lib/providers/apifyClient';
-import { queryDataForSeoLlm } from '@/lib/providers/dataForSeoClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -56,17 +55,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       for (const singlePrompt of promptList) {
         for (const engineId of targetEngines) {
-          let resItem: any;
-          let providerType = 'apify';
-
-          // Attempt Apify Actor call first
-          try {
-            resItem = await runApifyLlmPrompt(engineId, singlePrompt, brandName.trim(), competitors);
-          } catch (apifyErr: any) {
-            console.warn(`[PromptMonitor] Apify failed for ${engineId}, falling back to DataForSEO/Proxy:`, apifyErr.message);
-            resItem = await queryDataForSeoLlm(engineId, singlePrompt, brandName.trim(), region, competitors);
-            providerType = 'dataforseo';
-          }
+          // Exclusively execute via Apify Actor
+          const resItem = await runApifyLlmPrompt(engineId, singlePrompt, brandName.trim(), competitors);
 
           const citedUrls = (resItem.citedSources || []).map((s: any) => s.url);
           const snippet = (resItem.rawAnswer || '').slice(0, 500);
@@ -83,7 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             responseSnippet: snippet,
             citedUrls,
             isLiveSearch: true,
-            providerType,
+            providerType: 'apify',
             competitorsMentioned: resItem.competitorsMentioned || [],
             createdAt: new Date().toISOString(),
           };
@@ -114,8 +104,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         results,
       });
     } catch (err: any) {
-      console.error('v2 prompt-monitor POST error:', err);
-      return res.status(500).json({ error: err.message || 'Failed to run prompt monitoring' });
+      console.error('v2 prompt-monitor POST error (Apify):', err);
+      return res.status(500).json({ error: err.message || 'Failed to run prompt monitoring via Apify' });
     }
   }
 
