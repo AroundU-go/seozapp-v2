@@ -158,7 +158,13 @@ export default function SteepLandingPage() {
             </div>
 
             {/* CTAs Right */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/contact"
+                className="hidden sm:inline-flex text-[14px] font-medium text-[#17191c] hover:bg-[#fafafb] transition-colors border border-[#17191c]/20 px-4 py-2 rounded-full"
+              >
+                Book a demo
+              </Link>
               {user ? (
                 <button
                   onClick={() => router.push('/dashboard')}
@@ -250,6 +256,13 @@ export default function SteepLandingPage() {
                     Start free audit
                   </button>
                 )}
+                <Link
+                  href="/contact"
+                  className="bg-[#ffffff] text-[#17191c] border border-[#17191c]/20 hover:border-[#17191c] rounded-full px-8 py-3.5 text-[16px] font-normal transition-all w-full sm:w-auto inline-flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <span>Book a demo</span>
+                  <ArrowRight className="w-4 h-4 text-[#17191c]" />
+                </Link>
               </div>
             </div>
 
