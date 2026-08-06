@@ -47,7 +47,7 @@ const HERO_AI_ENGINES = [
   {
     name: 'AI Overviews',
     provider: 'Google AI',
-    icon: '/icon4.png',
+    icon: '/google-logo.png',
     textColor: 'text-[#ea4335]',
   },
 ];

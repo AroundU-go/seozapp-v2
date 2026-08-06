@@ -46,7 +46,7 @@ export const AI_ENGINES: Record<AiEngineId, AiEngineInfo> = {
     id: 'ai_overview',
     name: 'AI Overviews',
     provider: 'Google',
-    iconPath: '/icon4.png',
+    iconPath: '/google-logo.png',
     badgeBg: 'bg-[#ea4335]/10',
     badgeText: 'text-[#ea4335]',
   },

@@ -64,7 +64,7 @@ const v2Tiers: PricingTier[] = [
           { src: '/icon3.png', alt: 'Perplexity' },
           { src: '/icon1.png', alt: 'Claude' },
           { src: '/icon4.png', alt: 'Gemini' },
-          { src: '/icon4.png', alt: 'AI Overviews' },
+          { src: '/google-logo.png', alt: 'AI Overviews' },
         ],
       },
       'Region based tracking',
