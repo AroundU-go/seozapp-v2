@@ -147,7 +147,7 @@ Return strictly JSON array of objects:
           chatgpt: { score: Math.round(overallAeo * 0.95), status: 'Optimized', detail: 'Direct definition paragraph verified for Web Browsing' },
           perplexity: { score: Math.round(overallAeo * 0.9), status: 'Good', detail: 'Source citations & bulleted lists ready for answer cards' },
           anthropic: { score: Math.round(overallAeo * 0.98), status: 'Excellent', detail: 'Low fluff ratio & clean markdown structure for Claude context' },
-          grok: { score: Math.round(overallAeo * 0.88), status: 'Good', detail: 'Concise summary statement available for real-time indexing' },
+          ai_overview: { score: Math.round(overallAeo * 0.94), status: 'Optimized', detail: 'Google AI Overviews schema & SERP feature ready' },
           kimi: { score: Math.round(overallAeo * 0.96), status: 'Excellent', detail: 'FAQ schema & Q&A heading hierarchy validated' },
           gemini: { score: Math.round(overallAeo * 0.92), status: 'Optimized', detail: 'Structured HTML tables & Google AI Overview schema ready' },
         },

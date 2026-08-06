@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type AiEngineId = 'chatgpt' | 'perplexity' | 'grok' | 'gemini';
+export type AiEngineId = 'chatgpt' | 'perplexity' | 'ai_overview' | 'gemini';
 
 export interface AiEngineInfo {
   id: AiEngineId;
@@ -42,15 +42,13 @@ export const AI_ENGINES: Record<AiEngineId, AiEngineInfo> = {
     badgeBg: 'bg-[#20b2aa]/10',
     badgeText: 'text-[#20b2aa]',
   },
-  grok: {
-    id: 'grok',
-    name: 'Grok',
-    provider: 'xAI',
-    badgeBg: 'bg-[#17191c]/10',
-    badgeText: 'text-[#17191c]',
-    svgIcon: (
-      <span className="font-mono font-bold text-xs">𝕏</span>
-    ),
+  ai_overview: {
+    id: 'ai_overview',
+    name: 'AI Overviews',
+    provider: 'Google',
+    iconPath: '/icon4.png',
+    badgeBg: 'bg-[#ea4335]/10',
+    badgeText: 'text-[#ea4335]',
   },
 };
 

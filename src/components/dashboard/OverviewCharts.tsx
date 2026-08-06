@@ -76,9 +76,8 @@ export const EngineVisibilityChart: React.FC<ChartProps> = ({ isPlaceholder = tr
     { name: 'ChatGPT', icon: '/icon2.png' },
     { name: 'Perplexity', icon: '/icon3.png' },
     { name: 'Claude', icon: '/icon1.png' },
-    { name: 'DeepSeek', icon: '/deepseek-logo.jpeg' },
-    { name: 'Grok AI', isGrok: true },
     { name: 'Gemini', icon: '/icon4.png' },
+    { name: 'AI Overviews', icon: '/icon4.png' },
   ];
 
   return (
@@ -96,17 +95,11 @@ export const EngineVisibilityChart: React.FC<ChartProps> = ({ isPlaceholder = tr
           <div key={engine.name} className="space-y-1">
             <div className="flex items-center justify-between text-[12px]">
               <div className="flex items-center gap-2">
-                {engine.isGrok ? (
-                  <span className="w-4 h-4 rounded-full bg-[#17191c] text-white flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0">
-                    𝕏
-                  </span>
-                ) : (
-                  <img
-                    src={engine.icon}
-                    alt={engine.name}
-                    className="w-4 h-4 object-contain rounded-full flex-shrink-0"
-                  />
-                )}
+                <img
+                  src={engine.icon}
+                  alt={engine.name}
+                  className="w-4 h-4 object-contain rounded-full flex-shrink-0"
+                />
                 <span className="font-medium text-[#17191c]">{engine.name}</span>
               </div>
               <span className="font-bold text-[#777b86] font-mono">-</span>

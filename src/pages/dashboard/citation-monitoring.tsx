@@ -37,19 +37,23 @@ interface PromptResult {
   lastRun: string;
   createdAt?: string;
   citedUrls?: string[];
+  competitorsMentioned?: string[];
   isLiveSearch?: boolean;
 }
 
 import { HistoryModal, HistoryItem } from '@/components/dashboard/HistoryModal';
 
 export default function CitationMonitoringPage() {
-  const { user, isAdmin, isPro } = useAuth();
-  const [showPricingModal, setShowPricingModal] = useState(false);
-
-  // Supabase History Modal state
+  const { user } = useAuth();
+  
+  // History Modal State
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+
+  const isAdmin = user?.email?.endsWith('@aroundu.com') || user?.email === 'go.aroundu@gmail.com';
+  const isPro = true;
 
   const fetchHistory = async () => {
     setLoadingHistory(true);
@@ -64,7 +68,7 @@ export default function CitationMonitoringPage() {
         const formatted = data.runs.map((item: any) => ({
           id: item.id || `pr_${item.created_at}`,
           title: item.prompt_text || item.brand_name,
-          subtitle: `Brand: ${item.brand_name || 'N/A'} • Provider: ${item.llm_provider || 'Apify/Proxy'}`,
+          subtitle: `Brand: ${item.brand_name || 'N/A'} • Provider: ${item.llm_provider || 'Apify'}`,
           timestamp: item.run_at || item.created_at || new Date().toISOString(),
           badge: item.cited ? 'Cited' : 'Uncited',
           data: item,
@@ -83,7 +87,7 @@ export default function CitationMonitoringPage() {
   const [brandName, setBrandName] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<RegionCode>('US');
-  const [selectedEngines, setSelectedEngines] = useState<AiEngineId[]>(['chatgpt', 'gemini', 'perplexity', 'grok']);
+  const [selectedEngines, setSelectedEngines] = useState<AiEngineId[]>(['chatgpt', 'gemini', 'perplexity', 'ai_overview']);
   const [filterEngine, setFilterEngine] = useState<string>('all');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -534,7 +538,7 @@ export default function CitationMonitoringPage() {
                   <option value="chatgpt">ChatGPT</option>
                   <option value="gemini">Gemini</option>
                   <option value="perplexity">Perplexity</option>
-                  <option value="grok">Grok</option>
+                  <option value="ai_overview">AI Overviews</option>
                 </select>
               </div>
 
@@ -565,21 +569,44 @@ export default function CitationMonitoringPage() {
                     <div className="font-medium text-[#17191c] text-[14px] truncate">&quot;{p.prompt}&quot;</div>
                     <div className="flex flex-wrap items-center gap-2.5 text-[11px] text-[#777b86]">
                       <AiEngineBadge engineId={p.engineId} />
-                      {p.isLiveSearch && (
-                        <span className="bg-[#10a37f]/10 text-[#10a37f] border border-[#10a37f]/20 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-[#10a37f]" />
-                          <span>AI Visibility Simulation</span>
-                        </span>
-                      )}
+                      <span className="bg-[#10a37f]/10 text-[#10a37f] border border-[#10a37f]/20 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-[#10a37f]" />
+                        <span>Apify Live Audit</span>
+                      </span>
                       <span className="bg-[#ffffff] border border-[#17191c]/10 px-2 py-0.5 rounded-full font-medium text-[#17191c]">
                         {REGIONS[p.region || 'US']?.flag || '🇺🇸'} {REGIONS[p.region || 'US']?.code || 'US'}
                       </span>
                       <span className="text-[#777b86]">Brand: <strong className="text-[#17191c]">{p.brandName}</strong></span>
+                      <span className="bg-[#17191c]/5 text-[#17191c] border border-[#17191c]/10 px-2 py-0.5 rounded-full font-medium">
+                        Rank Placement: {p.position || 'Uncited'}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-full font-medium text-[11px] capitalize ${
+                        p.sentiment === 'positive'
+                          ? 'bg-[#10a37f]/10 text-[#10a37f] border border-[#10a37f]/20'
+                          : p.sentiment === 'negative'
+                          ? 'bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20'
+                          : 'bg-[#17191c]/5 text-[#777b86] border border-[#17191c]/10'
+                      }`}>
+                        Sentiment: {p.sentiment || 'neutral'}
+                      </span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {p.lastRun}
                       </span>
                     </div>
+
+                    {/* Competitor Benchmarking */}
+                    {p.competitorsMentioned && p.competitorsMentioned.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                        <span className="text-[10px] font-semibold text-[#17191c] uppercase tracking-wider">Rivals Cited:</span>
+                        {p.competitorsMentioned.map((comp, i) => (
+                          <span key={i} className="text-[10px] bg-[#17191c]/10 text-[#17191c] px-2 py-0.5 rounded-md font-mono font-medium">
+                            {comp}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
                     {p.citedUrls && p.citedUrls.length > 0 && (
                       <div className="flex flex-wrap items-center gap-1.5 mt-1">
                         <span className="text-[10px] font-semibold text-[#5d2a1a] uppercase tracking-wider">Cited Sources:</span>

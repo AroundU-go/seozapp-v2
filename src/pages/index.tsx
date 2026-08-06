@@ -39,22 +39,16 @@ const HERO_AI_ENGINES = [
     textColor: 'text-[#d97706]',
   },
   {
-    name: 'DeepSeek',
-    provider: 'DeepSeek AI',
-    icon: '/deepseek-logo.jpeg',
-    textColor: 'text-[#4d6bfe]',
-  },
-  {
-    name: 'Grok AI',
-    provider: 'xAI',
-    textColor: 'text-[#17191c]',
-    isGrok: true,
-  },
-  {
     name: 'Gemini',
     provider: 'Google AI',
     icon: '/icon4.png',
     textColor: 'text-[#4285f4]',
+  },
+  {
+    name: 'AI Overviews',
+    provider: 'Google AI',
+    icon: '/icon4.png',
+    textColor: 'text-[#ea4335]',
   },
 ];
 
@@ -223,17 +217,11 @@ export default function SteepLandingPage() {
                       transition={{ duration: 0.3, ease: 'easeOut' }}
                       className={`inline-flex items-center gap-2 sm:gap-3 ${activeEngine.textColor} font-sans font-semibold text-[26px] sm:text-[44px] lg:text-[54px] whitespace-nowrap`}
                     >
-                      {activeEngine.isGrok ? (
-                        <div className="w-7 h-7 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-lg sm:rounded-xl bg-[#17191c] text-[#ffffff] flex items-center justify-center font-bold text-base sm:text-lg flex-shrink-0 shadow-sm">
-                          𝕏
-                        </div>
-                      ) : (
-                        <img
-                          src={activeEngine.icon}
-                          alt={activeEngine.name}
-                          className="w-7 h-7 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-lg sm:rounded-xl object-contain flex-shrink-0 shadow-sm"
-                        />
-                      )}
+                      <img
+                        src={activeEngine.icon}
+                        alt={activeEngine.name}
+                        className="w-7 h-7 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-lg sm:rounded-xl object-contain flex-shrink-0 shadow-sm"
+                      />
                       <span>{activeEngine.name}</span>
                     </motion.span>
                   </AnimatePresence>
@@ -331,7 +319,7 @@ export default function SteepLandingPage() {
                 </div>
                 <h3 className="text-3xl font-semibold text-[#17191c]">Multi LLM Prompt Monitoring</h3>
                 <p className="text-[#777b86] text-base leading-relaxed">
-                  Scheduled high-intent search query prompts automated across ChatGPT, Perplexity, Claude, Grok AI, Gemini, and Google AI Overviews. Sophisticated AI text-parsing models evaluate response sentiment, calculate exact brand citation coordinates, track rank positions in direct answer cards, and benchmark your share of voice across major generative engines.
+                  Scheduled high-intent search query prompts automated across ChatGPT, Perplexity, Claude, Gemini, and Google AI Overviews powered by live Apify Actor execution. Extract real-time <strong className="text-[#17191c] font-semibold">Competitor Benchmarking</strong>, pinpoint <strong className="text-[#17191c] font-semibold">Rank &amp; Citation Placement Coordinates</strong> (#1 position, Top 3, or cited source), and perform <strong className="text-[#17191c] font-semibold">AI Response Sentiment Analysis</strong> (positive, neutral, critical) to dominate generative answer engines.
                 </p>
               </div>
             </div>

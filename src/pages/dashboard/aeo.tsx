@@ -73,7 +73,7 @@ export default function AiCitationPage() {
   const [selectedEngines, setSelectedEngines] = useState<AiEngineId[]>([
     'chatgpt',
     'perplexity',
-    'grok',
+    'ai_overview',
     'gemini',
   ]);
   const [activeEngineTab, setActiveEngineTab] = useState<AiEngineId>('chatgpt');
