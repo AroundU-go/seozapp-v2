@@ -39,9 +39,14 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors font-medium">
+                <a
+                  href="https://cal.com/uddipan"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors font-medium"
+                >
                   Book a Demo
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
