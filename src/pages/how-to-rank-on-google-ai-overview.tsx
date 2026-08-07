@@ -256,6 +256,41 @@ export default function HowToRankOnGoogleAiOverview() {
 
           <hr className="my-10 border-[#17191c]/10" />
 
+          {/* Section: The Easier Way */}
+          <h2 className="font-signifier text-3xl font-normal mt-12 mb-6 text-[#17191c]">
+            The Easier Way: Audit Your Site for AI Search Readiness
+          </h2>
+          <p className="mb-6 text-[#777b86] text-lg leading-relaxed">
+            Manually reviewing every page for AI Overview optimization can take hours. That&apos;s where{' '}
+            <a href="https://www.seozapp.com" className="font-semibold text-[#17191c] underline hover:text-[#5d2a1a] transition-colors">
+              SEOzapp
+            </a>{' '}
+            helps. Instead of guessing why your pages aren&apos;t appearing in AI Overviews,{' '}
+            <a href="https://www.seozapp.com" className="font-semibold text-[#17191c] underline hover:text-[#5d2a1a] transition-colors">
+              SEOzapp
+            </a>{' '}
+            analyzes your website and highlights opportunities that matter for modern search visibility.
+          </p>
+
+          <p className="mb-4 text-[#17191c] text-base font-semibold">With <a href="https://www.seozapp.com" className="underline hover:text-[#5d2a1a]">SEOzapp</a>, you can:</p>
+          <ul className="ml-6 mb-8 list-disc list-outside space-y-2 text-[#777b86] text-lg">
+            <li>Audit on-page SEO issues &amp; crawlability</li>
+            <li>Identify content gaps affecting AI search visibility</li>
+            <li>Improve internal linking architecture</li>
+            <li>Find technical SEO problems blocking LLM indexing</li>
+            <li>Optimize pages for both Google Search and AI-powered engines</li>
+            <li>Track your site&apos;s overall SEO health from one unified dashboard</li>
+          </ul>
+
+          <p className="mb-8 text-[#777b86] text-lg leading-relaxed">
+            As AI search evolves, successful SEO isn&apos;t about chasing hacks—it&apos;s about creating genuinely useful, trustworthy content while making it easy for both humans and AI systems to understand. If you&apos;re serious about increasing your visibility in Google AI Overviews, start by fixing your SEO foundation with{' '}
+            <a href="https://www.seozapp.com" className="font-semibold text-[#17191c] underline hover:text-[#5d2a1a] transition-colors">
+              SEOzapp
+            </a>.
+          </p>
+
+          <hr className="my-10 border-[#17191c]/10" />
+
           {/* Section: SEOzapp CTA Banner */}
           <div className="bg-[#17191c] text-[#ffffff] rounded-3xl p-8 sm:p-10 my-12 text-center space-y-6 shadow-xl relative overflow-hidden">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#fbe1d1] bg-white/10 px-3.5 py-1 rounded-full inline-block">
@@ -265,7 +300,11 @@ export default function HowToRankOnGoogleAiOverview() {
               Audit Your Site for AI Search Visibility
             </h3>
             <p className="text-white/70 text-base max-w-xl mx-auto font-normal">
-              Manually auditing every page for AI Overview readiness takes hours. <strong>SEOzapp</strong> scans your website for technical SEO issues, AI search readiness, content gaps, and citation benchmarks.
+              Manually auditing every page for AI Overview readiness takes hours.{' '}
+              <a href="https://www.seozapp.com" className="font-semibold text-[#fbe1d1] underline hover:text-white transition-colors">
+                SEOzapp
+              </a>{' '}
+              scans your website for technical SEO issues, AI search readiness, content gaps, and citation benchmarks.
             </p>
             <div className="pt-2">
               <button
