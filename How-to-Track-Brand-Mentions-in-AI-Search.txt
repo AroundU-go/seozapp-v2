@@ -1,0 +1,69 @@
+Title: How to Track Brand Mentions in AI Search
+Meta description: A practical guide to monitoring how ChatGPT, Perplexity, Gemini, and google mention your brand — and how to grow your citation share.
+
+# How to Track Brand Mentions in AI Search
+
+Search is splitting into two channels. One is the Google results page you've optimized for a decade. The other is a conversation — a person asking ChatGPT "what's the best project management tool for a 5-person team" and getting three names back, no blue links, no scrolling.
+
+If your brand isn't one of those three names, you don't just lose a click. You lose the entire interaction. There's no page two in a chat completion.
+
+That shift is why "brand mention tracking" now means something bigger than a Google Alert or a mentions-in-the-press dashboard. It means knowing, continuously, whether ChatGPT, Perplexity, Gemini, and Claude are naming you when someone asks a question you should be the answer to. Here's how to actually do that.
+
+## Why traditional mention tracking doesn't cover AI search
+
+Tools like Google Alerts, Mention, or Brand24 were built for a web made of pages: news articles, forum posts, blog comments. They tell you when your brand *name* shows up in indexed content.
+
+AI search answers work differently. A model can cite you — recommend your product, describe your service, compare you favorably to a competitor — without any new page being published anywhere. The "mention" happens inside a generated response, on a query it decided you were relevant to, in a sentence it wrote itself. Nothing about that gets picked up by a crawler watching for your brand name across the open web.
+
+To track it, you have to do what the person asking would do: send the prompt, and read the answer.
+
+## What "tracking brand mentions in AI search" actually requires
+
+Doing this properly comes down to four things.
+
+**1. Run the actual prompts your buyers would type.** Not your brand name — the *problem* your buyers are trying to solve. "Best CRM for a solo consultant," "cheaper alternative to Salesforce," "AI SEO tool for small agencies." These are the queries that determine whether you exist in someone's consideration set before they've ever heard your name.
+
+**2. Run them across engines, not just one.** ChatGPT, Perplexity, Gemini, Claude, and Google AI Overviews each pull from different sources and weight them differently. A brand can be the top answer in Perplexity and invisible in Gemini. Single-engine tracking gives you a partial, sometimes misleading picture.
+
+**3. Capture *where* you were mentioned, not just *whether*.** Position matters. Being named first, in the direct answer, is worth far more than being buried in a "other options include" list at the end. So does tone — a neutral factual mention reads very differently from "X is widely considered the best option for teams on a budget."
+
+**4. Repeat it on a schedule and compare against competitors.** A single snapshot tells you almost nothing, because model outputs shift as underlying sources update and as models get retrained or re-indexed. What you actually want is a trend line: is your citation share climbing or falling, and how does it compare to the two or three competitors your buyers are also asking about?
+
+## Manual tracking works — for about a week
+
+You can do a rough version of this by hand: keep a spreadsheet of ten prompts, run each one in ChatGPT and Perplexity every Monday, log whether you're mentioned and where. It's a legitimate way to get a first read on your AI visibility.
+
+It falls apart fast, though. Ten prompts across four engines is 40 manual queries a week, and that's before you add competitors or new query variations as your positioning evolves. Nobody sustains that past a month, which means the moment you stop watching is usually the moment something changes.
+
+## What automated tracking looks like instead
+
+This is the exact gap SEOzapp's prompt monitoring is built for. Instead of running queries by hand, you set up the prompts once — your core buyer questions plus the competitors you want benchmarked — and the system runs them on a recurring schedule across ChatGPT, Perplexity, Gemini, Claude, and Google AI Overviews.
+
+For each run, it tells you three things per prompt: whether you were cited, where (direct answer, top-3 list, or buried further down), and the sentiment of how you were described. Layered on top of that is competitor benchmarking, so a report that says "you were cited in 62% of runs this month, up 18% from last week, versus a 28% category average" is something you can act on rather than a number floating in isolation.
+
+Because the same platform also runs technical and semantic audits — heading structure, FAQ schema, content density, whether your `/llms.txt` file exists — you get a second layer underneath the mention data: not just *whether* you're being cited, but *why* you might not be. Low citation frequency paired with a missing FAQ schema or thin passage-level answers is a very different fix than low citation frequency on a page that's already structurally sound.
+
+It also runs a crawlability check most teams skip entirely — confirming GPTBot, ClaudeBot, PerplexityBot, Google-Extended, and other AI crawlers can actually reach your content. A brand-mention strategy is dead on arrival if `robots.txt` is silently blocking the bots that would cite you.
+
+## A simple way to start this week
+
+You don't need a full platform to get your first useful signal. Do this manually first, then automate once you see the gap:
+
+1. **List 10–15 prompts** a real buyer would type — problem-based, not brand-based.
+2. **Run each one in ChatGPT, Perplexity, and Gemini** and note: cited or not, position, sentiment.
+3. **Run the same prompts for your top two competitors** to get a comparison baseline.
+4. **Check your crawlability** — confirm AI bots aren't blocked in `robots.txt`.
+5. **Fix the structural gaps** — add FAQ schema, tighten your direct-answer paragraphs, consider publishing an `/llms.txt`.
+6. **Repeat weekly.** The trend matters more than any single snapshot.
+
+Once that manual loop starts eating real time, that's the point where automated, scheduled prompt monitoring — across engines, with competitor benchmarking built in — pays for itself.
+
+## The takeaway
+
+Brand mentions used to live on pages you could crawl. Now a meaningful share of them live inside AI-generated answers that exist only for the moment they're generated. Tracking that requires actually asking the questions your buyers ask, across every engine they might use, on a schedule tight enough to catch changes before they cost you visibility.
+
+Do it manually to understand the mechanics. Automate it once the volume outgrows a spreadsheet — that's the difference between reacting to a citation-share drop a month late and catching it the week it happens.
+
+---
+
+*[Run a free AI visibility audit with SEOzapp →](https://seozapp.com)*
