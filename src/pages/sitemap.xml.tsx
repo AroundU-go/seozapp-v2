@@ -78,6 +78,12 @@ function generateSiteMap(
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>${SITE_URL}/how-to-measure-brand-visibility-in-chatgpt</loc>
+        <lastmod>${now}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
         <loc>${SITE_URL}/keyword-suggestions</loc>
         <lastmod>${now}</lastmod>
         <changefreq>monthly</changefreq>

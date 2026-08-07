@@ -1,0 +1,78 @@
+Title: How to Measure Brand Visibility in ChatGPT
+Meta description: A step-by-step guide to measuring how often, where, and how favorably ChatGPT mentions your brand — with a framework you can start using today.
+
+# How to Measure Brand Visibility in ChatGPT
+
+Try this right now. Open ChatGPT and type a question a customer might actually ask — not your brand name, just the problem. Something like "what's the best invoicing tool for freelancers" or "cheaper alternative to HubSpot."
+
+Read the answer. Were you in it?
+
+That single moment is now doing the job a Google ranking used to do. Except there's no page two, no ten blue links to scroll past, no "position 7" to slowly claw up from. You're either in the answer or you're not. And most brands have no idea which one is true for them, let alone whether it's getting better or worse over time.
+
+That's what measuring brand visibility in ChatGPT actually means: turning "I have no idea" into a number you can track.
+
+## Why this is harder than it sounds
+
+With Google, visibility has always been measurable because rankings are public, stable-ish, and tool-trackable. Ahrefs and Semrush built entire businesses on that stability.
+
+ChatGPT doesn't give you a rank. It gives you a paragraph. That paragraph can change based on:
+
+- the exact way a question is phrased
+- whether the person enables browsing or memory
+- which model version is answering
+- what's changed in the sources ChatGPT is drawing from since it last looked
+
+So the same question asked twice can produce two different answers, one with your brand and one without. That's not a bug you can work around — it's just the nature of a generative answer instead of a fixed index. Which means "measuring" visibility here isn't a one-time check. It's a sampling problem: run enough prompts, often enough, and patterns emerge even though any single answer is noisy.
+
+## The four numbers that actually matter
+
+Once you accept it's a sampling exercise, visibility in ChatGPT breaks down into four measurable things.
+
+**Citation frequency.** Out of the buyer-intent prompts you'd expect to show up in, what percentage of ChatGPT's answers actually mention you? This is your headline number — the one you watch move week over week.
+
+**Position.** Being the first name ChatGPT says is not the same as being the fourth name in a list, and being in a list is not the same as being buried in a "you might also consider" line at the end. Position is where citation frequency turns from a vanity metric into something that predicts actual traffic and consideration.
+
+**Sentiment.** ChatGPT can mention your brand and still hurt you — "X is popular but has a steep learning curve" is a citation with a warning label attached. Tracking sentiment (positive, neutral, critical) tells you whether being cited is actually working in your favor.
+
+**Share of voice vs. competitors.** A 40% citation rate sounds solid until you learn your closest competitor is sitting at 75%. Visibility only means something relative to who else is in the running for the same questions.
+
+Put those four together across a consistent set of prompts, run on a schedule, and you have an actual visibility score — not a feeling.
+
+## Doing it by hand
+
+You don't need software to get your first read. Here's a version you can run this afternoon:
+
+1. **Write down 10–15 real buyer questions.** Pull them from sales calls, support tickets, or your own "why did they choose a competitor" post-mortems. Avoid questions that already contain your brand name — you're measuring discovery, not recall.
+2. **Ask each one in a fresh ChatGPT conversation.** New chat every time, so memory or prior context doesn't skew the answer.
+3. **Log three things per answer:** cited or not, where in the answer, and how it was framed.
+4. **Run the same prompts for your top two competitors.** This gives you the share-of-voice comparison, not just an absolute number.
+5. **Repeat weekly, same prompts.** Consistency is what turns this into a trend line instead of a one-off snapshot.
+
+After three or four weeks you'll have something genuinely useful: a directional read on whether you're gaining or losing ground, and which specific prompts are worth optimizing content around.
+
+## Where manual tracking breaks
+
+The honest limit of the DIY method is volume. Fifteen prompts, run weekly, in one conversation each, is manageable. The moment you want to track across ChatGPT *and* Perplexity *and* Gemini *and* Claude — which you should, because buyers aren't only using one — you're at 60+ manual queries a week. Almost nobody sustains that past a month, and the tracking usually dies exactly when something important shifts.
+
+This is the problem SEOzapp's prompt monitoring was built to remove. You set the prompt list once — your buyer questions plus the competitors you want benchmarked — and it runs them on a recurring schedule across ChatGPT, Perplexity, Gemini, Claude, and Google AI Overviews automatically. Each run reports citation frequency, position (direct answer, top-3, or further down), and sentiment, plus a competitor comparison so a number like "cited in 62% of ChatGPT runs this week, up from 44% last month, versus a 28% category average" shows up on its own instead of something you assemble by hand.
+
+It also connects the dots most visibility trackers leave dangling: a technical and semantic audit layer underneath the citation data, so a low score comes with a reason attached — missing FAQ schema, thin direct-answer content, no `/llms.txt` — instead of just a number you can't act on. And it checks whether GPTBot and the other AI crawlers can even reach your site in the first place, since a `robots.txt` block will quietly cap your visibility no matter how good your content is.
+
+## What to actually do with the score once you have it
+
+A visibility number is only useful if it changes what you publish. A few patterns worth acting on:
+
+- **Low citation, competitor content clearly better structured** → rework your page with a direct-answer paragraph near the top, FAQ schema, and a clear comparison section.
+- **Cited, but neutral or critical sentiment** → the model is reflecting how the web currently describes you. Look at what's actually being said about you in reviews and comparison articles, since that's likely feeding the answer.
+- **Cited in Perplexity but not ChatGPT** → check crawlability first. Different bots, different access rules, different results.
+- **Score moving in the wrong direction over a month** → treat it like a ranking drop. Something changed — either in your content, a competitor's, or the sources the model is pulling from.
+
+## The bottom line
+
+Measuring brand visibility in ChatGPT isn't about finding one clever prompt that proves you exist. It's a sampling discipline — enough prompts, enough repetition, tracked over enough time that the noise of any single answer washes out and a real trend shows up.
+
+Start manually so you understand what the model is actually doing with your brand. Automate it once the prompt count outgrows a spreadsheet, because a citation-share drop is only useful information if you catch it while it's still small.
+
+---
+
+*[Run a free AI visibility audit with SEOzapp →](https://seozapp.com)*
