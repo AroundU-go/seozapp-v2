@@ -75,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             responseSnippet: snippet,
             citedUrls,
             isLiveSearch: true,
-            providerType: 'apify',
+            providerType: 'live_engine',
             competitorsMentioned: resItem.competitorsMentioned || [],
             createdAt: nowIso,
             runAt: nowIso,
@@ -108,8 +108,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         results,
       });
     } catch (err: any) {
-      console.error('v2 prompt-monitor POST error (Apify):', err);
-      return res.status(500).json({ error: err.message || 'Failed to run prompt monitoring via Apify' });
+      console.error('v2 prompt-monitor POST error:', err);
+      return res.status(500).json({ error: err.message || 'Failed to run prompt monitoring' });
     }
   }
 

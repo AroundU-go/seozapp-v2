@@ -72,7 +72,7 @@ export async function runApifyLlmPrompt(
     }
 
     if (!rawAnswer) {
-      rawAnswer = `Apify Actor (${ACTOR_ID}) executed for ${provider}. ${items.length} item(s) processed.`;
+      rawAnswer = `AI Search Engine executed for ${provider}. ${items.length} item(s) processed.`;
     }
 
     const uniqueSources = citedSources.filter(

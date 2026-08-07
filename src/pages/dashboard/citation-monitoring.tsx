@@ -68,7 +68,7 @@ export default function CitationMonitoringPage() {
         const formatted = data.runs.map((item: any) => ({
           id: item.id || `pr_${item.created_at}`,
           title: item.prompt_text || item.brand_name,
-          subtitle: `Brand: ${item.brand_name || 'N/A'} • Provider: ${item.llm_provider || 'Apify'}`,
+          subtitle: `Brand: ${item.brand_name || 'N/A'} • Provider: ${item.llm_provider || 'AI Engine'}`,
           timestamp: item.run_at || item.created_at || new Date().toISOString(),
           badge: item.cited ? 'Cited' : 'Uncited',
           data: item,
@@ -571,7 +571,7 @@ export default function CitationMonitoringPage() {
                       <AiEngineBadge engineId={p.engineId} />
                       <span className="bg-[#10a37f]/10 text-[#10a37f] border border-[#10a37f]/20 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                         <Sparkles className="w-3 h-3 text-[#10a37f]" />
-                        <span>Apify Live Audit</span>
+                        <span>Live AI Audit</span>
                       </span>
                       <span className="bg-[#ffffff] border border-[#17191c]/10 px-2 py-0.5 rounded-full font-medium text-[#17191c]">
                         {REGIONS[p.region || 'US']?.flag || '🇺🇸'} {REGIONS[p.region || 'US']?.code || 'US'}

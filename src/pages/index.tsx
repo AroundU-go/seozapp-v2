@@ -336,7 +336,7 @@ export default function SteepLandingPage() {
                 </div>
                 <h3 className="text-3xl font-semibold text-[#17191c]">Multi LLM Prompt Monitoring</h3>
                 <p className="text-[#777b86] text-base leading-relaxed">
-                  Scheduled high-intent search query prompts automated across ChatGPT, Perplexity, Claude, Gemini, and Google AI Overviews powered by live Apify Actor execution. Extract real-time <strong className="text-[#17191c] font-semibold">Competitor Benchmarking</strong>, pinpoint <strong className="text-[#17191c] font-semibold">Rank &amp; Citation Placement Coordinates</strong> (#1 position, Top 3, or cited source), and perform <strong className="text-[#17191c] font-semibold">AI Response Sentiment Analysis</strong> (positive, neutral, critical) to dominate generative answer engines.
+                  Scheduled high-intent search query prompts automated across ChatGPT, Perplexity, Claude, Gemini, and Google AI Overviews powered by live AI Search execution. Extract real-time <strong className="text-[#17191c] font-semibold">Competitor Benchmarking</strong>, pinpoint <strong className="text-[#17191c] font-semibold">Rank &amp; Citation Placement Coordinates</strong> (#1 position, Top 3, or cited source), and perform <strong className="text-[#17191c] font-semibold">AI Response Sentiment Analysis</strong> (positive, neutral, critical) to dominate generative answer engines.
                 </p>
               </div>
             </div>
