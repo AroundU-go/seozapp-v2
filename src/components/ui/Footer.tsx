@@ -73,6 +73,11 @@ export function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#17191c] mb-4">Resources</h4>
             <ul className="space-y-2.5">
               <li>
+                <Link href="/how-to-rank-on-google-ai-overview" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors font-medium text-[#5d2a1a]">
+                  How to Rank on Google AI Overviews
+                </Link>
+              </li>
+              <li>
                 <Link href="/best-seo-tool-for-agencies" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors">
                   Best SEO Tool for Agencies
                 </Link>
