@@ -1,0 +1,65 @@
+Title: AI Citation Tracking Tool for Agencies
+Meta description: What agencies actually need from an AI citation tracking tool — multi-client reporting, competitor benchmarking, and a workflow that scales past client three.
+
+# AI Citation Tracking Tool for Agencies
+
+Somewhere in the last year, "how are we doing in AI search" turned from a question one curious client asked into a question every client asks. And if you're running an agency, you've probably already lived the awkward version of answering it: opening ChatGPT by hand, typing the client's category keywords one at a time, screenshotting whatever comes back, and pasting it into a slide before the Tuesday call.
+
+That works for one client. It does not work for twelve.
+
+This is the specific gap an AI citation tracking tool needs to close for an agency — not just "can it check if a brand gets mentioned," but "can it do that across every client, every competitor set, every week, without eating a day of someone's time."
+
+## Why agencies feel this differently than in-house teams
+
+An in-house marketer only has to answer for one brand. An agency has to answer for a portfolio — and every client in that portfolio expects their own dashboard, their own competitor set, their own report with your logo on it, not a shared spreadsheet with everyone else's data mixed in.
+
+That changes what "good" looks like in a tool. A single-brand AI visibility checker might be perfectly fine for a solo marketer. For an agency, the real requirements are:
+
+- **Multi-client separation** — each account's prompts, competitors, and history kept cleanly apart
+- **Repeatable setup** — onboarding client #12 shouldn't take longer than client #1 did
+- **Reporting you can hand off** — something a client-facing manager can screenshot into a QBR without rebuilding it from raw data
+- **Cross-engine coverage** — because "AI search" isn't just ChatGPT; a client asking about their AI visibility means Perplexity, Gemini, and Claude too, and giving them a ChatGPT-only answer looks like a gap in your service, not theirs
+
+Most of the tools built for this space so far were built with a single brand in mind first, and agency features bolted on after. It shows up in small but painful ways — pricing that punts multi-brand tracking into an "enterprise, contact us" tier, or a UI that clearly wasn't stress-tested past two or three tracked brands.
+
+## What to actually check before picking one
+
+If you're evaluating options, here's the honest checklist, not the marketing checklist:
+
+**1. Does it track more than one AI engine?**
+A tool that only checks ChatGPT is measuring maybe half the picture. Buyers split their usage across ChatGPT, Perplexity, Gemini, and increasingly Google's AI Overviews. A client who's invisible in Perplexity but strong in ChatGPT needs to know that distinction — it points to a completely different fix.
+
+**2. Does it separate citation frequency from position and sentiment?**
+"Mentioned in 40% of queries" is a start, not an answer. Being named first in a direct answer is worth far more than being the fourth item in a "you might also consider" list, and a mention wrapped in "X is decent but pricey" is not the same win as an unqualified recommendation. A tool that only reports a binary yes/no is giving you half a metric.
+
+**3. Can it benchmark against named competitors?**
+Every client conversation eventually becomes "okay, but how do we compare to [competitor]." A tool that only reports your client's number in isolation forces you to run a second, separate check by hand — which defeats the point of automating this at all.
+
+**4. Does it explain *why*, not just *what*?**
+Citation data without a diagnostic layer is a report you can't act on. The useful version pairs "you're cited in 30% of runs" with the structural reason — missing FAQ schema, no direct-answer paragraph, thin content depth — so the next deliverable is obvious instead of a guessing exercise.
+
+**5. Does it check crawlability?**
+This one gets skipped constantly. If GPTBot, ClaudeBot, or PerplexityBot is blocked in a client's `robots.txt`, no amount of content work will move their citation rate — the bots can't read the page to begin with. An agency tool should catch this before you spend a retainer cycle optimizing content the model never sees.
+
+**6. Does reporting scale without extra manual work per client?**
+The real test isn't the demo with one brand loaded. It's what onboarding feels like at client ten. If every new account means rebuilding a report template from scratch, the tool hasn't actually removed the bottleneck — it's just moved it.
+
+## How SEOzapp fits an agency workflow
+
+This is close to exactly what we built SEOzapp's prompt monitoring around, because the earliest version of the product came out of hitting this same wall with client work.
+
+Set up a client's buyer-intent prompts and their named competitors once, and SEOzapp runs them on a recurring schedule across ChatGPT, Perplexity, Gemini, Claude, and Google AI Overviews. Each run comes back with citation frequency, position (direct answer, top-3, or buried further down), and sentiment — plus the competitor comparison sitting right next to it, so "we're cited in 55% of runs vs. a 30% category average" is a number that's already there, not one you assembled from three separate manual checks.
+
+Underneath that sits the technical and semantic audit — FAQ schema, direct-answer structure, content depth, `/llms.txt` presence — so a low score arrives with a reason attached, which is what actually turns a report into a next deliverable instead of a data dump. And the crawlability check flags robots.txt blocks and AI-bot access issues before you burn a sprint optimizing content the model can't even reach.
+
+None of this replaces the work an agency does — it replaces the hours currently lost to manually running the same prompts across four engines for every client, every week, just to have a number to report.
+
+## The shift this represents for agencies
+
+SEO agencies built their entire pitch on rankings you could screenshot and defend. AI citation tracking is the same pitch for a channel that doesn't hand you a screenshot by default — you have to generate the measurement yourself, consistently, across every engine that matters, before you can even start optimizing for it.
+
+The agencies that get ahead of this aren't the ones with the fanciest AI strategy deck. They're the ones who can answer "are we showing up in ChatGPT" with an actual number, this week, for every client, without anyone on the team spending a day typing prompts by hand.
+
+---
+
+*[See how SEOzapp handles multi-client AI visibility tracking →](https://seozapp.com)*
