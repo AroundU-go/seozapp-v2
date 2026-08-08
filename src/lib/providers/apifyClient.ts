@@ -30,9 +30,20 @@ export async function runApifyLlmPrompt(
 
   const client = new ApifyClient({ token });
 
+  const PROVIDER_MAP: Record<string, string> = {
+    chatgpt: 'chatgpt',
+    perplexity: 'perplexity',
+    gemini: 'gemini',
+    ai_overview: 'google',
+    google: 'google',
+    claude: 'claude',
+  };
+
+  const normalizedProvider = PROVIDER_MAP[provider.toLowerCase()] || provider.toLowerCase();
+
   const input = {
     prompts: [prompt],
-    provider: provider.toLowerCase(),
+    provider: normalizedProvider,
     screenshots: false,
     captureDom: false,
   };
