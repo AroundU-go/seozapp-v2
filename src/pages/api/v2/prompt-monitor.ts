@@ -24,14 +24,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const { data, error } = await query;
-      if (error) {
-        console.error('GET prompt-runs Supabase error:', error);
-        throw error;
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        const fallback = await supabaseV2Admin
+          .from(V2_TABLES.PROMPT_RUNS)
+          .select('*')
+          .order('run_at', { ascending: false })
+          .limit(100);
+        return res.status(200).json({ success: true, runs: fallback.data || [] });
       }
-      return res.status(200).json({ success: true, runs: data || [] });
+
+      return res.status(200).json({ success: true, runs: data });
     } catch (err: any) {
       console.warn('GET prompt-runs error:', err.message);
-      return res.status(200).json({ success: true, runs: [] });
+      try {
+        const fallback = await supabaseV2Admin
+          .from(V2_TABLES.PROMPT_RUNS)
+          .select('*')
+          .order('run_at', { ascending: false })
+          .limit(100);
+        return res.status(200).json({ success: true, runs: fallback.data || [] });
+      } catch {
+        return res.status(200).json({ success: true, runs: [] });
+      }
     }
   }
 

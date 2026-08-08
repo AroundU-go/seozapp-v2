@@ -59,10 +59,7 @@ export default function CitationMonitoringPage() {
     setLoadingHistory(true);
     try {
       const emailParam = user?.email ? `userEmail=${encodeURIComponent(user.email)}` : '';
-      const brandParam = brandName ? `brandName=${encodeURIComponent(brandName)}` : '';
-      const queryStr = [emailParam, brandParam].filter(Boolean).join('&');
-
-      const res = await fetch(`/api/v2/prompt-monitor?${queryStr}`);
+      const res = await fetch(`/api/v2/prompt-monitor?${emailParam}`);
       const data = await res.json();
       if (data.success && data.runs) {
         const formatted = data.runs.map((item: any) => ({
@@ -125,10 +122,7 @@ export default function CitationMonitoringPage() {
     async function loadHistory() {
       try {
         const emailParam = user?.email ? `userEmail=${encodeURIComponent(user.email)}` : '';
-        const brandParam = brandName ? `brandName=${encodeURIComponent(brandName)}` : '';
-        const queryStr = [emailParam, brandParam].filter(Boolean).join('&');
-
-        const res = await fetch(`/api/v2/prompt-monitor?${queryStr}`);
+        const res = await fetch(`/api/v2/prompt-monitor?${emailParam}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.runs) && data.runs.length > 0) {
           const dbResults: PromptResult[] = data.runs.map((r: any) => {
@@ -164,7 +158,7 @@ export default function CitationMonitoringPage() {
     }
 
     loadHistory();
-  }, [user, brandName]);
+  }, [user?.email]);
 
   const handleToggleEngine = (id: AiEngineId) => {
     setSelectedEngines((prev) =>
