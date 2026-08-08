@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { runApifyLlmPrompt } from '@/lib/providers/apifyClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 
-export const maxDuration = 60; // Set Vercel serverless function execution limit to 60s
+export const maxDuration = 60;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === 'POST') {
-    const { promptText, prompts, brandName, userEmail, competitors = [], engines = [] } = req.body;
+    const { promptText, prompts, brandName, userEmail, competitors = [], engines = [], engine } = req.body;
     const region = 'US';
 
     const promptList: string[] = [];
@@ -51,80 +51,66 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'At least one prompt and brandName are required' });
     }
 
-    const targetEngines: string[] = Array.isArray(engines) && engines.length > 0 
-      ? engines 
-      : ['chatgpt', 'perplexity', 'claude', 'gemini'];
+    // Accept a single engine per request to avoid Vercel timeout.
+    // The frontend sends one request per engine sequentially.
+    const singleEngine: string = engine || (Array.isArray(engines) && engines.length > 0 ? engines[0] : 'chatgpt');
 
     try {
-      // Build task queue for concurrent execution
-      const tasks: { singlePrompt: string; engineId: string }[] = [];
+      const results = [];
+
       for (const singlePrompt of promptList) {
-        for (const engineId of targetEngines) {
-          tasks.push({ singlePrompt, engineId });
+        try {
+          const resItem = await runApifyLlmPrompt(singleEngine, singlePrompt, brandName.trim(), competitors);
+
+          const citedUrls = (resItem.citedSources || []).map((s: any) => s.url);
+          const snippet = (resItem.rawAnswer || '').slice(0, 500);
+          const nowIso = new Date().toISOString();
+
+          const runItem = {
+            id: `pr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            prompt: singlePrompt,
+            brandName: brandName.trim(),
+            region,
+            engineId: resItem.engineId || singleEngine,
+            cited: resItem.brandMentioned,
+            position: resItem.positionEstimate,
+            sentiment: resItem.sentiment,
+            responseSnippet: snippet,
+            citedUrls,
+            isLiveSearch: true,
+            providerType: 'live_engine',
+            competitorsMentioned: resItem.competitorsMentioned || [],
+            createdAt: nowIso,
+            runAt: nowIso,
+          };
+
+          // Save to Supabase
+          try {
+            await supabaseV2Admin.from(V2_TABLES.PROMPT_RUNS).insert({
+              user_email: userEmail || null,
+              prompt_text: singlePrompt,
+              brand_name: brandName.trim(),
+              region,
+              llm_provider: resItem.engineId || singleEngine,
+              cited: resItem.brandMentioned,
+              position: runItem.position,
+              sentiment: runItem.sentiment,
+              response_snippet: snippet,
+              run_at: nowIso,
+            });
+          } catch (dbErr: any) {
+            console.warn('Supabase prompt_run insert failed (non-blocking):', dbErr?.message || dbErr);
+          }
+
+          results.push(runItem);
+        } catch (taskErr: any) {
+          console.warn(`Prompt task failed for ${singleEngine} / "${singlePrompt}":`, taskErr.message);
         }
       }
 
-      // Execute prompt tasks concurrently with Promise.all
-      const results = await Promise.all(
-        tasks.map(async ({ singlePrompt, engineId }) => {
-          try {
-            const resItem = await runApifyLlmPrompt(engineId, singlePrompt, brandName.trim(), competitors);
-
-            const citedUrls = (resItem.citedSources || []).map((s: any) => s.url);
-            const snippet = (resItem.rawAnswer || '').slice(0, 500);
-            const nowIso = new Date().toISOString();
-
-            const runItem = {
-              id: `pr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-              prompt: singlePrompt,
-              brandName: brandName.trim(),
-              region,
-              engineId: resItem.engineId || engineId,
-              cited: resItem.brandMentioned,
-              position: resItem.positionEstimate,
-              sentiment: resItem.sentiment,
-              responseSnippet: snippet,
-              citedUrls,
-              isLiveSearch: true,
-              providerType: 'live_engine',
-              competitorsMentioned: resItem.competitorsMentioned || [],
-              createdAt: nowIso,
-              runAt: nowIso,
-            };
-
-            // Save to Supabase (non-blocking try/catch)
-            try {
-              await supabaseV2Admin
-                .from(V2_TABLES.PROMPT_RUNS)
-                .insert({
-                  user_email: userEmail || null,
-                  prompt_text: singlePrompt,
-                  brand_name: brandName.trim(),
-                  region,
-                  llm_provider: resItem.engineId || engineId,
-                  cited: resItem.brandMentioned,
-                  position: runItem.position,
-                  sentiment: runItem.sentiment,
-                  response_snippet: snippet,
-                  run_at: nowIso,
-                });
-            } catch (dbErr: any) {
-              console.warn('Supabase prompt_run insert failed (non-blocking):', dbErr?.message || dbErr);
-            }
-
-            return runItem;
-          } catch (taskErr: any) {
-            console.warn(`Prompt task failed for ${engineId} / "${singlePrompt}":`, taskErr.message);
-            return null;
-          }
-        })
-      );
-
-      const validResults = results.filter(Boolean);
-
       return res.status(200).json({
         success: true,
-        results: validResults,
+        results,
       });
     } catch (err: any) {
       console.error('v2 prompt-monitor POST error:', err);

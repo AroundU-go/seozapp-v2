@@ -210,66 +210,76 @@ export default function CitationMonitoringPage() {
     setLoading(true);
     setErrorMsg(null);
 
-    try {
-      const res = await fetch('/api/v2/prompt-monitor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompts: validPrompts,
-          brandName: brandName.trim(),
-          region: selectedRegion,
-          engines: selectedEngines,
-          userEmail: user?.email || null,
-        }),
-      });
+    // Send one API call per engine sequentially to avoid Vercel serverless timeout.
+    // Each call runs a single Apify actor (~15-20s) which fits within the 60s limit.
+    const enginesToQuery = selectedEngines.length > 0 ? selectedEngines : ['chatgpt', 'perplexity', 'gemini'];
+    let hasError = false;
 
-      const rawText = await res.text();
-      let data: any = {};
+    for (const engineId of enginesToQuery) {
       try {
-        data = JSON.parse(rawText);
-      } catch {
-        setErrorMsg(`Server returned non-JSON response (${res.status}): ${rawText.slice(0, 100)}`);
-        return;
-      }
-
-      if (!res.ok || data.error) {
-        setErrorMsg(data.error || `HTTP ${res.status}`);
-        return;
-      }
-
-      if (data.success && Array.isArray(data.results)) {
-        const newItems: PromptResult[] = data.results.map((r: any) => ({
-          id: r.id || `pr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-          prompt: r.prompt,
-          brandName: r.brandName,
-          engineId: r.engineId || 'kimi',
-          region: r.region || selectedRegion,
-          cited: r.cited,
-          position: r.position,
-          sentiment: r.sentiment || 'neutral',
-          responseSnippet: r.responseSnippet || '',
-          citedUrls: r.citedUrls || [],
-          isLiveSearch: r.isLiveSearch || false,
-          lastRun: 'Just now',
-        }));
-
-        setPromptResults((prev) => {
-          const updated = [...newItems, ...prev].slice(0, 100);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('monitored_prompts_history', JSON.stringify(updated));
-          }
-          return updated;
+        const res = await fetch('/api/v2/prompt-monitor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompts: validPrompts,
+            brandName: brandName.trim(),
+            engine: engineId,
+            userEmail: user?.email || null,
+          }),
         });
 
-        // Reset prompt inputs back to one empty row
-        setPromptInputs(['']);
+        const rawText = await res.text();
+        let data: any = {};
+        try {
+          data = JSON.parse(rawText);
+        } catch {
+          console.warn(`Non-JSON response for ${engineId} (${res.status}): ${rawText.slice(0, 100)}`);
+          continue;
+        }
+
+        if (!res.ok || data.error) {
+          console.warn(`Engine ${engineId} error: ${data.error || `HTTP ${res.status}`}`);
+          continue;
+        }
+
+        if (data.success && Array.isArray(data.results)) {
+          const newItems: PromptResult[] = data.results.map((r: any) => ({
+            id: r.id || `pr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+            prompt: r.prompt,
+            brandName: r.brandName,
+            engineId: r.engineId || engineId,
+            region: r.region || 'US',
+            cited: r.cited,
+            position: r.position,
+            sentiment: r.sentiment || 'neutral',
+            responseSnippet: r.responseSnippet || '',
+            citedUrls: r.citedUrls || [],
+            isLiveSearch: r.isLiveSearch || false,
+            lastRun: 'Just now',
+          }));
+
+          // Append results incrementally as each engine completes
+          setPromptResults((prev) => {
+            const updated = [...newItems, ...prev].slice(0, 100);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('monitored_prompts_history', JSON.stringify(updated));
+            }
+            return updated;
+          });
+        }
+      } catch (err: any) {
+        console.error(`Prompt monitor error for ${engineId}:`, err);
+        hasError = true;
       }
-    } catch (err: any) {
-      console.error('Prompt monitor error:', err);
-      setErrorMsg(err.message || 'Failed to run prompt test');
-    } finally {
-      setLoading(false);
     }
+
+    if (hasError) {
+      setErrorMsg('Some engines failed to respond. Partial results may be shown.');
+    }
+
+    // Reset prompt inputs back to one empty row
+    setPromptInputs(['']);
+    setLoading(false);
   };
 
   const handleClearResults = () => {
