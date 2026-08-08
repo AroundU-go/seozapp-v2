@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (userEmail) {
         query = query.eq('user_email', userEmail);
       } else if (domain) {
-        query = query.ilike('domain', `%${domain}%`);
+        query = query.ilike('user_url', `%${domain}%`);
       }
       const { data, error } = await query;
       if (error) throw error;

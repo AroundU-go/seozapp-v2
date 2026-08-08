@@ -66,6 +66,24 @@ export default function AiBotAccessPage() {
     }
   }, []);
 
+  // Load latest audit from Supabase on mount
+  useEffect(() => {
+    if (!user?.email) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/v2/ai-bot-audit?userEmail=${encodeURIComponent(user?.email || '')}`);
+        const data = await res.json();
+        if (data.success && data.audits && data.audits.length > 0) {
+          const latest = data.audits[0];
+          setAudit(latest.audit_data || latest);
+          if (latest.target_url) setTargetUrl(latest.target_url);
+        }
+      } catch (err) {
+        console.warn('Failed to load latest bot audit on mount:', err);
+      }
+    })();
+  }, [user?.email]);
+
   const handleRunAudit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!targetUrl.trim()) return;

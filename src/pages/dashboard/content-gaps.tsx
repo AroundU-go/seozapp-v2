@@ -66,6 +66,25 @@ export default function ContentGapsPage() {
     }
   }, []);
 
+  // Load latest content gap analysis from Supabase on mount
+  useEffect(() => {
+    if (!user?.email) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/v2/content-gaps?userEmail=${encodeURIComponent(user?.email || '')}`);
+        const data = await res.json();
+        if (data.success && data.records && data.records.length > 0) {
+          const latest = data.records[0];
+          setReport(latest.gap_data || latest);
+          if (latest.target_keyword) setTargetKeyword(latest.target_keyword);
+          if (latest.user_url) setUserUrl(latest.user_url);
+        }
+      } catch (err) {
+        console.warn('Failed to load latest content gap analysis on mount:', err);
+      }
+    })();
+  }, [user?.email]);
+
   const handleFindGaps = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!targetKeyword.trim()) return;

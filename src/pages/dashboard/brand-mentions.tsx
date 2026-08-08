@@ -48,8 +48,8 @@ export default function BrandMentionsPage() {
     try {
       const res = await fetch(`/api/v2/brand-mentions?userEmail=${encodeURIComponent(user?.email || '')}`);
       const data = await res.json();
-      if (data.success && data.records) {
-        const formatted = data.records.map((item: any) => ({
+      if (data.success && data.mentions) {
+        const formatted = data.mentions.map((item: any) => ({
           id: item.id,
           title: item.brand_name || item.domain,
           subtitle: `Domain: ${item.domain || 'N/A'} • Total Mentions: ${item.total_mentions || 0}`,
@@ -80,6 +80,25 @@ export default function BrandMentionsPage() {
       }
     }
   }, []);
+
+  // Load latest brand mentions report from Supabase on mount
+  useEffect(() => {
+    if (!user?.email) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/v2/brand-mentions?userEmail=${encodeURIComponent(user?.email || '')}`);
+        const data = await res.json();
+        if (data.success && data.mentions && data.mentions.length > 0) {
+          const latest = data.mentions[0];
+          setReport(latest.mentions_data || latest);
+          if (latest.brand_name) setBrandName(latest.brand_name);
+          if (latest.domain) setDomain(latest.domain);
+        }
+      } catch (err) {
+        console.warn('Failed to load latest brand mentions on mount:', err);
+      }
+    })();
+  }, [user?.email]);
 
   const handleSearchMentions = async (e: React.FormEvent) => {
     e.preventDefault();
