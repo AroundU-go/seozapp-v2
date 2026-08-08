@@ -59,7 +59,7 @@ export class FirecrawlClient {
   private baseUrl: string;
 
   constructor() {
-    this.apiKey = process.env.FIRECRAWL_API_KEY || 'fc-02bba4b621014e4389d9e9869968307e';
+    this.apiKey = process.env.FIRECRAWL_API_KEY || '';
     this.baseUrl = 'https://api.firecrawl.dev/v1';
   }
 

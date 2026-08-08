@@ -21,7 +21,7 @@ export class ExaClient {
   private baseUrl: string;
 
   constructor() {
-    this.apiKey = process.env.EXA_API_KEY || '338b08b8-1f3a-4b20-9e2c-4260e42dbbd7';
+    this.apiKey = process.env.EXA_API_KEY || '';
     this.baseUrl = 'https://api.exa.ai';
   }
 

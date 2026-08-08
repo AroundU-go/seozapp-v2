@@ -29,7 +29,7 @@ export class KimiClient {
   private defaultModel: string;
 
   constructor() {
-    this.apiKey = process.env.KIMI_API_KEY || 'sk-2eg8WF6qITVTNAyOlJgE5JI8NHn3JUnWyj1PoWMKjPP5z9sA';
+    this.apiKey = process.env.KIMI_API_KEY || '';
     this.baseUrl = 'https://api.moonshot.ai/v1';
     this.defaultModel = 'kimi-k2.6';
   }

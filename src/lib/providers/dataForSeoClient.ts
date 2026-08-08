@@ -1,6 +1,6 @@
 import { checkCitationProxy, CitationProxyResult, domainMatches } from './citationProxy';
 
-const AUTH_HEADER = process.env.DATAFORSEO_AUTH_HEADER || 'Basic dWRpZUB0cnlodW50eC5zaXRlOjM0NDY2ZDVjNDA1ZWE3NzY=';
+const AUTH_HEADER = process.env.DATAFORSEO_AUTH_HEADER || '';
 
 export interface DataForSeoLlmResult {
   engineId: string;

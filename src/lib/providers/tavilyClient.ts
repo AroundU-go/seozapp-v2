@@ -16,7 +16,7 @@ export class TavilyClient {
   private baseUrl: string;
 
   constructor() {
-    this.apiKey = process.env.TAVILY_API_KEY || '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';
+    this.apiKey = process.env.TAVILY_API_KEY || '';
     this.baseUrl = 'https://api.tavily.com';
   }
 
