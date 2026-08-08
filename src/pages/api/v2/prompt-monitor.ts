@@ -16,16 +16,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .order('run_at', { ascending: false })
         .limit(100);
 
-      if (userEmail && brandName) {
-        query = query.or(`user_email.ilike.${userEmail},brand_name.ilike.%${brandName}%`);
-      } else if (userEmail) {
+      if (userEmail) {
         query = query.ilike('user_email', userEmail);
-      } else if (brandName) {
+      }
+      if (brandName) {
         query = query.ilike('brand_name', `%${brandName}%`);
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error('GET prompt-runs Supabase error:', error);
+        throw error;
+      }
       return res.status(200).json({ success: true, runs: data || [] });
     } catch (err: any) {
       console.warn('GET prompt-runs error:', err.message);
