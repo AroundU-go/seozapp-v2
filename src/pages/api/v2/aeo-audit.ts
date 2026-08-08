@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+export const maxDuration = 60;
 import { firecrawlClient } from '@/lib/providers/firecrawlClient';
 import { computeStructuralScore } from '@/lib/scoring/ai-readiness';
 import { computeSeoScore } from '@/lib/scoring/seo-score';

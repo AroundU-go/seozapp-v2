@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+export const maxDuration = 60;
 import { firecrawlClient } from '@/lib/providers/firecrawlClient';
 import { kimiClient } from '@/lib/providers/kimiClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';

@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { runApifyLlmPrompt } from '@/lib/providers/apifyClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 
+export const maxDuration = 60; // Set Vercel serverless function execution limit to 60s
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const userEmail = (req.query.userEmail as string || '').toLowerCase().trim();
@@ -54,59 +56,75 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       : ['chatgpt', 'perplexity', 'claude', 'gemini'];
 
     try {
-      const results = [];
-
+      // Build task queue for concurrent execution
+      const tasks: { singlePrompt: string; engineId: string }[] = [];
       for (const singlePrompt of promptList) {
         for (const engineId of targetEngines) {
-          const resItem = await runApifyLlmPrompt(engineId, singlePrompt, brandName.trim(), competitors);
-
-          const citedUrls = (resItem.citedSources || []).map((s: any) => s.url);
-          const snippet = (resItem.rawAnswer || '').slice(0, 500);
-          const nowIso = new Date().toISOString();
-
-          const runItem = {
-            id: `pr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-            prompt: singlePrompt,
-            brandName: brandName.trim(),
-            region: region || 'US',
-            engineId: resItem.engineId,
-            cited: resItem.brandMentioned,
-            position: resItem.positionEstimate,
-            sentiment: resItem.sentiment,
-            responseSnippet: snippet,
-            citedUrls,
-            isLiveSearch: true,
-            providerType: 'live_engine',
-            competitorsMentioned: resItem.competitorsMentioned || [],
-            createdAt: nowIso,
-            runAt: nowIso,
-          };
-
-          // Save to Supabase
-          try {
-            await supabaseV2Admin.from(V2_TABLES.PROMPT_RUNS).insert({
-              user_email: userEmail || null,
-              prompt_text: singlePrompt,
-              brand_name: brandName.trim(),
-              region: region || 'US',
-              llm_provider: resItem.engineId,
-              cited: resItem.brandMentioned,
-              position: runItem.position,
-              sentiment: runItem.sentiment,
-              response_snippet: snippet,
-              run_at: nowIso,
-            });
-          } catch (dbErr: any) {
-            console.warn('Supabase prompt_run insert failed (non-blocking):', dbErr.message);
-          }
-
-          results.push(runItem);
+          tasks.push({ singlePrompt, engineId });
         }
       }
 
+      // Execute prompt tasks concurrently with Promise.all
+      const results = await Promise.all(
+        tasks.map(async ({ singlePrompt, engineId }) => {
+          try {
+            const resItem = await runApifyLlmPrompt(engineId, singlePrompt, brandName.trim(), competitors);
+
+            const citedUrls = (resItem.citedSources || []).map((s: any) => s.url);
+            const snippet = (resItem.rawAnswer || '').slice(0, 500);
+            const nowIso = new Date().toISOString();
+
+            const runItem = {
+              id: `pr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+              prompt: singlePrompt,
+              brandName: brandName.trim(),
+              region,
+              engineId: resItem.engineId || engineId,
+              cited: resItem.brandMentioned,
+              position: resItem.positionEstimate,
+              sentiment: resItem.sentiment,
+              responseSnippet: snippet,
+              citedUrls,
+              isLiveSearch: true,
+              providerType: 'live_engine',
+              competitorsMentioned: resItem.competitorsMentioned || [],
+              createdAt: nowIso,
+              runAt: nowIso,
+            };
+
+            // Save to Supabase (non-blocking try/catch)
+            try {
+              await supabaseV2Admin
+                .from(V2_TABLES.PROMPT_RUNS)
+                .insert({
+                  user_email: userEmail || null,
+                  prompt_text: singlePrompt,
+                  brand_name: brandName.trim(),
+                  region,
+                  llm_provider: resItem.engineId || engineId,
+                  cited: resItem.brandMentioned,
+                  position: runItem.position,
+                  sentiment: runItem.sentiment,
+                  response_snippet: snippet,
+                  run_at: nowIso,
+                });
+            } catch (dbErr: any) {
+              console.warn('Supabase prompt_run insert failed (non-blocking):', dbErr?.message || dbErr);
+            }
+
+            return runItem;
+          } catch (taskErr: any) {
+            console.warn(`Prompt task failed for ${engineId} / "${singlePrompt}":`, taskErr.message);
+            return null;
+          }
+        })
+      );
+
+      const validResults = results.filter(Boolean);
+
       return res.status(200).json({
         success: true,
-        results,
+        results: validResults,
       });
     } catch (err: any) {
       console.error('v2 prompt-monitor POST error:', err);

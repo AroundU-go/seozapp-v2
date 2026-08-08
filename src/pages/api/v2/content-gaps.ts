@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+export const maxDuration = 60;
 import { tavilyClient } from '@/lib/providers/tavilyClient';
 import { exaClient } from '@/lib/providers/exaClient';
 import { firecrawlClient } from '@/lib/providers/firecrawlClient';
