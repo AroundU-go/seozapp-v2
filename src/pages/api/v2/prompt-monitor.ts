@@ -32,7 +32,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === 'POST') {
-    const { promptText, prompts, brandName, userEmail, region = 'US', competitors = [], engines = [] } = req.body;
+    const { promptText, prompts, brandName, userEmail, competitors = [], engines = [] } = req.body;
+    const region = 'US';
 
     const promptList: string[] = [];
     if (Array.isArray(prompts)) {

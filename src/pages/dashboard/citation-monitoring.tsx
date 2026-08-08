@@ -368,7 +368,10 @@ export default function CitationMonitoringPage() {
               Test &amp; Monitor Query Prompts
             </h2>
             <div className="flex items-center gap-3">
-              <RegionDropdown selectedRegion={selectedRegion} onChange={setSelectedRegion} />
+              <span className="text-[12px] font-medium text-[#17191c] bg-[#fafafb] border border-[#17191c]/10 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
+                <span>🇺🇸</span>
+                <span>United States (US)</span>
+              </span>
               <span className="text-[12px] text-[#777b86]">{selectedEngines.length} Engines Active</span>
             </div>
           </div>
@@ -475,7 +478,7 @@ export default function CitationMonitoringPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <AiEngineBadge engineId={promptResults[0].engineId} />
-                  <span className="text-xs font-semibold text-[#17191c]">Region: {REGIONS[promptResults[0].region]?.flag || '🇺🇸'} {REGIONS[promptResults[0].region]?.name || 'US'}</span>
+                  <span className="text-xs font-semibold text-[#17191c]">Region: 🇺🇸 United States</span>
                   <span className="font-semibold text-sm text-[#17191c] ml-2">Latest: &quot;{promptResults[0].prompt}&quot;</span>
                 </div>
                 <span className={`text-xs font-medium px-3 py-1 rounded-full ${promptResults[0].cited ? 'bg-[#10a37f] text-white' : 'bg-[#fbe1d1] text-[#5d2a1a]'}`}>
@@ -574,7 +577,7 @@ export default function CitationMonitoringPage() {
                         <span>Live AI Audit</span>
                       </span>
                       <span className="bg-[#ffffff] border border-[#17191c]/10 px-2 py-0.5 rounded-full font-medium text-[#17191c]">
-                        {REGIONS[p.region || 'US']?.flag || '🇺🇸'} {REGIONS[p.region || 'US']?.code || 'US'}
+                        🇺🇸 US
                       </span>
                       <span className="text-[#777b86]">Brand: <strong className="text-[#17191c]">{p.brandName}</strong></span>
                       <span className="bg-[#17191c]/5 text-[#17191c] border border-[#17191c]/10 px-2 py-0.5 rounded-full font-medium">
