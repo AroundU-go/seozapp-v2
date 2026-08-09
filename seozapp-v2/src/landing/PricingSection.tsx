@@ -58,7 +58,7 @@ const v2Tiers: PricingTier[] = [
     features: [
       '5 domains + 5 competitors',
       {
-        text: 'Prompt Monitoring',
+        text: 'Track 5 LLMs',
         logos: [
           { src: '/icon2.png', alt: 'ChatGPT' },
           { src: '/icon3.png', alt: 'Perplexity' },

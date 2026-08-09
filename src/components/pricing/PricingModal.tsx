@@ -68,12 +68,13 @@ const v2Tiers: PricingTier[] = [
       '5 sites',
       '10 competitors',
       {
-        text: 'Track 4 LLMs',
+        text: 'Track 5 LLMs',
         logos: [
           { src: '/icon2.png', alt: 'ChatGPT' },
           { src: '/icon4.png', alt: 'Gemini' },
           { src: '/icon3.png', alt: 'Perplexity' },
           { src: '/google-logo.png', alt: 'AI Overviews' },
+          { src: '/icon1.png', alt: 'Claude' },
         ],
       },
       'AI traffic analytics',
