@@ -545,7 +545,7 @@ export default function CitationMonitoringPage() {
           {loading && (
             <div className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10 flex items-center justify-center gap-3">
               <RefreshCw className="w-5 h-5 animate-spin text-[#17191c]" />
-              <span className="text-sm text-[#777b86]">Querying AI Search Engines (DataForSEO) across active prompts and analyzing citation visibility...</span>
+              <span className="text-sm text-[#777b86]">Querying AI Search Engines across active prompts and analyzing citation visibility...</span>
             </div>
           )}
 
