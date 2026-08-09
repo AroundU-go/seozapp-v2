@@ -38,6 +38,7 @@ interface PromptResult {
   createdAt?: string;
   citedUrls?: string[];
   competitorsMentioned?: string[];
+  aiSearchVolume?: number;
   isLiveSearch?: boolean;
 }
 
@@ -253,6 +254,7 @@ export default function CitationMonitoringPage() {
           sentiment: r.sentiment || 'neutral',
           responseSnippet: r.responseSnippet || '',
           citedUrls: r.citedUrls || [],
+          aiSearchVolume: r.aiSearchVolume,
           isLiveSearch: r.isLiveSearch || false,
           lastRun: 'Just now',
         }));
@@ -603,6 +605,11 @@ export default function CitationMonitoringPage() {
                       <span className="bg-[#17191c]/5 text-[#17191c] border border-[#17191c]/10 px-2 py-0.5 rounded-full font-medium">
                         Rank Placement: {p.position || 'Uncited'}
                       </span>
+                      {p.aiSearchVolume !== undefined && p.aiSearchVolume !== null && (
+                        <span className="bg-[#4285f4]/10 text-[#4285f4] border border-[#4285f4]/20 px-2 py-0.5 rounded-full font-medium">
+                          🔥 {Number(p.aiSearchVolume).toLocaleString()} AI Searches/mo
+                        </span>
+                      )}
                       <span className={`px-2 py-0.5 rounded-full font-medium text-[11px] capitalize ${
                         p.sentiment === 'positive'
                           ? 'bg-[#10a37f]/10 text-[#10a37f] border border-[#10a37f]/20'

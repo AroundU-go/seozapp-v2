@@ -38,6 +38,7 @@ export interface BrandTrackerResult {
   competitorsMentioned: string[];
   visibilityScore?: number;
   shareOfVoice?: number;
+  aiSearchVolume?: number;
   rawData?: any;
 }
 
@@ -176,21 +177,24 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
 
   // Brand mention detection
   const brandMentioned =
-    item.brandMentioned ??
     item.brand_mentioned ??
+    item.brandMentioned ??
     item.isBrandMentioned ??
     item.mentioned ??
     item.cited ??
     false;
 
-  // Sentiment
+  // Sentiment (direct from Apify schema: "sentiment")
   const sentiment =
     item.sentiment ??
+    item.brand_sentiment ??
     item.brandSentiment ??
     (brandMentioned ? 'positive' : 'neutral');
 
-  // Response snippet
+  // Response snippet (direct from Apify schema: "ai_response_summary")
   const responseSnippet =
+    item.ai_response_summary ??
+    item.mention_context ??
     item.answer ??
     item.response ??
     item.responseSnippet ??
@@ -199,9 +203,9 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
     item.output ??
     '';
 
-  // Cited URLs
+  // Cited URLs (direct from Apify schema: "cited_urls")
   let citedUrls: string[] = [];
-  const sources = item.sources || item.citations || item.citedUrls || item.urls || item.links || [];
+  const sources = item.cited_urls || item.sources || item.citations || item.citedUrls || item.urls || item.links || [];
   if (Array.isArray(sources)) {
     citedUrls = sources.map((s: any) => {
       if (typeof s === 'string') return s;
@@ -210,59 +214,63 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
     }).filter(Boolean);
   }
 
-  // Smart Position / Rank Calculation
-  let position =
+  // Position / Rank (direct from Apify schema: "mention_position_score")
+  const rawPosScore =
+    item.mention_position_score ??
+    item.position_score ??
     item.position ??
     item.rank ??
     item.brandPosition ??
     item.positionEstimate ??
-    item.positionScore ??
     null;
 
-  if (position && typeof position === 'number') {
-    position = `#${position} Position`;
-  }
+  let position = 'Uncited';
 
-  if (!position || position === 'Cited' || position === 'Uncited') {
-    if (!brandMentioned) {
-      position = 'Uncited';
+  if (rawPosScore !== undefined && rawPosScore !== null && rawPosScore !== '') {
+    if (typeof rawPosScore === 'number') {
+      position = `#${rawPosScore} Position`;
     } else {
-      const cleanBrand = brandName.trim().toLowerCase();
-      // 1. Check index in cited source URLs
-      const urlIdx = citedUrls.findIndex((u) => u.toLowerCase().includes(cleanBrand));
-      if (urlIdx === 0) {
-        position = '#1 Position';
-      } else if (urlIdx > 0 && urlIdx < 3) {
-        position = `Top 3 (#${urlIdx + 1})`;
-      } else if (urlIdx >= 3) {
-        position = `Top 5 (#${urlIdx + 1})`;
+      position = String(rawPosScore);
+    }
+  } else if (!brandMentioned) {
+    position = 'Uncited';
+  } else {
+    const cleanBrand = brandName.trim().toLowerCase();
+    // Fallback 1: Check index in cited source URLs
+    const urlIdx = citedUrls.findIndex((u) => u.toLowerCase().includes(cleanBrand));
+    if (urlIdx === 0) {
+      position = '#1 Position';
+    } else if (urlIdx > 0 && urlIdx < 3) {
+      position = `Top 3 (#${urlIdx + 1})`;
+    } else if (urlIdx >= 3) {
+      position = `Top 5 (#${urlIdx + 1})`;
+    } else {
+      // Fallback 2: Check position of mention in answer text
+      const snippetLower = String(responseSnippet).toLowerCase();
+      const mentionIdx = snippetLower.indexOf(cleanBrand);
+      if (mentionIdx >= 0 && mentionIdx < 150) {
+        position = '#1 Mention';
+      } else if (mentionIdx >= 150 && mentionIdx < 400) {
+        position = 'Top 3 Mention';
+      } else if (mentionIdx >= 0) {
+        position = 'Cited in AI response';
       } else {
-        // 2. Check position of mention in answer text
-        const snippetLower = String(responseSnippet).toLowerCase();
-        const mentionIdx = snippetLower.indexOf(cleanBrand);
-        if (mentionIdx >= 0 && mentionIdx < 150) {
-          position = '#1 Mention';
-        } else if (mentionIdx >= 150 && mentionIdx < 400) {
-          position = 'Top 3 Mention';
-        } else if (mentionIdx >= 0) {
-          position = 'Cited in AI response';
-        } else {
-          position = 'Cited';
-        }
+        position = 'Cited';
       }
     }
   }
 
-  // Competitors mentioned
+  // Competitors mentioned (direct from Apify schema: "competitor_mentions")
   let competitorsMentioned: string[] = [];
-  const comps = item.competitorsMentioned || item.competitors_mentioned || item.competitorsFound || [];
+  const comps = item.competitor_mentions || item.competitorsMentioned || item.competitors_mentioned || item.competitorsFound || [];
   if (Array.isArray(comps)) {
     competitorsMentioned = comps.map((c: any) => (typeof c === 'string' ? c : c.name || '')).filter(Boolean);
   }
 
-  // Visibility score
+  // AI Search Volume & Share of Voice (direct from Apify schema: "ai_search_volume", "brand_share_of_voice")
+  const aiSearchVolume = item.ai_search_volume ?? item.monthly_searches ?? item.search_volume ?? undefined;
+  const shareOfVoice = item.brand_share_of_voice ?? item.shareOfVoice ?? item.share_of_voice ?? undefined;
   const visibilityScore = item.visibilityScore ?? item.visibility_score ?? item.score ?? undefined;
-  const shareOfVoice = item.shareOfVoice ?? item.share_of_voice ?? undefined;
 
   return {
     query,
@@ -275,6 +283,7 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
     competitorsMentioned,
     visibilityScore,
     shareOfVoice,
+    aiSearchVolume,
     rawData: item,
   };
 }

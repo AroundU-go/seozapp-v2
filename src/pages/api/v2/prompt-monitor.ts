@@ -132,6 +132,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           citedUrls: r.citedUrls,
           competitorsMentioned: r.competitorsMentioned,
           visibilityScore: r.visibilityScore,
+          aiSearchVolume: r.aiSearchVolume,
           isLiveSearch: true,
           createdAt: nowIso,
           runAt: nowIso,
