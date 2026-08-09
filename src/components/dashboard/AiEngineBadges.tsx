@@ -87,34 +87,49 @@ export const AiEngineBadge: React.FC<{ engineId: AiEngineId; showProvider?: bool
 export const AiEngineSelector: React.FC<{
   selectedEngines: AiEngineId[];
   onToggle: (id: AiEngineId) => void;
-}> = ({ selectedEngines, onToggle }) => {
+  allowedEngines?: AiEngineId[];
+  onLockedClick?: (id: AiEngineId) => void;
+}> = ({ selectedEngines, onToggle, allowedEngines, onLockedClick }) => {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {(Object.keys(AI_ENGINES) as AiEngineId[]).map((id) => {
         const engine = AI_ENGINES[id];
         const isSelected = selectedEngines.includes(id);
+        const isAllowed = !allowedEngines || allowedEngines.includes(id);
 
         return (
           <button
             key={id}
             type="button"
-            onClick={() => onToggle(id)}
+            onClick={() => {
+              if (isAllowed) {
+                onToggle(id);
+              } else if (onLockedClick) {
+                onLockedClick(id);
+              }
+            }}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
-              isSelected
+              !isAllowed
+                ? 'bg-[#fafafb] text-[#777b86]/60 border-[#17191c]/10 cursor-pointer opacity-70 hover:opacity-100'
+                : isSelected
                 ? 'bg-[#17191c] text-[#ffffff] border-[#17191c] shadow-sm'
                 : 'bg-[#ffffff] text-[#777b86] border-[#17191c]/15 hover:border-[#17191c]/40'
             }`}
+            title={!isAllowed ? `Upgrade plan to unlock ${engine.name}` : undefined}
           >
             {engine.iconPath ? (
               <img
                 src={engine.iconPath}
                 alt={engine.name}
-                className={`w-4 h-4 object-contain rounded-full ${!isSelected ? 'grayscale opacity-75' : ''}`}
+                className={`w-4 h-4 object-contain rounded-full ${!isSelected || !isAllowed ? 'grayscale opacity-75' : ''}`}
               />
             ) : (
-              <span className={isSelected ? 'text-white' : 'text-[#17191c]'}>{engine.svgIcon}</span>
+              <span className={isSelected && isAllowed ? 'text-white' : 'text-[#17191c]'}>{engine.svgIcon}</span>
             )}
             <span>{engine.name}</span>
+            {!isAllowed && (
+              <span className="text-[10px] bg-[#5d2a1a]/10 text-[#5d2a1a] px-1.5 py-0.5 rounded font-semibold ml-0.5">🔒 PRO</span>
+            )}
           </button>
         );
       })}

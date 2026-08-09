@@ -117,7 +117,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     }
 
     if (sites.length >= maxSites) {
-      setAddError(`Your plan allows a maximum of ${maxSites} sites (1 competitor per site). Upgrade your plan to add more sites.`);
+      setAddError(`Your plan allows a maximum of ${maxSites} site${maxSites > 1 ? 's' : ''}. Upgrade your plan to add more sites.`);
       return;
     }
 
@@ -235,7 +235,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               <div>
                 <h3 className="text-lg font-bold text-[#17191c]">Add Site to Your Domains</h3>
                 <p className="text-xs text-[#777b86] mt-0.5">
-                  Your plan allows {maxSites} site{maxSites > 1 ? 's' : ''} (1 competitor per site).
+                  Your plan allows {maxSites} site{maxSites > 1 ? 's' : ''}.
                 </p>
               </div>
               <button

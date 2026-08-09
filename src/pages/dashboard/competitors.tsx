@@ -22,13 +22,24 @@ import { Clock } from 'lucide-react';
 import { HistoryModal, HistoryItem } from '@/components/dashboard/HistoryModal';
 
 export default function CompetitorsPage() {
-  const { user, isAdmin, isPro } = useAuth();
+  const { user, isAdmin, isPro, paymentType } = useAuth();
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [ownUrl, setOwnUrl] = useState('');
   const [competitorInputs, setCompetitorInputs] = useState<string[]>(['']);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [report, setReport] = useState<any>(null);
+
+  // Competitor limit per plan: Starter ($49) = 5, Pro ($99) = 10, Enterprise/Admin = Unlimited
+  const getMaxCompetitors = (): number => {
+    if (isAdmin || paymentType.toLowerCase().includes('enterprise') || paymentType.toLowerCase().includes('scale')) {
+      return 999;
+    }
+    if (paymentType.toLowerCase().includes('pro') || paymentType.includes('$99')) {
+      return 10;
+    }
+    return 5;
+  };
 
   // Supabase History Modal state
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -110,6 +121,12 @@ export default function CompetitorsPage() {
   }, [user]);
 
   const handleAddCompetitor = () => {
+    const maxComp = getMaxCompetitors();
+    if (competitorInputs.length >= maxComp) {
+      setErrorMsg(`Your plan allows up to ${maxComp} competitors. Upgrade your plan to analyze more competitors.`);
+      return;
+    }
+    setErrorMsg(null);
     setCompetitorInputs((prev) => [...prev, '']);
   };
 
@@ -135,6 +152,12 @@ export default function CompetitorsPage() {
 
     if (!ownUrl.trim() || validCompetitors.length === 0) {
       setErrorMsg('Please enter your website URL and at least one competitor URL.');
+      return;
+    }
+
+    const maxComp = getMaxCompetitors();
+    if (validCompetitors.length > maxComp) {
+      setErrorMsg(`Your plan allows up to ${maxComp} competitors. Please remove ${validCompetitors.length - maxComp} competitor(s) or upgrade your plan.`);
       return;
     }
 

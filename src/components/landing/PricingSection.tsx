@@ -31,10 +31,11 @@ const v2Tiers: PricingTier[] = [
     price: '$49',
     period: '/month',
     description: 'For solopreneurs, small SaaS, and marketers tracking core AI search visibility.',
-    quota: '2 sites (1 competitor per site)',
+    quota: '2 sites (up to 5 competitors)',
     features: [
       '25 prompts',
       '2 sites',
+      '5 competitors',
       {
         text: 'Track 2 LLMs',
         logos: [
@@ -55,10 +56,11 @@ const v2Tiers: PricingTier[] = [
     price: '$99',
     period: '/month',
     description: 'For growing SEO agencies & teams dominating AI search across competitor landscapes.',
-    quota: '5 sites (1 competitor per site)',
+    quota: '5 sites (up to 10 competitors)',
     features: [
       '50 prompts',
       '5 sites',
+      '10 competitors',
       {
         text: 'Track 4 LLMs',
         logos: [

@@ -45,7 +45,7 @@ interface PromptResult {
 import { HistoryModal, HistoryItem } from '@/components/dashboard/HistoryModal';
 
 export default function CitationMonitoringPage() {
-  const { user } = useAuth();
+  const { user, isAdmin, paymentType } = useAuth();
   
   // History Modal State
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -53,8 +53,24 @@ export default function CitationMonitoringPage() {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
 
-  const isAdmin = user?.email?.endsWith('@aroundu.com') || user?.email === 'go.aroundu@gmail.com';
   const isPro = true;
+
+  // Allowed AI Search Engines based on subscription plan
+  // Starter ($49): ChatGPT + Gemini (2 LLMs)
+  // Pro ($99): ChatGPT + Gemini + Perplexity + AI Overviews (4 LLMs)
+  // Enterprise ($249) / Admin: All 5 LLMs (including Claude)
+  const getAllowedEngines = (): AiEngineId[] => {
+    const pay = (paymentType || '').toLowerCase();
+    if (isAdmin || pay.includes('enterprise') || pay.includes('scale')) {
+      return ['chatgpt', 'gemini', 'perplexity', 'ai_overview', 'claude'];
+    }
+    if (pay.includes('pro') || pay.includes('$99')) {
+      return ['chatgpt', 'gemini', 'perplexity', 'ai_overview'];
+    }
+    return ['chatgpt', 'gemini'];
+  };
+
+  const allowedEngines = getAllowedEngines();
 
   const fetchHistory = async () => {
     setLoadingHistory(true);
@@ -80,13 +96,14 @@ export default function CitationMonitoringPage() {
     }
   };
   
-  // Multi-prompt inputs array (minimum 3 queries required by Apify schema)
+  // Multi-prompt inputs array (minimum 3 queries required)
   const [promptInputs, setPromptInputs] = useState<string[]>(['', '', '']);
   const [brandName, setBrandName] = useState('');
   const [brandDomain, setBrandDomain] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<RegionCode>('US');
-  const [selectedEngines, setSelectedEngines] = useState<AiEngineId[]>(['chatgpt', 'gemini', 'perplexity', 'ai_overview', 'claude']);
+  // Default selected engine: ChatGPT only
+  const [selectedEngines, setSelectedEngines] = useState<AiEngineId[]>(['chatgpt']);
   const [filterEngine, setFilterEngine] = useState<string>('all');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -167,9 +184,17 @@ export default function CitationMonitoringPage() {
   }, [user?.email]);
 
   const handleToggleEngine = (id: AiEngineId) => {
-    setSelectedEngines((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    if (!allowedEngines.includes(id)) {
+      setShowPricingModal(true);
+      return;
+    }
+    setSelectedEngines((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev; // Keep at least one selected
+        return prev.filter((item) => item !== id);
+      }
+      return [...prev, id];
+    });
   };
 
   // Multi-prompt input handlers
@@ -197,8 +222,33 @@ export default function CitationMonitoringPage() {
     e.preventDefault();
     const validPrompts = promptInputs.map((p) => p.trim()).filter(Boolean);
 
-    if (validPrompts.length === 0 || !brandName.trim()) {
-      setErrorMsg('Please enter at least one prompt and a brand name.');
+    if (!brandName.trim()) {
+      setErrorMsg('Please enter a target brand name.');
+      return;
+    }
+
+    // Requirement: Mandatory minimum 3 prompt inputs before every run
+    if (validPrompts.length < 3) {
+      setErrorMsg('Mandatory requirement: Please enter a minimum of 3 unique prompt queries before running prompt monitoring.');
+      return;
+    }
+
+    // Requirement: Disallow duplicate prompts in current list
+    const lowerPrompts = validPrompts.map((p) => p.toLowerCase());
+    if (new Set(lowerPrompts).size < lowerPrompts.length) {
+      setErrorMsg('Duplicate prompts detected in your input list. Please ensure all prompt queries are unique.');
+      return;
+    }
+
+    // Requirement: Disallow duplicate prompts for the SAME site/brand name
+    const cleanBrand = brandName.trim().toLowerCase();
+    const existingBrandPrompts = promptResults
+      .filter((r) => r.brandName.trim().toLowerCase() === cleanBrand)
+      .map((r) => r.prompt.trim().toLowerCase());
+
+    const duplicateExisting = validPrompts.find((p) => existingBrandPrompts.includes(p.toLowerCase()));
+    if (duplicateExisting) {
+      setErrorMsg(`The prompt "${duplicateExisting}" has already been monitored for ${brandName.trim()}. Duplicate prompts are not allowed for the same site.`);
       return;
     }
 
@@ -210,7 +260,8 @@ export default function CitationMonitoringPage() {
     setLoading(true);
     setErrorMsg(null);
 
-    const enginesToQuery = selectedEngines.length > 0 ? selectedEngines : ['chatgpt', 'perplexity', 'gemini', 'ai_overview', 'claude'];
+    const enginesToQuery = selectedEngines.filter((e) => allowedEngines.includes(e));
+    const activeEngines = enginesToQuery.length > 0 ? enginesToQuery : ['chatgpt'];
 
     try {
       const res = await fetch('/api/v2/prompt-monitor', {
@@ -220,7 +271,7 @@ export default function CitationMonitoringPage() {
           prompts: validPrompts,
           brandName: brandName.trim(),
           brandDomain: brandDomain.trim(),
-          platforms: enginesToQuery,
+          platforms: activeEngines,
           region: selectedRegion,
           userEmail: user?.email || null,
         }),
@@ -382,7 +433,12 @@ export default function CitationMonitoringPage() {
             <label className="block text-xs font-semibold text-[#17191c] uppercase tracking-wider mb-2">
               Target AI Search Engines (Click to Toggle)
             </label>
-            <AiEngineSelector selectedEngines={selectedEngines} onToggle={handleToggleEngine} />
+            <AiEngineSelector
+              selectedEngines={selectedEngines}
+              onToggle={handleToggleEngine}
+              allowedEngines={allowedEngines}
+              onLockedClick={() => setShowPricingModal(true)}
+            />
           </div>
 
           <form onSubmit={handleTestPrompts} className="space-y-4">
