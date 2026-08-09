@@ -24,7 +24,7 @@ const v2Tiers: PricingTier[] = [
     name: 'Starter',
     price: '$49',
     period: '/month',
-    description: 'For solopreneurs, small SaaS, and marketers tracking core AI search visibility.',
+    description: 'For founders and small teams',
     quota: '2,000 pages & 200 LLM checks',
     features: [
       '1 Primary Domain + 2 Competitors',
@@ -41,7 +41,7 @@ const v2Tiers: PricingTier[] = [
     name: 'Pro Agency',
     price: '$99',
     period: '/month',
-    description: 'For growing SEO agencies & teams dominating AI search across competitor landscapes.',
+    description: 'Ideal for professionals and agencies',
     quota: '8,000 pages & 800 LLM checks',
     features: [
       '1 Primary Domain + 5 Competitors',
@@ -60,7 +60,7 @@ const v2Tiers: PricingTier[] = [
     name: 'Scale / Enterprise',
     price: '$249',
     period: '/month',
-    description: 'For large agencies & enterprise brands requiring unlimited tracking scope.',
+    description: 'Best for large teams and enterprise-level organizations',
     quota: '30,000 pages & 3,000 LLM checks',
     features: [
       'Unlimited Domains & Competitors',
