@@ -79,8 +79,8 @@ export default function CitationMonitoringPage() {
     }
   };
   
-  // Multi-prompt inputs array
-  const [promptInputs, setPromptInputs] = useState<string[]>(['']);
+  // Multi-prompt inputs array (minimum 3 queries required by Apify schema)
+  const [promptInputs, setPromptInputs] = useState<string[]>(['', '', '']);
   const [brandName, setBrandName] = useState('');
   const [brandDomain, setBrandDomain] = useState('');
   const [loading, setLoading] = useState(false);
@@ -270,7 +270,7 @@ export default function CitationMonitoringPage() {
       setErrorMsg('Failed to run prompt monitoring. Please try again.');
     }
 
-    setPromptInputs(['']);
+    setPromptInputs(['', '', '']);
     setLoading(false);
   };
 
@@ -429,7 +429,15 @@ export default function CitationMonitoringPage() {
                     type="text"
                     value={val}
                     onChange={(e) => handlePromptInputChange(idx, e.target.value)}
-                    placeholder={idx === 0 ? "e.g. Best SEO tools for agencies in 2026" : "e.g. Top AI search optimization platforms"}
+                    placeholder={
+                      idx === 0
+                        ? "Query 1: e.g. Best CRM software for small business 2026"
+                        : idx === 1
+                        ? "Query 2: e.g. Top CRM solutions for growing teams"
+                        : idx === 2
+                        ? "Query 3: e.g. HubSpot vs Salesforce alternatives"
+                        : `Query ${idx + 1}...`
+                    }
                     className="bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-4 py-2.5 text-sm flex-1 focus:outline-none"
                   />
                   {promptInputs.length > 1 && (

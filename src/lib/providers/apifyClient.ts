@@ -71,11 +71,14 @@ export async function runApifyBrandTracker(
     .map((p) => PLATFORM_MAP[p] || p)
     .filter((v, i, a) => a.indexOf(v) === i); // dedupe
 
+  // Ensure queries array has at least 3 items as required by Apify actor input schema
+  const formattedQueries = ensureMinQueries(params.queries, params.brandName);
+
   const input = {
     brandName: params.brandName,
     brandDomain: params.brandDomain || '',
     brandAliases: [] as string[],
-    queries: params.queries,
+    queries: formattedQueries,
     platforms: actorPlatforms,
     competitors: params.competitors || [],
     competitorDomains: [] as string[],
@@ -239,4 +242,34 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
     shareOfVoice,
     rawData: item,
   };
+}
+
+/**
+ * Ensures input.queries has at least 3 items as required by the Apify AI Brand Tracker schema.
+ */
+function ensureMinQueries(queries: string[], brandName: string): string[] {
+  const clean = (queries || []).map((q) => (typeof q === 'string' ? q.trim() : '')).filter(Boolean);
+  if (clean.length >= 3) return clean;
+
+  const result = [...clean];
+  const first = clean[0] || `${brandName} software review`;
+
+  const fallbackVariants = [
+    `${first} reviews and ratings`,
+    `best alternatives to ${brandName}`,
+    `top ${brandName} features 2026`,
+  ];
+
+  for (const variant of fallbackVariants) {
+    if (result.length >= 3) break;
+    if (!result.includes(variant)) {
+      result.push(variant);
+    }
+  }
+
+  while (result.length < 3) {
+    result.push(`${first} comparison ${result.length + 1}`);
+  }
+
+  return result;
 }
