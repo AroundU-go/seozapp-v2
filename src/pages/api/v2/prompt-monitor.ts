@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       let query = supabaseV2Admin
         .from(V2_TABLES.PROMPT_RUNS)
         .select('*')
-        .order('run_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(100);
 
       if (userEmail) {
@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const fallback = await supabaseV2Admin
           .from(V2_TABLES.PROMPT_RUNS)
           .select('*')
-          .order('run_at', { ascending: false })
+          .order('created_at', { ascending: false })
           .limit(100);
         return res.status(200).json({ success: true, runs: fallback.data || [] });
       }
@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const fallback = await supabaseV2Admin
           .from(V2_TABLES.PROMPT_RUNS)
           .select('*')
-          .order('run_at', { ascending: false })
+          .order('created_at', { ascending: false })
           .limit(100);
         return res.status(200).json({ success: true, runs: fallback.data || [] });
       } catch {
@@ -114,7 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               position: runItem.position,
               sentiment: runItem.sentiment,
               response_snippet: snippet,
-              run_at: nowIso,
+              created_at: nowIso,
             });
           } catch (dbErr: any) {
             console.warn('Supabase prompt_run insert failed (non-blocking):', dbErr?.message || dbErr);

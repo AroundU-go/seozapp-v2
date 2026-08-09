@@ -66,7 +66,7 @@ export default function CitationMonitoringPage() {
           id: item.id || `pr_${item.created_at}`,
           title: item.prompt_text || item.brand_name,
           subtitle: `Brand: ${item.brand_name || 'N/A'} • Provider: ${item.llm_provider || 'AI Engine'}`,
-          timestamp: item.run_at || item.created_at || new Date().toISOString(),
+          timestamp: item.created_at || item.run_at || new Date().toISOString(),
           badge: item.cited ? 'Cited' : 'Uncited',
           data: item,
         }));
@@ -126,7 +126,7 @@ export default function CitationMonitoringPage() {
         const data = await res.json();
         if (data.success && Array.isArray(data.runs) && data.runs.length > 0) {
           const dbResults: PromptResult[] = data.runs.map((r: any) => {
-            const ts = r.run_at || r.created_at;
+            const ts = r.created_at || r.run_at;
             return {
               id: r.id || `pr_${ts}`,
               prompt: r.prompt_text,
@@ -356,7 +356,7 @@ export default function CitationMonitoringPage() {
                   position: r.position || 'Uncited',
                   sentiment: r.sentiment || 'neutral',
                   responseSnippet: r.response_snippet || '',
-                  lastRun: r.run_at || r.created_at || new Date().toISOString(),
+                  lastRun: r.created_at || r.run_at || new Date().toISOString(),
                 },
                 ...prev,
               ]);
