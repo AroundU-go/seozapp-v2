@@ -196,10 +196,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     { name: 'Prompt Monitoring', href: '/dashboard/citation-monitoring', icon: TrendingUp },
     { name: 'Competitor Intelligence', href: '/dashboard/competitors', icon: Users },
     { name: 'AI Citation', href: '/dashboard/aeo', icon: Sparkles, highlight: true },
-    { name: 'Source Intelligence', href: '/dashboard/source-intelligence', icon: Share2 },
+    { name: 'Source Intelligence', href: '/dashboard/source-intelligence', icon: Share2, isBeta: true },
     { name: 'AI Bot Access', href: '/dashboard/ai-bot-access', icon: Bot },
     { name: 'Brand Mentions', href: '/dashboard/brand-mentions', icon: Link2 },
-    { name: 'Content Gap Finder', href: '/dashboard/content-gaps', icon: Target },
+    { name: 'Content Gap Finder', href: '/dashboard/content-gaps', icon: Target, isBeta: true },
   ];
 
   const handleSignOut = async () => {
@@ -337,6 +337,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   {item.highlight && !isActive && (
                     <span className="text-[10px] font-semibold text-[#5d2a1a] bg-[#fbe1d1] px-1.5 py-0.5 rounded-full">
                       NEW
+                    </span>
+                  )}
+                  {item.isBeta && (
+                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                      isActive ? 'bg-white/20 text-white' : 'text-[#5d2a1a] bg-[#fbe1d1]'
+                    }`}>
+                      BETA
                     </span>
                   )}
                 </Link>
