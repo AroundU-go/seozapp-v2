@@ -17,8 +17,10 @@ export default function Document() {
             `
           }}
         />
-        <link rel="icon" type="image/jpeg" href="/seozapp-logo.jpeg" />
-        <link rel="shortcut icon" href="/seozapp-logo.jpeg" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/seozapp-logo.jpeg" />
         
         <meta name="description"
