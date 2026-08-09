@@ -350,7 +350,7 @@ export default function CitationMonitoringPage() {
                   id: r.id || `hist_${Date.now()}`,
                   prompt: r.prompt_text || item.title,
                   brandName: r.brand_name || 'Brand',
-                  engineId: (r.llm_provider || 'kimi') as AiEngineId,
+                  engineId: (r.llm_provider || 'chatgpt') as AiEngineId,
                   region: (r.region || 'US') as RegionCode,
                   cited: !!r.cited,
                   position: r.position || 'Uncited',

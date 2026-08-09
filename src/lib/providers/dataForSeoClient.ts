@@ -22,7 +22,6 @@ const ENGINE_CONFIG: Record<string, { se: string; model: string }> = {
   gemini: { se: 'gemini', model: 'gemini-3.5-flash' },
   perplexity: { se: 'perplexity', model: 'sonar' },
   grok: { se: 'perplexity', model: 'sonar-pro' },
-  kimi: { se: 'chat_gpt', model: 'gpt-4.1-mini' },
 };
 
 export async function queryDataForSeoLlm(
