@@ -66,7 +66,7 @@ export default function CitationMonitoringPage() {
           id: item.id || `pr_${item.created_at}`,
           title: item.prompt_text || item.brand_name,
           subtitle: `Brand: ${item.brand_name || 'N/A'} • Provider: ${item.llm_provider || 'AI Engine'}`,
-          timestamp: item.created_at || item.run_at || new Date().toISOString(),
+          timestamp: item.run_at || item.created_at || new Date().toISOString(),
           badge: item.cited ? 'Cited' : 'Uncited',
           data: item,
         }));
@@ -82,9 +82,10 @@ export default function CitationMonitoringPage() {
   // Multi-prompt inputs array
   const [promptInputs, setPromptInputs] = useState<string[]>(['']);
   const [brandName, setBrandName] = useState('');
+  const [brandDomain, setBrandDomain] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<RegionCode>('US');
-  const [selectedEngines, setSelectedEngines] = useState<AiEngineId[]>(['chatgpt', 'gemini', 'perplexity', 'ai_overview']);
+  const [selectedEngines, setSelectedEngines] = useState<AiEngineId[]>(['chatgpt', 'gemini', 'perplexity', 'ai_overview', 'claude']);
   const [filterEngine, setFilterEngine] = useState<string>('all');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -96,10 +97,14 @@ export default function CitationMonitoringPage() {
     if (typeof window !== 'undefined') {
       const storedBrand = localStorage.getItem('pending_brand_name');
       const storedDomain = localStorage.getItem('tracked_domain');
+      if (storedDomain) {
+        setBrandDomain(storedDomain);
+        if (!storedBrand) {
+          setBrandName(storedDomain.split('.')[0]);
+        }
+      }
       if (storedBrand) {
         setBrandName(storedBrand);
-      } else if (storedDomain) {
-        setBrandName(storedDomain.split('.')[0]);
       }
 
       // Load local cache history
@@ -126,7 +131,7 @@ export default function CitationMonitoringPage() {
         const data = await res.json();
         if (data.success && Array.isArray(data.runs) && data.runs.length > 0) {
           const dbResults: PromptResult[] = data.runs.map((r: any) => {
-            const ts = r.created_at || r.run_at;
+            const ts = r.run_at || r.created_at;
             return {
               id: r.id || `pr_${ts}`,
               prompt: r.prompt_text,
@@ -204,74 +209,66 @@ export default function CitationMonitoringPage() {
     setLoading(true);
     setErrorMsg(null);
 
-    // Send one API call per engine sequentially to avoid Vercel serverless timeout.
-    // Each call runs a single Apify actor (~15-20s) which fits within the 60s limit.
-    const enginesToQuery = selectedEngines.length > 0 ? selectedEngines : ['chatgpt', 'perplexity', 'gemini'];
-    let hasError = false;
+    const enginesToQuery = selectedEngines.length > 0 ? selectedEngines : ['chatgpt', 'perplexity', 'gemini', 'ai_overview', 'claude'];
 
-    for (const engineId of enginesToQuery) {
+    try {
+      const res = await fetch('/api/v2/prompt-monitor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompts: validPrompts,
+          brandName: brandName.trim(),
+          brandDomain: brandDomain.trim(),
+          platforms: enginesToQuery,
+          userEmail: user?.email || null,
+        }),
+      });
+
+      const rawText = await res.text();
+      let data: any = {};
       try {
-        const res = await fetch('/api/v2/prompt-monitor', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompts: validPrompts,
-            brandName: brandName.trim(),
-            engine: engineId,
-            userEmail: user?.email || null,
-          }),
-        });
-
-        const rawText = await res.text();
-        let data: any = {};
-        try {
-          data = JSON.parse(rawText);
-        } catch {
-          console.warn(`Non-JSON response for ${engineId} (${res.status}): ${rawText.slice(0, 100)}`);
-          continue;
-        }
-
-        if (!res.ok || data.error) {
-          console.warn(`Engine ${engineId} error: ${data.error || `HTTP ${res.status}`}`);
-          continue;
-        }
-
-        if (data.success && Array.isArray(data.results)) {
-          const newItems: PromptResult[] = data.results.map((r: any) => ({
-            id: r.id || `pr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-            prompt: r.prompt,
-            brandName: r.brandName,
-            engineId: r.engineId || engineId,
-            region: r.region || 'US',
-            cited: r.cited,
-            position: r.position,
-            sentiment: r.sentiment || 'neutral',
-            responseSnippet: r.responseSnippet || '',
-            citedUrls: r.citedUrls || [],
-            isLiveSearch: r.isLiveSearch || false,
-            lastRun: 'Just now',
-          }));
-
-          // Append results incrementally as each engine completes
-          setPromptResults((prev) => {
-            const updated = [...newItems, ...prev].slice(0, 100);
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('monitored_prompts_history', JSON.stringify(updated));
-            }
-            return updated;
-          });
-        }
-      } catch (err: any) {
-        console.error(`Prompt monitor error for ${engineId}:`, err);
-        hasError = true;
+        data = JSON.parse(rawText);
+      } catch {
+        setErrorMsg(`Server returned non-JSON response (${res.status}): ${rawText.slice(0, 100)}`);
+        setLoading(false);
+        return;
       }
+
+      if (!res.ok || data.error) {
+        setErrorMsg(data.error || `HTTP ${res.status}`);
+        setLoading(false);
+        return;
+      }
+
+      if (data.success && Array.isArray(data.results)) {
+        const newItems: PromptResult[] = data.results.map((r: any) => ({
+          id: r.id || `pr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          prompt: r.prompt,
+          brandName: r.brandName,
+          engineId: r.engineId || 'chatgpt',
+          region: r.region || 'US',
+          cited: r.cited,
+          position: r.position,
+          sentiment: r.sentiment || 'neutral',
+          responseSnippet: r.responseSnippet || '',
+          citedUrls: r.citedUrls || [],
+          isLiveSearch: r.isLiveSearch || false,
+          lastRun: 'Just now',
+        }));
+
+        setPromptResults((prev) => {
+          const updated = [...newItems, ...prev].slice(0, 100);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('monitored_prompts_history', JSON.stringify(updated));
+          }
+          return updated;
+        });
+      }
+    } catch (err: any) {
+      console.error(`Prompt monitor error:`, err);
+      setErrorMsg('Failed to run prompt monitoring. Please try again.');
     }
 
-    if (hasError) {
-      setErrorMsg('Some engines failed to respond. Partial results may be shown.');
-    }
-
-    // Reset prompt inputs back to one empty row
     setPromptInputs(['']);
     setLoading(false);
   };
@@ -350,13 +347,13 @@ export default function CitationMonitoringPage() {
                   id: r.id || `hist_${Date.now()}`,
                   prompt: r.prompt_text || item.title,
                   brandName: r.brand_name || 'Brand',
-                  engineId: (r.llm_provider || 'chatgpt') as AiEngineId,
+                  engineId: (r.llm_provider || 'kimi') as AiEngineId,
                   region: (r.region || 'US') as RegionCode,
                   cited: !!r.cited,
                   position: r.position || 'Uncited',
                   sentiment: r.sentiment || 'neutral',
                   responseSnippet: r.response_snippet || '',
-                  lastRun: r.created_at || r.run_at || new Date().toISOString(),
+                  lastRun: r.run_at || r.created_at || new Date().toISOString(),
                 },
                 ...prev,
               ]);
@@ -389,16 +386,28 @@ export default function CitationMonitoringPage() {
           </div>
 
           <form onSubmit={handleTestPrompts} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-[#777b86] mb-1">Target Brand Name *</label>
-              <input
-                type="text"
-                required
-                value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
-                placeholder="e.g. SEOzapp"
-                className="bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-4 py-2.5 text-sm w-full md:w-80 focus:outline-none"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-[#777b86] mb-1">Target Brand Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={brandName}
+                  onChange={(e) => setBrandName(e.target.value)}
+                  placeholder="e.g. HubSpot"
+                  className="bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-4 py-2.5 text-sm w-full focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[#777b86] mb-1">Brand Domain (Optional)</label>
+                <input
+                  type="text"
+                  value={brandDomain}
+                  onChange={(e) => setBrandDomain(e.target.value)}
+                  placeholder="e.g. hubspot.com"
+                  className="bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-4 py-2.5 text-sm w-full focus:outline-none"
+                />
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -546,6 +555,7 @@ export default function CitationMonitoringPage() {
                   <option value="gemini">Gemini</option>
                   <option value="perplexity">Perplexity</option>
                   <option value="ai_overview">AI Overviews</option>
+                  <option value="claude">Claude</option>
                 </select>
               </div>
 

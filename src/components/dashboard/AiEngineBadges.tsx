@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type AiEngineId = 'chatgpt' | 'perplexity' | 'ai_overview' | 'gemini';
+export type AiEngineId = 'chatgpt' | 'perplexity' | 'ai_overview' | 'gemini' | 'claude';
 
 export interface AiEngineInfo {
   id: AiEngineId;
@@ -49,6 +49,14 @@ export const AI_ENGINES: Record<AiEngineId, AiEngineInfo> = {
     iconPath: '/google-logo.png',
     badgeBg: 'bg-[#ea4335]/10',
     badgeText: 'text-[#ea4335]',
+  },
+  claude: {
+    id: 'claude',
+    name: 'Claude',
+    provider: 'Anthropic',
+    iconPath: '/icon5.png',
+    badgeBg: 'bg-[#d97706]/10',
+    badgeText: 'text-[#d97706]',
   },
 };
 

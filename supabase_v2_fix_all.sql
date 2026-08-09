@@ -52,7 +52,6 @@ ALTER TABLE public.v2_prompt_runs ADD COLUMN IF NOT EXISTS cited BOOLEAN;
 ALTER TABLE public.v2_prompt_runs ADD COLUMN IF NOT EXISTS position TEXT;
 ALTER TABLE public.v2_prompt_runs ADD COLUMN IF NOT EXISTS sentiment TEXT;
 ALTER TABLE public.v2_prompt_runs ADD COLUMN IF NOT EXISTS response_snippet TEXT;
-ALTER TABLE public.v2_prompt_runs ADD COLUMN IF NOT EXISTS run_at TIMESTAMPTZ;
 ALTER TABLE public.v2_prompt_runs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow all v2_prompt_runs" ON public.v2_prompt_runs;
 CREATE POLICY "Allow all v2_prompt_runs" ON public.v2_prompt_runs FOR ALL USING (true) WITH CHECK (true);
