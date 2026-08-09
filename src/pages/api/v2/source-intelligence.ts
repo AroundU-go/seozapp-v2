@@ -4,6 +4,7 @@ export const maxDuration = 60;
 import { firecrawlClient } from '@/lib/providers/firecrawlClient';
 import { kimiClient } from '@/lib/providers/kimiClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
+import { getServerPlanLimits } from '@/lib/planLimits';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
@@ -30,6 +31,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!url || typeof url !== 'string') {
       return res.status(400).json({ error: 'URL is required' });
+    }
+
+    // Server-side Plan Gate Check
+    const planLimits = await getServerPlanLimits(userEmail);
+    if (!planLimits.isPro) {
+      return res.status(403).json({ error: 'Active subscription required for Source Citation Intelligence. Please upgrade your plan.' });
     }
 
     try {

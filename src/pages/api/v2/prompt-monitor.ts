@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { runApifyBrandTracker, BrandTrackerResult } from '@/lib/providers/apifyClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 import { REGIONS, RegionCode } from '@/components/dashboard/RegionSelector';
+import { getServerPlanLimits } from '@/lib/planLimits';
 
 export const maxDuration = 60;
 
@@ -91,20 +92,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'At least one prompt and brandName are required' });
     }
 
-    // Build platforms list from various input formats
-    let platformList: string[] = [];
+    // Server-side Plan Gate Check
+    const planLimits = await getServerPlanLimits(userEmail);
+    if (!planLimits.isPro) {
+      return res.status(403).json({ error: 'Active subscription required for prompt monitoring. Please upgrade your plan.' });
+    }
+
+    // Build platforms list from various input formats and filter by user plan allowed engines
+    let requestedPlatforms: string[] = [];
     if (Array.isArray(platforms) && platforms.length > 0) {
-      platformList = platforms;
+      requestedPlatforms = platforms;
     } else if (Array.isArray(engines) && engines.length > 0) {
-      platformList = engines;
+      requestedPlatforms = engines;
     } else if (engine) {
-      platformList = [engine];
+      requestedPlatforms = [engine];
     } else {
-      platformList = ['chatgpt', 'gemini', 'perplexity', 'ai_overview', 'claude'];
+      requestedPlatforms = ['chatgpt', 'gemini', 'perplexity', 'ai_overview', 'claude'];
+    }
+
+    const platformList = requestedPlatforms.filter((p) => planLimits.allowedEngines.includes(p));
+    if (platformList.length === 0) {
+      platformList.push(planLimits.allowedEngines[0] || 'chatgpt');
+    }
+
+    // Enforce total prompt quota check
+    if (planLimits.maxPrompts < 999 && userEmail) {
+      try {
+        const { count } = await supabaseV2Admin
+          .from(V2_TABLES.PROMPT_RUNS)
+          .select('id', { count: 'exact', head: true })
+          .ilike('user_email', userEmail.trim().toLowerCase());
+
+        const currentCount = count || 0;
+        if (currentCount + promptList.length > planLimits.maxPrompts) {
+          return res.status(403).json({
+            error: `Your ${planLimits.tier} plan limit of ${planLimits.maxPrompts} prompts has been reached (${currentCount}/${planLimits.maxPrompts} used). Please upgrade your plan.`,
+          });
+        }
+      } catch (countErr) {
+        console.warn('[prompt-monitor] Prompt count check skipped:', countErr);
+      }
     }
 
     try {
-      // Single Apify actor call with all queries + all platforms
+      // Single Apify actor call with all queries + allowed platforms
       const trackerResults: BrandTrackerResult[] = await runApifyBrandTracker({
         brandName: brandName.trim(),
         brandDomain: brandDomain || '',

@@ -7,6 +7,8 @@ import { computeSeoScore } from '@/lib/scoring/seo-score';
 import { computeStructuralScore } from '@/lib/scoring/ai-readiness';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 
+import { getServerPlanLimits } from '@/lib/planLimits';
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const userEmail = (req.query.userEmail as string || '').toLowerCase().trim();
@@ -32,6 +34,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!ownUrl || typeof ownUrl !== 'string') {
       return res.status(400).json({ error: 'ownUrl is required' });
+    }
+
+    // Server-side Plan Gate Check
+    const planLimits = await getServerPlanLimits(userEmail);
+    if (!planLimits.isPro) {
+      return res.status(403).json({ error: 'Active subscription required for Competitor Intelligence. Please upgrade your plan.' });
+    }
+
+    if (Array.isArray(competitorUrls) && competitorUrls.length > planLimits.maxCompetitors) {
+      return res.status(403).json({
+        error: `Your ${planLimits.tier} plan allows up to ${planLimits.maxCompetitors} competitors per analysis (${competitorUrls.length} provided). Please upgrade your plan.`,
+      });
     }
 
     try {

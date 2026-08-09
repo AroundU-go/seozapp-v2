@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { firecrawlClient } from '@/lib/providers/firecrawlClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
+import { getServerPlanLimits } from '@/lib/planLimits';
 
 export interface BotAccessStatus {
   botName: string;
@@ -36,6 +37,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!targetUrl || typeof targetUrl !== 'string') {
       return res.status(400).json({ error: 'targetUrl is required' });
+    }
+
+    // Server-side Plan Gate Check
+    const planLimits = await getServerPlanLimits(userEmail);
+    if (!planLimits.isPro) {
+      return res.status(403).json({ error: 'Active subscription required for AI Bot Crawlability Audit. Please upgrade your plan.' });
     }
 
     try {

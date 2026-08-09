@@ -90,10 +90,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const isSub = eventType === 'subscription.active' || eventType === 'subscription.renewed' || payloadData.subscription_id;
             const paymentType = isSub ? 'subscription' : 'one_time';
             
+            const productId = payloadData.product_id || payloadData.productId || payloadData.product?.product_id || metadata.product_id || '';
+            let planTier = 'pro';
+            if (productId === 'pdt_0NkT2xUGJmZm5ZO1kC5TV') {
+                planTier = 'starter';
+            } else if (productId === 'pdt_0NkT37fYUyTYNIOPjOF10') {
+                planTier = 'pro';
+            }
+
             const updatePayload = {
                 is_pro: true,
                 pro_since: new Date().toISOString(),
                 payment_type: paymentType,
+                plan_tier: planTier,
                 pro_audit_count: 0
             };
 

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { exaClient, ExaSearchResultItem } from '@/lib/providers/exaClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
+import { getServerPlanLimits } from '@/lib/planLimits';
 
 export interface ProcessedMention {
   id: string;
@@ -44,6 +45,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!brandName || typeof brandName !== 'string') {
       return res.status(400).json({ error: 'brandName is required' });
+    }
+
+    // Server-side Plan Gate Check
+    const planLimits = await getServerPlanLimits(userEmail);
+    if (!planLimits.isPro) {
+      return res.status(403).json({ error: 'Active subscription required for Brand Mentions Radar. Please upgrade your plan.' });
     }
 
     try {

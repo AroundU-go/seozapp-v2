@@ -7,6 +7,8 @@ import { computeSeoScore } from '@/lib/scoring/seo-score';
 import { computeStructuralScore, combineAiReadinessScore } from '@/lib/scoring/ai-readiness';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 
+import { getServerPlanLimits } from '@/lib/planLimits';
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const userEmail = (req.query.userEmail as string || '').toLowerCase().trim();
@@ -35,6 +37,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!url || typeof url !== 'string') {
     return res.status(400).json({ error: 'URL is required' });
+  }
+
+  // Server-side Plan Gate & Free Teaser Audit Limit Check (1 free audit)
+  const planLimits = await getServerPlanLimits(userEmail);
+  if (!planLimits.isPro && userEmail) {
+    try {
+      const { count } = await supabaseV2Admin
+        .from(V2_TABLES.SEO_SNAPSHOTS)
+        .select('id', { count: 'exact', head: true })
+        .ilike('user_email', userEmail.trim().toLowerCase());
+
+      if ((count || 0) >= 1) {
+        return res.status(403).json({
+          error: 'Free teaser audit limit reached (1/1 used). Please upgrade your plan to run unlimited technical SEO audits.',
+          limitReached: true,
+        });
+      }
+    } catch (auditCountErr) {
+      console.warn('[analyze-url] Free audit count check error:', auditCountErr);
+    }
   }
 
   try {
