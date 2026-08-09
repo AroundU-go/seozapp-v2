@@ -54,9 +54,14 @@ export const AI_ENGINES: Record<AiEngineId, AiEngineInfo> = {
     id: 'claude',
     name: 'Claude',
     provider: 'Anthropic',
-    iconPath: '/icon5.png',
+    iconPath: '/icon1.png',
     badgeBg: 'bg-[#d97706]/10',
     badgeText: 'text-[#d97706]',
+    svgIcon: (
+      <svg className="w-4 h-4 text-[#d97706]" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
+      </svg>
+    ),
   },
 };
 
