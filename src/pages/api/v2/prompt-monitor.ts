@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { runApifyBrandTracker, BrandTrackerResult } from '@/lib/providers/apifyClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
+import { REGIONS, RegionCode } from '@/components/dashboard/RegionSelector';
 
 export const maxDuration = 60;
 
@@ -65,9 +66,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       engine,
       competitors = [],
       userEmail,
+      region = 'US',
+      locationCode,
+      languageCode,
     } = req.body;
 
-    const region = 'US';
+    const targetRegion: RegionCode = (region as RegionCode) in REGIONS ? (region as RegionCode) : 'US';
+    const regionInfo = REGIONS[targetRegion] || REGIONS.US;
+    const targetLocationCode = locationCode || regionInfo.locationCode || '2840';
+    const targetLanguageCode = languageCode || regionInfo.languageCode || 'en';
 
     // Build prompts list
     const promptList: string[] = [];
@@ -104,6 +111,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         queries: promptList,
         platforms: platformList,
         competitors: Array.isArray(competitors) ? competitors : [],
+        locationCode: targetLocationCode,
+        languageCode: targetLanguageCode,
       });
 
       const nowIso = new Date().toISOString();
@@ -114,7 +123,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           id: `pr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
           prompt: r.query,
           brandName: brandName.trim(),
-          region,
+          region: targetRegion,
           engineId: r.platform,
           cited: r.brandMentioned,
           position: r.position,
@@ -134,7 +143,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             user_email: userEmail || null,
             prompt_text: r.query,
             brand_name: brandName.trim(),
-            region,
+            region: targetRegion,
             llm_provider: r.platform,
             cited: r.brandMentioned,
             position: r.position,

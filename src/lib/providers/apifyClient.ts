@@ -48,6 +48,8 @@ export interface BrandTrackerInput {
   queries: string[];
   platforms: string[];      // our internal engine IDs
   competitors?: string[];
+  locationCode?: string;
+  languageCode?: string;
 }
 
 /**
@@ -77,8 +79,8 @@ export async function runApifyBrandTracker(
     platforms: actorPlatforms,
     competitors: params.competitors || [],
     competitorDomains: [] as string[],
-    locationCode: '2840',    // United States
-    languageCode: 'en',
+    locationCode: params.locationCode || '2840',
+    languageCode: params.languageCode || 'en',
     includeAggregatedMetrics: false,
     enableQueryFanout: false,
     fanoutVariantsPerQuery: 4,

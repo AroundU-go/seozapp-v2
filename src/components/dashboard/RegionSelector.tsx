@@ -9,17 +9,19 @@ export interface RegionInfo {
   flag: string;
   firecrawlCountry?: string;
   proxyLabel: string;
+  locationCode: string;
+  languageCode: string;
 }
 
 export const REGIONS: Record<RegionCode, RegionInfo> = {
-  GLOBAL: { code: 'GLOBAL', name: 'Global (Default)', flag: '🌍', proxyLabel: 'Worldwide Proxies' },
-  US: { code: 'US', name: 'United States', flag: '🇺🇸', firecrawlCountry: 'US', proxyLabel: 'US Commercial Proxy' },
-  EU: { code: 'EU', name: 'European Union', flag: '🇪🇺', firecrawlCountry: 'DE', proxyLabel: 'EU Residential Proxy' },
-  UK: { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', firecrawlCountry: 'GB', proxyLabel: 'UK Residential Proxy' },
-  CA: { code: 'CA', name: 'Canada', flag: '🇨🇦', firecrawlCountry: 'CA', proxyLabel: 'CA Residential Proxy' },
-  AU: { code: 'AU', name: 'Australia', flag: '🇦🇺', firecrawlCountry: 'AU', proxyLabel: 'AU Residential Proxy' },
-  JP: { code: 'JP', name: 'Japan', flag: '🇯🇵', firecrawlCountry: 'JP', proxyLabel: 'JP Residential Proxy' },
-  IN: { code: 'IN', name: 'India', flag: '🇮🇳', firecrawlCountry: 'IN', proxyLabel: 'IN Residential Proxy' },
+  GLOBAL: { code: 'GLOBAL', name: 'Global (Default)', flag: '🌍', proxyLabel: 'Worldwide Proxies', locationCode: '2840', languageCode: 'en' },
+  US: { code: 'US', name: 'United States', flag: '🇺🇸', firecrawlCountry: 'US', proxyLabel: 'US Commercial Proxy', locationCode: '2840', languageCode: 'en' },
+  EU: { code: 'EU', name: 'European Union', flag: '🇪🇺', firecrawlCountry: 'DE', proxyLabel: 'EU Residential Proxy', locationCode: '2276', languageCode: 'de' },
+  UK: { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', firecrawlCountry: 'GB', proxyLabel: 'UK Residential Proxy', locationCode: '2826', languageCode: 'en' },
+  CA: { code: 'CA', name: 'Canada', flag: '🇨🇦', firecrawlCountry: 'CA', proxyLabel: 'CA Residential Proxy', locationCode: '2124', languageCode: 'en' },
+  AU: { code: 'AU', name: 'Australia', flag: '🇦🇺', firecrawlCountry: 'AU', proxyLabel: 'AU Residential Proxy', locationCode: '2036', languageCode: 'en' },
+  JP: { code: 'JP', name: 'Japan', flag: '🇯🇵', firecrawlCountry: 'JP', proxyLabel: 'JP Residential Proxy', locationCode: '2392', languageCode: 'ja' },
+  IN: { code: 'IN', name: 'India', flag: '🇮🇳', firecrawlCountry: 'IN', proxyLabel: 'IN Residential Proxy', locationCode: '2356', languageCode: 'en' },
 };
 
 export const RegionDropdown: React.FC<{
