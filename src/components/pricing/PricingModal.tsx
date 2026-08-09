@@ -41,6 +41,7 @@ const v2Tiers: PricingTier[] = [
       '25 prompts',
       '2 sites',
       '5 competitors',
+      'Weekly monitoring',
       {
         text: 'Track 2 LLMs',
         logos: [

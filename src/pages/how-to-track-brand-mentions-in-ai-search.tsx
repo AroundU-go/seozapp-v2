@@ -68,14 +68,6 @@ export default function HowToTrackBrandMentionsInAiSearch() {
               </span>
             </Link>
             <div className="flex items-center gap-4">
-              <Link
-                href="https://cal.com/uddipan"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden sm:inline-flex text-[14px] font-medium text-[#17191c] hover:bg-[#fafafb] transition-colors border border-[#17191c]/20 px-4 py-2 rounded-full"
-              >
-                Book a demo
-              </Link>
               {user ? (
                 <button
                   onClick={() => router.push('/dashboard')}
