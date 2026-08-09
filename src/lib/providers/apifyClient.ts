@@ -183,14 +183,6 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
     item.cited ??
     false;
 
-  // Position / rank
-  const position =
-    item.position ??
-    item.rank ??
-    item.brandPosition ??
-    item.positionEstimate ??
-    (brandMentioned ? 'Cited' : 'Uncited');
-
   // Sentiment
   const sentiment =
     item.sentiment ??
@@ -216,6 +208,49 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
       if (s && typeof s === 'object') return s.url || s.link || '';
       return '';
     }).filter(Boolean);
+  }
+
+  // Smart Position / Rank Calculation
+  let position =
+    item.position ??
+    item.rank ??
+    item.brandPosition ??
+    item.positionEstimate ??
+    item.positionScore ??
+    null;
+
+  if (position && typeof position === 'number') {
+    position = `#${position} Position`;
+  }
+
+  if (!position || position === 'Cited' || position === 'Uncited') {
+    if (!brandMentioned) {
+      position = 'Uncited';
+    } else {
+      const cleanBrand = brandName.trim().toLowerCase();
+      // 1. Check index in cited source URLs
+      const urlIdx = citedUrls.findIndex((u) => u.toLowerCase().includes(cleanBrand));
+      if (urlIdx === 0) {
+        position = '#1 Position';
+      } else if (urlIdx > 0 && urlIdx < 3) {
+        position = `Top 3 (#${urlIdx + 1})`;
+      } else if (urlIdx >= 3) {
+        position = `Top 5 (#${urlIdx + 1})`;
+      } else {
+        // 2. Check position of mention in answer text
+        const snippetLower = String(responseSnippet).toLowerCase();
+        const mentionIdx = snippetLower.indexOf(cleanBrand);
+        if (mentionIdx >= 0 && mentionIdx < 150) {
+          position = '#1 Mention';
+        } else if (mentionIdx >= 150 && mentionIdx < 400) {
+          position = 'Top 3 Mention';
+        } else if (mentionIdx >= 0) {
+          position = 'Cited in AI response';
+        } else {
+          position = 'Cited';
+        }
+      }
+    }
   }
 
   // Competitors mentioned
