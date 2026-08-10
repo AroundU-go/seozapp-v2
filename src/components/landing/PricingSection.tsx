@@ -37,11 +37,13 @@ const v2Tiers: PricingTier[] = [
       '2 sites',
       '5 competitors',
       'Weekly monitoring',
+      'Multi-region tracking',
       {
-        text: 'Track 2 LLMs',
+        text: 'Track 3 LLMs',
         logos: [
           { src: '/icon2.png', alt: 'ChatGPT' },
           { src: '/icon4.png', alt: 'Gemini' },
+          { src: '/icon3.png', alt: 'Perplexity' },
         ],
       },
       'AI traffic analytics',

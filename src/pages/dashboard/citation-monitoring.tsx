@@ -56,7 +56,7 @@ export default function CitationMonitoringPage() {
   const isPro = true;
 
   // Allowed AI Search Engines based on subscription plan
-  // Starter ($49): ChatGPT + Gemini (2 LLMs)
+  // Starter ($49): ChatGPT + Gemini + Perplexity (3 LLMs)
   // Pro ($99): ChatGPT + Gemini + Perplexity + AI Overviews (4 LLMs)
   // Enterprise ($249) / Admin: All 5 LLMs (including Claude)
   const getAllowedEngines = (): AiEngineId[] => {
@@ -67,7 +67,7 @@ export default function CitationMonitoringPage() {
     if (pay.includes('pro') || pay.includes('$99')) {
       return ['chatgpt', 'gemini', 'perplexity', 'ai_overview'];
     }
-    return ['chatgpt', 'gemini'];
+    return ['chatgpt', 'gemini', 'perplexity'];
   };
 
   const allowedEngines = getAllowedEngines();

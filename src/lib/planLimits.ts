@@ -26,7 +26,7 @@ export const STARTER_LIMITS: PlanLimits = {
   maxPrompts: 25,
   maxCompetitors: 5,
   maxSites: 2,
-  allowedEngines: ['chatgpt', 'gemini'],
+  allowedEngines: ['chatgpt', 'gemini', 'perplexity'],
 };
 
 export const PRO_LIMITS: PlanLimits = {
