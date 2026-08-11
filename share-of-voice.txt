@@ -1,0 +1,76 @@
+Title: Share of Voice in AI Search Explained
+Meta description: What share of voice means in AI search, how it's actually calculated, why it's different from your old SEO share of voice, and how to start measuring yours.
+
+# Share of Voice in AI Search Explained
+
+You already know share of voice from traditional SEO — the percentage of clicks or impressions your brand captures for a set of keywords compared to everyone else ranking for them. It's a metric you've probably pulled into a client report or a board deck at some point without thinking too hard about it.
+
+AI search has the same idea, but the mechanics underneath it are different enough that the old formula doesn't quite carry over. There's no ranking position 1 through 10 to count anymore. There's a paragraph, generated fresh each time, that either says your name or doesn't. Understanding what share of voice actually means in that context — and how to measure something that isn't sitting still — is the point of this post.
+
+## What share of voice means in AI search
+
+Share of voice in AI search is the percentage of relevant AI-generated answers that mention your brand, compared to how often your competitors get mentioned for those same questions.
+
+Say you run a project management tool. You pick 20 buyer-intent prompts — things like "best project management tool for a 5-person team" or "Asana alternative for freelancers" — and you run each one across ChatGPT, Perplexity, and Gemini. Out of those 60 total responses (20 prompts × 3 engines), your brand shows up in 24 of them. Your two closest competitors show up in 30 and 18 respectively. Your raw share of voice for that prompt set is 40% (24 out of 60), and relative to your competitors combined, you're sitting in the middle of the pack.
+
+That's the basic version. The real metric gets more useful once you add two more layers.
+
+## Why a simple mention count isn't enough
+
+If you stop at "were we mentioned or not," you're measuring something real but incomplete. Two brands can both have a 40% citation rate and be in completely different positions.
+
+**Position matters.** Being the first brand ChatGPT names, in the direct answer, is worth meaningfully more than being the fourth item in a "you might also explore" list tacked on at the end. A share-of-voice number that doesn't weight for position treats those two outcomes as identical when they're not remotely equivalent in terms of actual influence on the person reading the answer.
+
+**Sentiment matters just as much.** A citation isn't automatically a good thing. "X is a solid choice, though it's pricier than most alternatives" is a mention, technically — but it's doing different work than an unqualified recommendation. If you're only counting mentions, you can watch your share of voice climb while your actual brand perception in AI answers quietly gets worse.
+
+A genuinely useful share-of-voice number accounts for all three: frequency, position, and sentiment, weighted together rather than reported as three separate charts nobody cross-references.
+
+## How it's different from traditional SEO share of voice
+
+A few things about this metric behave differently than what you're used to, and it's worth being upfront about them so you don't apply old assumptions to new data.
+
+**It's noisier by nature.** A Google ranking is relatively stable — you can check it once and trust it roughly holds for a few days. An AI-generated answer to the exact same prompt can vary between two separate requests, depending on model version, whether browsing is enabled, and what's changed in the underlying sources since the last time the model looked. This means single-prompt share of voice is close to meaningless. You need enough prompt volume and repetition for the noise to average out into a real signal.
+
+**It's engine-fragmented.** Your share of voice in ChatGPT and your share of voice in Perplexity can be wildly different numbers, because the two engines lean on different sources and different retrieval methods. A brand that's dominant in Perplexity because of strong Reddit and review-site presence might be nearly invisible in Gemini if Google's own index doesn't favor those same sources. Reporting a single blended number across engines hides this and can lead you to the wrong fix.
+
+**It's influenced by content you don't own.** In classic SEO, your share of voice is mostly a function of your own pages. In AI search, a meaningful share of your citations often come through third-party roundups, comparison articles, and review sites the model is pulling from — meaning your share of voice is partly a function of PR and earned media, not just what's published on your own domain.
+
+**It moves faster and less predictably.** Model updates, re-indexing, and shifts in which sources an engine trusts can move your number without you having changed anything on your end. Traditional SEO share of voice mostly moves because of things you did (or a competitor did). AI search share of voice can move because of things neither of you did.
+
+## How to actually measure yours
+
+Here's a version you can run without any special tooling, to get a first real number.
+
+1. **Build a prompt list of 15-20 real buyer questions**, pulled from your sales team, support tickets, or your existing Search Console queries that already convert. Skip prompts that already contain your brand name — you're measuring discovery, not recall.
+2. **Identify your real competitor set** — 2 to 4 brands your buyers are actually comparing you against, not just whoever ranks highest on Google.
+3. **Run every prompt fresh, in a new conversation, across at least 3 engines** (ChatGPT, Perplexity, and Gemini is a reasonable minimum set).
+4. **Log three things per response**: whether each brand was mentioned, where in the response, and how it was framed.
+5. **Calculate your raw share** — your mention count divided by total mentions across all tracked brands, per engine.
+6. **Repeat weekly or biweekly.** A single snapshot tells you almost nothing given how much natural variance exists between individual runs — the trend across repeated runs is the actual signal.
+
+For 20 prompts across 3 engines with 4 competitors tracked alongside you, that's 60 manual queries per run, logged by hand. It's genuinely useful as a first exercise. It's also exactly the kind of task that quietly stops happening around week three, which is usually the point where something shifts and nobody notices for a month.
+
+## Where this becomes worth automating
+
+This is the specific gap SEOzapp's prompt monitoring is built to close. You set your prompt list and competitor set once, and it runs them on a recurring schedule across ChatGPT, Perplexity, Gemini, Claude, and Google AI Overviews — reporting back citation frequency, position, and sentiment per engine, with your competitors' numbers sitting right alongside yours so share of voice is a number that's already calculated instead of one you build in a spreadsheet after the fact.
+
+Underneath that sits the diagnostic layer that turns a share-of-voice number into something actionable: technical SEO auditing across 25+ signals, an AI crawlability check confirming GPTBot, ClaudeBot, and PerplexityBot can actually reach your pages, and a GEO suite scoring how quotable your content actually is at the passage level. A low share of voice paired with a crawlability block is a completely different fix than a low share of voice on a technically sound page with thin content — and you need the diagnostic layer to know which one you're dealing with.
+
+## What to do once you know your number
+
+A share-of-voice score only matters if it changes what you publish or fix next.
+
+- **Low share, strong technical foundation** → your content probably lacks the specific, quotable detail models look for. Add direct-answer paragraphs, concrete differentiators, and FAQ schema.
+- **Low share, competitor dominates third-party roundups** → this is a PR and earned-media gap, not a content gap. Get into more comparison articles and review roundups deliberately.
+- **Strong in one engine, invisible in another** → check crawlability first before assuming it's a content problem. Different bots, different access rules.
+- **Share dropping month over month with nothing changed on your end** → treat it like an algorithm update. Something shifted in the sources or model behavior — dig into which engine moved and when.
+
+## The bottom line
+
+Share of voice in AI search measures the same underlying thing your old SEO metric measured — how much of the conversation you own versus your competitors — but it's noisier, more fragmented across engines, and more dependent on content you don't directly control. That means measuring it well takes more repetition and more cross-engine tracking than the old version ever did.
+
+Start with a manual check to understand your baseline. Automate it once your prompt list and competitor set outgrow what you can track by hand, because a share-of-voice drop is only useful information if you catch it while it's still small enough to fix.
+
+---
+
+*[Measure your share of voice across every major AI engine with SEOzapp →](https://seozapp.com)*
