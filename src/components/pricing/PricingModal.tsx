@@ -57,7 +57,7 @@ const v2Tiers: PricingTier[] = [
       'GEO (Generative Engine Optimization)',
       'AI Crawlability and bot access audit',
     ],
-    cta: 'Get started free',
+    cta: 'Get started',
   },
   {
     name: 'Pro',
@@ -88,7 +88,7 @@ const v2Tiers: PricingTier[] = [
     ],
     highlight: true,
     badge: 'Most Popular',
-    cta: 'Get started free',
+    cta: 'Get started',
   },
   {
     name: 'Enterprise / Scale',
@@ -102,7 +102,7 @@ const v2Tiers: PricingTier[] = [
       'Weekly crawl updates',
       'Everything in Pro but unlimited',
     ],
-    cta: 'Contact Sales ($249)',
+    cta: 'Get started',
   },
 ];
 

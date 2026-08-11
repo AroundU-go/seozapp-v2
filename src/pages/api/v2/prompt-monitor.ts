@@ -12,16 +12,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const userEmail = (req.query.userEmail as string || '').toLowerCase().trim();
     const brandName = (req.query.brandName as string || '').toLowerCase().trim();
 
+    // Require userEmail to prevent leaking other users' data
+    if (!userEmail) {
+      return res.status(200).json({ success: true, runs: [] });
+    }
+
     try {
       let query = supabaseV2Admin
         .from(V2_TABLES.PROMPT_RUNS)
         .select('*')
+        .ilike('user_email', userEmail)
         .order('run_at', { ascending: false })
         .limit(100);
 
-      if (userEmail) {
-        query = query.ilike('user_email', userEmail);
-      }
       if (brandName) {
         query = query.ilike('brand_name', `%${brandName}%`);
       }
@@ -29,29 +32,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { data, error } = await query;
       if (error) throw error;
 
-      if (!data || data.length === 0) {
-        // Fallback: return latest 100 runs without filters
-        const fallback = await supabaseV2Admin
-          .from(V2_TABLES.PROMPT_RUNS)
-          .select('*')
-          .order('run_at', { ascending: false })
-          .limit(100);
-        return res.status(200).json({ success: true, runs: fallback.data || [] });
-      }
-
-      return res.status(200).json({ success: true, runs: data });
+      return res.status(200).json({ success: true, runs: data || [] });
     } catch (err: any) {
       console.warn('GET prompt-runs error:', err.message);
-      try {
-        const fallback = await supabaseV2Admin
-          .from(V2_TABLES.PROMPT_RUNS)
-          .select('*')
-          .order('run_at', { ascending: false })
-          .limit(100);
-        return res.status(200).json({ success: true, runs: fallback.data || [] });
-      } catch {
-        return res.status(200).json({ success: true, runs: [] });
-      }
+      return res.status(200).json({ success: true, runs: [] });
     }
   }
 
