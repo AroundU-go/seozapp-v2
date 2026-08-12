@@ -1,0 +1,98 @@
+Title: Why Are SEO Pages Not Showing in AI Summaries?
+Meta description: Nine real reasons a well-ranked page gets skipped by ChatGPT, Perplexity, and Google AI Overviews — and how to check which one is actually happening to yours.
+
+# Why Are SEO Pages Not Showing in AI Summaries?
+
+You've got a page that ranks. Maybe it's on page one of Google, maybe it's even sitting in a featured snippet. And when you ask ChatGPT or Perplexity the exact question that page answers, your brand doesn't show up at all. Something else does — sometimes a competitor with a noticeably weaker page, sometimes a Reddit thread, sometimes a source you've never heard of.
+
+That gap is confusing the first time you notice it, because everything you were taught about SEO says a well-ranked page should be a well-cited one. It isn't automatically, and the reasons why come down to a handful of specific, checkable things — some technical, some structural, some just about how AI models decide what's worth repeating. Here's what's actually going on, and how to check which one applies to you.
+
+## Ranking and being cited are answering different questions
+
+Start with the actual mechanical difference, because it explains almost everything else on this list. A Google ranking is the output of a retrieval system optimized to surface the best matching page for a query, full stop. An AI-generated summary is the output of a model deciding, sentence by sentence, what's worth stating as fact and attributing to a source. Those are related tasks, but they're not the same task, and a page can win at one while losing at the other.
+
+Ranking rewards relevance and authority signals accumulated over time — backlinks, engagement, topical depth across your site. Being cited in a summary rewards something narrower: whether a specific passage on your page states a clear, extractable, confidently-worded fact that directly answers the exact question being asked. A page can have all the ranking signals in the world and still never contain a passage clean enough for a model to lift and repeat.
+
+## Reason 1: Your content answers the topic but not the specific question
+
+This is the single most common gap. A page can be genuinely comprehensive on a topic — thorough, well-researched, ranking well — and still not contain a single sentence that directly answers "what's the best X for Y," because the content is written to build understanding gradually rather than to state a direct answer early.
+
+AI models pull passages that read as self-contained answers. If your page builds toward its point across three paragraphs of context before actually saying the thing, a model summarizing quickly is more likely to lift a competitor's page that states the same conclusion in the first two sentences.
+
+**Check it:** Read the first 100 words of the page as if you were skimming for the answer to the exact prompt someone would type. If you can't find a direct, confident answer in that window, that's very likely part of the problem.
+
+## Reason 2: AI crawlers can't actually reach the page
+
+This one is purely technical, and it's more common than most teams expect, because it can happen silently through a robots.txt rule, a bot-protection service, or a CDN configuration that was never specifically checked against AI crawlers.
+
+If GPTBot, ClaudeBot, PerplexityBot, or Google-Extended is blocked — even unintentionally, even just on a subset of your site — the model simply cannot see the page, regardless of how well it's written or how well it ranks in Google. This is worth checking first, before you spend time rewriting content the model was never going to read in the first place.
+
+**Check it:** Look at your robots.txt file directly and search for disallow rules that might be catching AI bots, either by name or through a broader wildcard rule. Also check any bot-protection or CDN service you use — some default configurations block AI crawlers without it being obvious from the dashboard.
+
+## Reason 3: Your page lacks structured, extractable formatting
+
+Models tend to favor content that's already organized into clearly separable chunks — headers that state a question, short paragraphs or bullet points that each answer one thing, FAQ sections, comparison tables. A wall of unbroken prose, even if it's well-written and accurate, is harder for a model to extract a clean citable passage from than the same information broken into a clearly labeled structure.
+
+**Check it:** Scroll through the page and count how many individual sections could stand alone as a complete answer to a specific sub-question. If most of the content only makes sense in the context of the paragraph before it, that's a structural issue worth fixing.
+
+## Reason 4: A competitor's page is simply more current
+
+AI models weight recency more heavily than a lot of SEO content accounts for, particularly for topics where facts change — pricing, feature sets, "best of" comparisons, anything time-sensitive. A page you wrote eighteen months ago and haven't touched since is competing against a competitor's page updated last month, and freshness signals can outweigh your accumulated domain authority for citation purposes even when they don't move your Google ranking much.
+
+**Check it:** Look at the last-modified date on your page versus the pages currently being cited for the same prompt. If yours is meaningfully older, that's a real factor, not a coincidence.
+
+## Reason 5: Your brand is mentioned elsewhere, but not accurately or favorably
+
+Sometimes the issue isn't your own page at all — it's that the sources a model is actually drawing from for this specific question are third-party: a comparison article, a review site, a forum thread. If those sources describe you inaccurately, unfavorably, or not at all, your own page being well-optimized doesn't fully compensate, because the model may be weighting the third-party consensus more heavily than a single brand's own claims about itself.
+
+**Check it:** Search for your brand alongside your core category terms and look at what third-party content is actually ranking and getting cited elsewhere. If it's outdated or unflattering, that's a PR and outreach problem more than a content problem.
+
+## Reason 6: The page is too promotional to read as a neutral answer
+
+Models are noticeably cautious about lifting language that reads as marketing copy rather than a neutral statement of fact. A sentence like "our industry-leading, best-in-class solution" is much less likely to get quoted than a plainly stated fact like "the tool supports integrations with Slack, HubSpot, and Salesforce." This is a real, if slightly frustrating, dynamic — the more your page sounds like an ad, the more a model treats it as one, and a model summarizing a neutral answer generally prefers content that already sounds neutral.
+
+**Check it:** Read your key passages out loud. If they'd sound out of place in a Wikipedia article, that's likely reducing how often they get lifted directly.
+
+## Reason 7: You're missing schema markup that helps models parse the page
+
+Structured data — FAQ schema, Product schema, Article schema — doesn't just help traditional search engines understand a page, it gives AI systems a clearer, machine-readable signal about what specific question a given section is answering. A page without it isn't invisible, but it's making the model do more inference work to figure out what's actually being claimed, which makes it a slightly less attractive source to pull from when a cleaner alternative exists.
+
+**Check it:** Run the page through a schema validation tool and see what, if anything, is actually being detected. Missing or broken schema is a common, quick fix.
+
+## Reason 8: The engine you're checking doesn't weight your usual sources
+
+Different AI engines pull from meaningfully different source mixes. Perplexity leans heavily on live, recently indexed web content. Some other engines lean more on a broader training corpus that updates less frequently and may weight long-standing authority differently. A page that's well-optimized for one engine's retrieval style can genuinely be invisible to another's, which is why checking only one engine gives you an incomplete, sometimes misleading picture.
+
+**Check it:** Run the same prompt across at least three engines before concluding your content is the problem. If you're cited in one and not another, the issue is more likely engine-specific retrieval behavior than your content itself.
+
+## Reason 9: The prompt itself doesn't match how your page is framed
+
+Sometimes the actual gap is a mismatch between how you've optimized your page and how real people phrase the question. You might have a page thoroughly optimized around "project management software comparison," while actual buyers are asking "what should a 5-person team use instead of Asana" — a specific, conversational framing your page never directly addresses even though it covers the same underlying topic.
+
+**Check it:** Pull 5-10 real prompts, not keywords, and read your page specifically looking for whether it answers that exact phrasing. If it only addresses the topic broadly, that's a content gap worth closing directly.
+
+## How to actually diagnose which one applies to you
+
+Work through these roughly in order, since some are quick eliminations before you invest time in a content rewrite:
+
+1. **Check crawlability first.** It's the fastest thing to rule out and, if it's the actual cause, no amount of content work fixes it.
+2. **Check schema.** Also fast, also worth ruling out before assuming the content itself is the problem.
+3. **Read your key passage against the exact prompt.** Does it directly answer the question in the first few sentences, or does it build up to the point gradually?
+4. **Check the date.** Is your content current, and does it read as current?
+5. **Check tone.** Does the key passage read as a neutral fact or as marketing copy?
+6. **Check what's being cited instead.** Look at the page(s) that are getting cited for the same prompt and compare structure, freshness, and tone directly against yours.
+7. **Check across multiple engines**, not just one, before concluding anything about your content specifically.
+
+## Where this becomes worth systematizing
+
+Working through this checklist manually for one or two important pages is genuinely useful, and worth doing as a first exercise. It gets a lot less practical once you're trying to diagnose this across a full site, a full competitor set, and multiple AI engines on an ongoing basis, because the checklist above has to be repeated for every important page, every time something changes.
+
+This is the specific gap SEOzapp's audit layer is built to close — running the crawlability check, the schema check, and the content and structure analysis automatically across your site, alongside the citation tracking that tells you whether a fix actually worked. Instead of manually working through nine possible causes every time a page underperforms, you get a report that's already narrowed down which of these is actually happening on a given page, so the fix is the next thing you do, not the thing you spend an afternoon investigating first.
+
+## The bottom line
+
+A page not showing up in AI summaries almost never means "your SEO is bad." It usually means one specific, checkable thing — a crawlability block, a structural gap, a tone mismatch, or a freshness problem — is standing between a page that already ranks well and a page a model is actually willing to quote from. Work through the checklist in order, starting with the fastest checks, and you'll usually find the actual cause faster than a full content rewrite would have taken.
+
+---
+
+*[Run a free audit to see exactly why your pages aren't being cited →](https://seozapp.com)*
