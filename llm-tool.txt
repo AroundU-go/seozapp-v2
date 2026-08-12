@@ -1,0 +1,64 @@
+Title: LLM Brand Tracking Tool for Agencies
+Meta description: How to actually run LLM brand tracking as an agency service — from client onboarding to reporting cadence to pricing it into your retainer — not just which tool to buy.
+
+# LLM Brand Tracking Tool for Agencies
+
+At some point in the last few months, a client asked you something like "are we showing up when people ask ChatGPT about this," and you gave them an answer that was somewhere between a guess and a promise to look into it. That's not a knock — almost every agency has had that exact conversation recently, because the question arrived faster than the tooling and the workflows to properly answer it did.
+
+Picking a tool is only half the problem. The other half — the part that actually determines whether this becomes a real, billable service line or a one-off favor you did for one client — is building the workflow around it: how you onboard a client into LLM tracking, how often you report on it, how you fold it into an existing retainer instead of treating it as a separate ad-hoc project, and how you keep it from quietly eating a day of someone's week every month. That's what this post actually covers.
+
+## Why this needs its own workflow, not just a tool
+
+It's tempting to treat LLM brand tracking as a bolt-on to your existing SEO reporting — add a slide, mention the number, move on. That undersells it, and it also tends to produce work clients don't fully understand or trust.
+
+The reason it needs its own workflow is that the underlying data behaves differently from a keyword ranking. A Google position is a single, stable number a client already understands intuitively. "You're cited in 45% of ChatGPT responses for your category, up from 30% last month, versus a competitor average of 38%" needs a sentence of context every single time, because almost no client has an intuitive feel for what that number should be yet. If you don't build a consistent way of presenting it, every report becomes a small re-education exercise, which eats time and dilutes how confident the client feels in the number.
+
+## Setting up client onboarding so it doesn't take a full day per account
+
+The first client you onboard into LLM tracking will probably take longer than it should, because you're building the template as you go. By client five, this needs to be closer to twenty minutes of actual setup work. Here's the shape that gets you there.
+
+**Build a prompt-gathering template once, reuse it every time.** Ask every new client the same five questions: what would a prospect type into ChatGPT before they'd heard of you, what are you the alternative to, what's your pricing question likely to look like, what are your two or three real competitors, and what markets or regions matter. That gives you 15-20 prompts per client without starting from a blank page each time.
+
+**Separate prompt categories from day one**, the same way you'd separate keyword themes in SEO — category prompts, comparison prompts, pricing prompts, and any client-specific use-case prompts. This matters because the fix for a low score in each bucket is different, and lumping them together makes the eventual report vaguer than it needs to be.
+
+**Set the competitor set with the client, not for them.** Clients often have a different mental model of who they're actually competing with than what a keyword-overlap tool would suggest. A five-minute conversation here saves you from benchmarking against the wrong companies for the next six months.
+
+**Decide the reporting cadence upfront, and make it match how fast the data actually moves.** LLM citation data shifts slower than daily rank tracking but faster than a quarterly content audit — biweekly or monthly is usually the right cadence for most clients, with a lighter check-in around anything time-sensitive like a launch or a pricing change.
+
+## Making the reporting genuinely useful instead of just a new chart
+
+The single biggest risk with LLM tracking reports is producing a dashboard nobody outside your team actually understands. A few things that consistently make this land better with clients:
+
+**Lead with the comparison, not the raw number.** "You're cited 45% of the time" means very little on its own. "You're cited 45% of the time, ahead of two of your three tracked competitors" is a sentence a client can act on and repeat to their own boss.
+
+**Always pair the score with the reason.** A report that says "citation rate dropped 8 points this month" without an accompanying "here's what changed" reads as bad news with no path forward. Tie every meaningful move to something concrete — a technical issue, a competitor's new content, a crawlability change — even when the honest answer is "we're still investigating."
+
+**Keep the format consistent client to client.** If every client's report has a different structure because you built each one ad hoc, you're rebuilding your own understanding of the data every time you open a new account, which is exactly the bottleneck that makes this service hard to scale past a handful of clients.
+
+**Show the trend, not just the current number.** A single snapshot invites a client to overreact to a number that will naturally bounce around from run to run. A trend line over six to eight weeks is what actually earns trust in the metric.
+
+## Pricing it into your retainer
+
+Most agencies default to one of two approaches: fold it into an existing SEO retainer as an added line item, or price it as a standalone service. Both work, but they solve different problems.
+
+**Folding it in** works well when the client already trusts your SEO reporting and you want LLM tracking to feel like a natural extension of work they're already paying for, rather than a new sales conversation. This tends to be the lower-friction option for existing clients.
+
+**Pricing it standalone** makes more sense when a client specifically asked for this and doesn't have an existing SEO retainer with you, or when the scope (multiple product lines, many competitors, weekly reporting) is genuinely large enough to justify its own line item rather than getting buried inside a broader retainer.
+
+Either way, the actual cost driver on your end is almost never the tool subscription — it's the analyst time spent interpreting and writing up what the data means. Building the reusable onboarding template and consistent report format above is what keeps that time from growing linearly with every client you add.
+
+## Where SEOzapp fits into an agency workflow specifically
+
+This is close to exactly the operational gap SEOzapp's prompt monitoring was built around, because it came directly out of running this same workflow for client work before it became a product.
+
+You set up a client's prompt categories and competitor set once, and it runs them on a recurring schedule across ChatGPT, Perplexity, Gemini, Claude, and Google AI Overviews, so the reporting cadence you decide on with the client happens automatically rather than depending on someone remembering to run 60 manual queries every two weeks. Each run comes back with citation frequency, position, and sentiment, with competitor numbers already sitting alongside the client's, so the comparison-first framing above doesn't require you to assemble it by hand every time.
+
+Underneath the citation data sits the diagnostic layer that makes "here's what changed" an actual answer instead of a guess — technical SEO tracking, an AI crawlability check for GPTBot and ClaudeBot access, and a GEO suite flagging content and schema gaps — so a drop in a client's number usually comes with a concrete reason attached before you've had to dig for it yourself. Multiple client accounts are supported from the Starter tier, and white-label PDF export on the Enterprise tier means the report can go out under your agency's name without extra formatting work on your end.
+
+## What this actually looks like once it's running
+
+By the time you've got three or four clients through this workflow, the pattern should feel less like a new service you're improvising and more like an extension of the SEO reporting muscle you already have — a consistent onboarding call, a standard prompt template, a report format the client already understands from month one, and a diagnostic layer that gives you something concrete to say every time a number moves. That's the actual difference between LLM brand tracking as a one-off thing you did for one curious client, and a real, repeatable, billable part of what your agency offers.
+
+---
+
+*[See how SEOzapp supports multi-client LLM tracking →](https://seozapp.com)*
