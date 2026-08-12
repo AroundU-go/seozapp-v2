@@ -60,24 +60,28 @@ export default function AuthPage() {
           return;
         }
 
+        const cleanDomain = websiteUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
+        const cleanBrand = brandName.trim();
+
         // 1. Save workspace to Supabase
         await fetch('/api/v2/workspace', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ownerEmail: email,
-            brandName,
-            websiteUrl,
+            brandName: cleanBrand,
+            websiteUrl: cleanDomain,
           }),
         });
 
         if (typeof window !== 'undefined') {
-          localStorage.setItem('tracked_domain', websiteUrl.replace(/https?:\/\//, '').split('/')[0]);
-          localStorage.setItem('pending_brand_name', brandName);
+          localStorage.setItem('tracked_domain', cleanDomain);
+          localStorage.setItem('user_tracked_sites', JSON.stringify([{ domain: cleanDomain, competitor: '' }]));
+          localStorage.setItem('pending_brand_name', cleanBrand);
         }
 
         // 2. Trigger Supabase Sign Up (sends verification email)
-        const { error } = await signUp(email, password, brandName);
+        const { error } = await signUp(email, password, cleanBrand);
 
         if (error) {
           setErrorMsg(error.message);
@@ -90,6 +94,20 @@ export default function AuthPage() {
         if (error) {
           setErrorMsg(error.message);
         } else {
+          // Fetch workspace domain from Supabase for this user
+          try {
+            const res = await fetch(`/api/v2/workspace?ownerEmail=${encodeURIComponent(email.toLowerCase().trim())}`);
+            const data = await res.json();
+            if (data.success && data.domain) {
+              const cleanDom = data.domain.toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('tracked_domain', cleanDom);
+                localStorage.setItem('user_tracked_sites', JSON.stringify([{ domain: cleanDom, competitor: '' }]));
+              }
+            }
+          } catch (wsErr) {
+            console.warn('Sign-in workspace check failed:', wsErr);
+          }
           router.replace('/dashboard');
         }
       }
@@ -258,7 +276,7 @@ export default function AuthPage() {
                             required
                             value={websiteUrl}
                             onChange={(e) => setWebsiteUrl(e.target.value)}
-                            placeholder="e.g. acme-software.com"
+                            placeholder="e.g. stripe.com"
                             className="w-full bg-[#ffffff] border border-[#17191c]/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#17191c] focus:outline-none focus:border-[#17191c]"
                           />
                         </div>

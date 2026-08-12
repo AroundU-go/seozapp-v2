@@ -57,10 +57,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedDomain = localStorage.getItem('tracked_domain');
-      if (storedDomain) {
-        setDisplayDomain(storedDomain);
-      } else if (activeDomain && activeDomain !== 'acme-software.com') {
-        setDisplayDomain(activeDomain);
+      const validStoredDomain = (storedDomain && storedDomain !== 'acme-software.com') ? storedDomain : null;
+      const validActiveDomain = (activeDomain && activeDomain !== 'acme-software.com' && activeDomain !== 'Enter Domain') ? activeDomain : null;
+
+      if (validStoredDomain) {
+        setDisplayDomain(validStoredDomain);
+      } else if (validActiveDomain) {
+        setDisplayDomain(validActiveDomain);
       }
 
       // Load tracked sites list
@@ -68,22 +71,35 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       if (rawSites) {
         try {
           const parsed = JSON.parse(rawSites);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setSites(parsed);
-            const activeDom = storedDomain || activeDomain;
-            const idx = parsed.findIndex((s: TrackedSite) => s.domain.toLowerCase() === activeDom?.toLowerCase());
-            if (idx !== -1) setActiveSiteIndex(idx);
+          const cleanedSites = Array.isArray(parsed)
+            ? parsed.filter((s: TrackedSite) => s.domain && s.domain.toLowerCase() !== 'acme-software.com')
+            : [];
+
+          if (cleanedSites.length > 0) {
+            setSites(cleanedSites);
+            const activeDom = validStoredDomain || validActiveDomain;
+            const idx = cleanedSites.findIndex((s: TrackedSite) => s.domain.toLowerCase() === activeDom?.toLowerCase());
+            if (idx !== -1) {
+              setActiveSiteIndex(idx);
+            } else {
+              setActiveSiteIndex(0);
+              setDisplayDomain(cleanedSites[0].domain);
+            }
             return;
           }
         } catch (e) {}
       }
 
       // Initial fallback list if empty
-      const initDom = storedDomain || activeDomain || 'acme-software.com';
-      const initComp = localStorage.getItem('tracked_competitor') || '';
-      const initialSites = [{ domain: initDom, competitor: initComp }];
-      setSites(initialSites);
-      localStorage.setItem('user_tracked_sites', JSON.stringify(initialSites));
+      const initDom = validStoredDomain || validActiveDomain || '';
+      if (initDom) {
+        const initComp = localStorage.getItem('tracked_competitor') || '';
+        const initialSites = [{ domain: initDom, competitor: initComp }];
+        setSites(initialSites);
+        localStorage.setItem('user_tracked_sites', JSON.stringify(initialSites));
+      } else {
+        setSites([]);
+      }
     }
   }, [activeDomain]);
 
@@ -152,27 +168,47 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       const userKey = `setup_dismissed_${user.email.toLowerCase()}`;
       const isDismissed = typeof window !== 'undefined' ? localStorage.getItem(userKey) === 'true' : false;
       const storedDomain = typeof window !== 'undefined' ? localStorage.getItem('tracked_domain') : null;
+      const validStored = (storedDomain && storedDomain !== 'acme-software.com') ? storedDomain : null;
 
-      if (storedDomain || isDismissed) return;
+      if (validStored) {
+        setDisplayDomain(validStored);
+        const rawSites = typeof window !== 'undefined' ? localStorage.getItem('user_tracked_sites') : null;
+        if (!rawSites || rawSites.includes('acme-software.com')) {
+          const initComp = localStorage.getItem('tracked_competitor') || '';
+          const cleanSites = [{ domain: validStored, competitor: initComp }];
+          localStorage.setItem('user_tracked_sites', JSON.stringify(cleanSites));
+          setSites(cleanSites);
+        }
+      }
+
+      if (isDismissed && validStored) return;
 
       try {
         const res = await fetch(`/api/v2/workspace?ownerEmail=${encodeURIComponent(user.email)}`);
         const data = await res.json();
 
-        if (data.success && data.domain) {
-          setDisplayDomain(data.domain);
+        if (data.success && data.domain && data.domain !== 'acme-software.com') {
+          const cleanDom = data.domain.toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
+          setDisplayDomain(cleanDom);
           if (typeof window !== 'undefined') {
-            localStorage.setItem('tracked_domain', data.domain);
+            localStorage.setItem('tracked_domain', cleanDom);
+            const initComp = localStorage.getItem('tracked_competitor') || '';
+            const newSites = [{ domain: cleanDom, competitor: initComp }];
+            localStorage.setItem('user_tracked_sites', JSON.stringify(newSites));
             localStorage.setItem(userKey, 'true');
+            setSites(newSites);
           }
-        } else if (data.success && data.workspace) {
-          const domain = data.workspace.name ? `${data.workspace.name.toLowerCase().replace(/\s+/g, '')}.com` : 'acme-software.com';
+        } else if (data.success && data.workspace && data.workspace.name) {
+          const domain = `${data.workspace.name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '')}.com`;
           setDisplayDomain(domain);
           if (typeof window !== 'undefined') {
             localStorage.setItem('tracked_domain', domain);
+            const newSites = [{ domain, competitor: '' }];
+            localStorage.setItem('user_tracked_sites', JSON.stringify(newSites));
             localStorage.setItem(userKey, 'true');
+            setSites(newSites);
           }
-        } else {
+        } else if (!validStored) {
           const hasExistingActivity = isAdmin || paymentType === 'pro' || paymentType === 'enterprise';
           if (hasExistingActivity) {
             if (typeof window !== 'undefined') {
