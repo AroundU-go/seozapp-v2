@@ -107,6 +107,11 @@ export function Footer() {
                   SEO Audit Tool for Agencies
                 </Link>
               </li>
+              <li>
+                <Link href="/most-affordable-ai-visibility-tracking-for-b2b" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors">
+                  Most Affordable B2B AI Visibility
+                </Link>
+              </li>
             </ul>
           </div>
 
