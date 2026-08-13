@@ -1,0 +1,88 @@
+Title: How to Track Competitor AI Presence in ChatGPT/Claude
+Meta description: A step-by-step method for tracking how often your competitors get cited in ChatGPT and Claude, where they show up, and how to turn that into a real competitive edge.
+
+# How to Track Competitor AI Presence in ChatGPT/Claude
+
+You probably already have a good sense of where you stand against your competitors on Google — who outranks who for your core terms, whose content is stronger, where the gaps are. Ask yourself the same question about ChatGPT and Claude, and there's a decent chance you genuinely don't know. Not "roughly know." Don't know.
+
+That's a strange blind spot to have, because the underlying stakes are the same or higher. When someone asks ChatGPT "what's the best alternative to [your biggest competitor]," the answer that comes back is quietly shaping a shortlist before anyone's opened a browser tab. If you're not tracking whether you're on that list — and where, and how you're described relative to them — you're flying blind on exactly the kind of comparison moment that used to be visible in a SERP.
+
+This is a practical method for actually tracking competitor presence across ChatGPT and Claude specifically, since the two behave differently enough that treating them as one combined check will miss real gaps.
+
+## Why ChatGPT and Claude specifically need separate tracking
+
+It's tempting to run one prompt set and treat "AI visibility" as a single number, but ChatGPT and Claude pull from meaningfully different source mixes and behave differently enough that a combined score can hide real problems.
+
+ChatGPT, particularly with browsing enabled, leans on live web content and tends to surface recent articles, comparison posts, and review-site content prominently. Claude's citation behavior draws more heavily on a broader mix that includes its training data alongside retrieved content, which means older, more established sources sometimes carry more weight relative to something published last week. Practically, this means a competitor who's recently published an aggressive content push might show up more in ChatGPT before that same push shows up in Claude, and a brand with strong long-standing authority might hold ground in Claude even if a competitor's recent content is technically fresher.
+
+Track them separately, and you catch these engine-specific gaps. Blend them into one number, and a strength in one engine can mask a real weakness in the other.
+
+## Step 1: Build a real competitor prompt set, not just brand-name checks
+
+The mistake most people make starting this is running prompts like "tell me about [competitor]." That tells you almost nothing useful, because it's not the kind of question a real buyer asks. You want prompts that mirror an actual comparison moment.
+
+Build your list around three categories:
+
+**Direct comparison prompts.** "[Your brand] vs [competitor]," phrased both directions, since models sometimes answer these asymmetrically depending on which brand is named first.
+
+**Alternative-seeking prompts.** "Alternative to [competitor]" and "alternative to [competitor] for [specific use case]." This is where a lot of real switching-intent research actually happens, and it's a category worth tracking for every competitor you consider a real threat, not just your single biggest one.
+
+**Category prompts with an implicit shortlist.** "Best [category] tool for [use case]" — the kind of prompt that produces a list of two or three names rather than a single answer, which is exactly the format you're trying to understand your position within.
+
+Aim for 5-8 prompts per competitor across these three categories. For three tracked competitors, that's 15-25 prompts — enough to see a real pattern without being unmanageable to run by hand for an initial check.
+
+## Step 2: Run every prompt in a fresh conversation, on both engines
+
+This step matters more than it sounds like it should. Memory and prior conversation context can bias a model's answer toward whatever's already been discussed in that thread, so a competitor comparison run in a conversation where you've been talking about your own product for twenty minutes isn't a clean read on how the model would answer a stranger.
+
+Open a new conversation for every single prompt, on both ChatGPT and Claude. It's more tedious, but it's the difference between a real signal and a contaminated one.
+
+## Step 3: Log four things per response, not just "mentioned or not"
+
+For every response, capture:
+
+**Who was mentioned, and in what order.** Not just whether your competitor appeared, but where relative to you and any other names in the answer.
+
+**The specific framing used for each brand.** Not sentiment as a single word — the actual phrase. "Popular but pricier" and "solid mid-market option" are both roughly neutral-to-positive, but they're saying different things, and having the actual language matters when you're deciding what to do about it.
+
+**Whether the claims are current.** This is where competitor tracking gets genuinely useful beyond just visibility. If a model is repeating outdated information about a competitor — an old pricing tier, a feature they've since added or dropped — that's worth knowing on its own, separate from the visibility question.
+
+**Which engine, logged separately.** Never blend ChatGPT and Claude data into one row. Keep them as two clearly separated columns so the engine-specific patterns from Step 0 are visible in your data, not averaged away.
+
+## Step 4: Calculate relative share, not just your own number
+
+Once you've got a full pass across your prompt set, the number that actually matters is relative. If you're cited in 40% of responses and your top competitor is cited in 65%, your 40% is a weaker position than it looks in isolation — and the reverse is true too, a modest-looking 35% can be a strong position if your competitor set is splitting the remainder three ways.
+
+Calculate this per engine. A brand that's ahead of its competitors in Claude but meaningfully behind in ChatGPT has a real, specific gap worth investigating on its own, not a number that averages out to "roughly even."
+
+## Step 5: Trace the gap back to an actual cause
+
+This is the step that turns competitor tracking from an interesting report into something you act on. For every prompt where a competitor outperforms you, ask a specific set of follow-up questions:
+
+**Do they have a dedicated comparison or alternative page that you don't?** This is one of the most common and most fixable gaps. A competitor with a page specifically titled "X vs [your brand]" or "alternative to [your brand]" gives a model exactly the kind of clean, direct-answer content it's likely to pull from, and if you don't have the mirror-image page, you're conceding that specific comparison moment by default.
+
+**Is their content simply more recent?** Check when their relevant page was last meaningfully updated versus yours. Recency is a real factor in AI citation weighting, more so than it typically is for Google rankings.
+
+**Are they getting cited through third-party content you're not?** Sometimes a competitor's advantage isn't their own site at all — it's a comparison roundup or review thread that favors them and that you're either absent from or described less favorably in.
+
+**Is there a crawlability difference?** Occasionally a competitor simply has fewer bot-access restrictions than you do, which is worth ruling out before assuming the gap is purely about content quality.
+
+## Step 6: Repeat on a schedule, and watch the trend more than any single run
+
+A single competitor-tracking pass is a useful baseline, but the actual value comes from repetition. Run the same prompt set every two to four weeks and watch how the relative numbers move. A competitor who launches a new content push, updates their pricing page, or picks up a wave of positive reviews will often show movement in your tracking data before you'd notice it any other way — sometimes weeks before it shows up in a lost-deal conversation with your sales team.
+
+## Where manual tracking hits its limit
+
+For a single competitor and a handful of prompts, the process above is genuinely doable by hand every few weeks. It gets harder fast once you're tracking three or four real competitors across two engines with 20+ prompts each, logging framing and currency for every single response, and trying to keep it consistent enough over months to actually spot a trend rather than noise. That's 80-100+ manual queries per full pass, each one requiring a careful read, not just a yes/no glance.
+
+This is the specific workflow SEOzapp's prompt monitoring is built to automate. You set your competitor prompt set once — comparison, alternative-seeking, and category prompts, for as many competitors as you want tracked — and it runs them on a recurring schedule across ChatGPT, Claude, Perplexity, Gemini, and Google AI Overviews, reporting citation frequency, position, and sentiment per engine, with your competitors' numbers sitting directly alongside yours so the relative-share calculation from Step 4 is already done for you.
+
+The technical audit layer underneath handles most of Step 5 automatically too — flagging whether you're missing a comparison page for a given competitor, checking content freshness, and running the crawlability check that rules out bot-access issues before you assume the gap is purely a content problem.
+
+## The bottom line
+
+Tracking competitor AI presence isn't fundamentally different from tracking your own — it's the same method, applied comparatively, with the extra step of tracing every gap back to a specific, fixable cause instead of just logging a number. Do it separately for ChatGPT and Claude, since the two engines genuinely behave differently enough to hide real problems if you blend them into one score, and repeat it often enough that you catch a competitor's gains while they're still small.
+
+---
+
+*[Track your competitors' AI presence across every major engine with SEOzapp →](https://seozapp.com)*
