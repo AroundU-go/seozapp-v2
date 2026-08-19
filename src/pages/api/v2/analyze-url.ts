@@ -377,21 +377,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const sourcesChecked = [
       {
         url: cleanUrl,
-        checkType: 'Primary Page Scrape (Firecrawl API)',
+        checkType: 'Primary Page Deep Scrape & DOM Inspection',
         status: `HTTP ${metadata.statusCode || 200} OK`,
         checkedAt: scrapedAt,
         details: `Extracted title, description, ${h1Count} H1s, ${combinedH2s.length} H2s, ${wordCount} words, schema tags.`,
       },
       {
         url: `${cleanUrl} (Site Map)`,
-        checkType: 'Domain URL Hierarchy (Firecrawl Map)',
+        checkType: 'Domain URL Hierarchy & Architecture Map',
         status: `Mapped ${totalPagesFound} URLs`,
         checkedAt: scrapedAt,
         details: `Discovered and categorized ${keySections.length} core site sections.`,
       },
       {
         url: `https://www.google.com/search?q=${encodeURIComponent(domainHost)}`,
-        checkType: 'SERP Competitor Index (Firecrawl Search)',
+        checkType: 'SERP Competitor Intelligence Index',
         status: `${competitorSerp.length} Competitors Benchmarked`,
         checkedAt: scrapedAt,
         details: 'Checked ranking search competitors and snippet patterns.',
@@ -411,9 +411,9 @@ Overall Technical SEO Health Score: **${seoResult.score}/100**. ${
 - **Top Opportunities:** Implement FAQPage Schema, expand high-intent comparison landing pages, and optimize heading hierarchy.
 
 ## Site Structure
-- **Pages Discovered:** ${totalPagesFound} URLs indexed via Firecrawl Map.
+- **Pages Discovered:** ${totalPagesFound} URLs indexed via Deep Crawl Architecture Map.
 - **URL Quality:** ${siteStructureData.urlQuality}.
-- **Sections Found:** ${keySections.map(s => `${s.section} (${s.count} pages)`).join(', ')}.
+- **Sections Found:** ${keySections.map((s: any) => `${s.section} (${s.count} pages)`).join(', ')}.
 - **Internal Link Health:** ${siteStructureData.internalLinkingNotes}
 
 ## On-Page SEO
@@ -425,21 +425,21 @@ Overall Technical SEO Health Score: **${seoResult.score}/100**. ${
 - **Canonical URL:** ${metadata.canonicalUrl ? metadata.canonicalUrl : 'Not explicitly set'}
 
 ## Keyword Opportunities
-${keywordOpportunities.map((kw, i) => `${i + 1}. **${kw.keyword}** — Intent: ${kw.intent} | Difficulty: ${kw.difficulty} | Action: ${kw.actionRequired}`).join('\n')}
+${keywordOpportunities.map((kw: any, i: number) => `${i + 1}. **${kw.keyword}** — Intent: ${kw.intent} | Difficulty: ${kw.difficulty} | Action: ${kw.actionRequired}`).join('\n')}
 
 ## Competitor/SERP Comparison
-${competitorSerp.map((c, i) => `${i + 1}. **${c.domain}** (${c.title})\n   - URL: ${c.url}\n   - Why they rank: ${c.whyTheyRank}`).join('\n')}
+${competitorSerp.map((c: any, i: number) => `${i + 1}. **${c.domain}** (${c.title})\n   - URL: ${c.url}\n   - Why they rank: ${c.whyTheyRank}`).join('\n')}
 
 ## Prioritized Recommendations
-${prioritizedRecommendations.map((rec, i) => `### ${i + 1}. [${rec.priority}] ${rec.issue}\n- **Category:** ${rec.category}\n- **Exact Fix:** ${rec.exactFix}\n- **Expected Impact:** ${rec.impact}`).join('\n\n')}
+${prioritizedRecommendations.map((rec: any, i: number) => `### ${i + 1}. [${rec.priority}] ${rec.issue}\n- **Category:** ${rec.category}\n- **Exact Fix:** ${rec.exactFix}\n- **Expected Impact:** ${rec.impact}`).join('\n\n')}
 
 ## Sources
-${sourcesChecked.map(s => `- **${s.checkType}:** ${s.url} — ${s.status}`).join('\n')}
+${sourcesChecked.map((s: any) => `- **${s.checkType}:** ${s.url} — ${s.status}`).join('\n')}
 
 ## Rerun Inputs
-workflow: firecrawl-seo-audit
+workflow: technical-seo-audit
 site: ${cleanUrl}
-keywords: [${keywordOpportunities.map(k => `"${k.keyword}"`).join(', ')}]
+keywords: [${keywordOpportunities.map((k: any) => `"${k.keyword}"`).join(', ')}]
 output: markdown/json
 `;
 
@@ -495,9 +495,9 @@ output: markdown/json
       prioritizedRecommendations,
       sources: sourcesChecked,
       rerunInputs: {
-        workflow: 'firecrawl-seo-audit',
+        workflow: 'technical-seo-audit',
         site: cleanUrl,
-        keywords: keywordOpportunities.map(k => k.keyword),
+        keywords: keywordOpportunities.map((k: any) => k.keyword),
         output: 'json',
       },
       deliverableMarkdown,

@@ -126,7 +126,7 @@ export default function SeoTrackingPage() {
               date: dateStr,
               score: row.seo_score,
               diff: diffText,
-              changes: `Firecrawl Audit for ${row.domain} — ${row.word_count || 0} words, ${row.h1_count || 0} H1s, score ${row.seo_score}/100`,
+              changes: `Technical SEO Audit for ${row.domain} — ${row.word_count || 0} words, ${row.h1_count || 0} H1s, score ${row.seo_score}/100`,
               domain: row.domain,
             };
           });
@@ -202,7 +202,7 @@ export default function SeoTrackingPage() {
           date: `Just now ${timeStr}`,
           score: newScore,
           diff: diffText,
-          changes: `Firecrawl Audit for ${domain} — ${data.onPageSeo?.contentQuality?.wordCount || data.metadata?.wordCount || 0} words, ${data.onPageSeo?.headings?.h1Count || 1} H1s, score ${newScore}/100`,
+          changes: `Technical SEO Audit for ${domain} — ${data.onPageSeo?.contentQuality?.wordCount || data.metadata?.wordCount || 0} words, ${data.onPageSeo?.headings?.h1Count || 1} H1s, score ${newScore}/100`,
           domain,
         };
 
@@ -211,7 +211,7 @@ export default function SeoTrackingPage() {
         setResult(data);
 
         showToast(
-          `✅ Firecrawl SEO Audit completed for ${domain} — Score: ${newScore}/100`,
+          `✅ Technical SEO Audit completed for ${domain} — Score: ${newScore}/100`,
           'success'
         );
 
@@ -278,7 +278,7 @@ export default function SeoTrackingPage() {
     impact: '+10 SEO Health Points',
   }));
   const sources = result?.sources || [
-    { url: result?.url || '', checkType: 'Primary Page Scrape (Firecrawl API)', status: 'HTTP 200 OK', checkedAt: result?.scrapedAt || new Date().toISOString(), details: 'Standard metadata and on-page extraction.' }
+    { url: result?.url || '', checkType: 'Primary Page Deep Scrape', status: 'HTTP 200 OK', checkedAt: result?.scrapedAt || new Date().toISOString(), details: 'Standard metadata and on-page extraction.' }
   ];
 
   const toastColors = {
@@ -305,11 +305,11 @@ export default function SeoTrackingPage() {
                 Module 01 • Technical &amp; On-Page Audit
               </span>
               <span className="text-[11px] font-mono text-[#5d2a1a] bg-[#fbe1d1] px-2 py-0.5 rounded-md font-semibold">
-                Firecrawl Engine
+                Deep Crawl Engine
               </span>
             </div>
             <h1 className="text-[28px] font-semibold text-[#17191c] mt-1">
-              Firecrawl Technical SEO Audit Engine
+              Technical &amp; On-Page SEO Audit Engine
             </h1>
             <p className="text-[15px] text-[#777b86]">
               End-to-end site structure mapping, on-page signal extraction, keyword opportunity discovery, and prioritized recommendations.
@@ -346,7 +346,7 @@ export default function SeoTrackingPage() {
           isOpen={showHistoryModal}
           onClose={() => setShowHistoryModal(false)}
           title="Previous Technical SEO Audits"
-          featureName="Module 01 • Firecrawl Technical SEO"
+          featureName="Module 01 • Technical SEO"
           items={historyItems}
           loading={loadingHistory}
           onRefresh={fetchHistory}
@@ -385,7 +385,7 @@ export default function SeoTrackingPage() {
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-[#fbe1d1]" />
-                  <span>Run Firecrawl Audit</span>
+                  <span>Run Technical Audit</span>
                 </>
               )}
             </button>
@@ -429,7 +429,7 @@ export default function SeoTrackingPage() {
         {loading && (
           <div className="bg-[#ffffff] rounded-2xl p-10 border border-[#17191c]/10 shadow-sm flex flex-col items-center justify-center gap-3 text-center">
             <RefreshCw className="w-9 h-9 animate-spin text-[#17191c]" />
-            <div className="text-[16px] font-semibold text-[#17191c]">Executing Firecrawl SEO Audit Collection Plan...</div>
+            <div className="text-[16px] font-semibold text-[#17191c]">Executing Technical SEO Audit Engine...</div>
             <div className="text-[13px] text-[#777b86] max-w-lg">
               1. Scraping target page metadata &amp; headings • 2. Mapping site URL architecture • 3. Extracting keyword opportunities • 4. Benchmarking competitor SERP rankings
             </div>
@@ -470,7 +470,7 @@ export default function SeoTrackingPage() {
                   </div>
                 </div>
                 <div className="text-[11px] text-[#777b86] mt-4 pt-3 border-t border-[#f2f2f3] flex items-center justify-between">
-                  <span>Audited via Firecrawl</span>
+                  <span>Deep Crawl Inspection</span>
                   <span className="font-medium text-[#17191c]">{domain}</span>
                 </div>
               </div>
@@ -620,7 +620,7 @@ export default function SeoTrackingPage() {
                   <div className="space-y-6">
                     <div className="pb-3 border-b border-[#f2f2f3]">
                       <h3 className="font-semibold text-[16px] text-[#17191c]">On-Page Metadata, Headings &amp; Schema</h3>
-                      <p className="text-xs text-[#777b86]">Granular inspection of critical ranking signals extracted by Firecrawl.</p>
+                      <p className="text-xs text-[#777b86]">Granular inspection of critical ranking signals extracted from live DOM inspection.</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -723,7 +723,7 @@ export default function SeoTrackingPage() {
                   <div className="space-y-6">
                     <div className="pb-3 border-b border-[#f2f2f3] flex items-center justify-between">
                       <div>
-                        <h3 className="font-semibold text-[16px] text-[#17191c]">Firecrawl Site Map &amp; Architecture</h3>
+                        <h3 className="font-semibold text-[16px] text-[#17191c]">Site Structure &amp; Architecture Map</h3>
                         <p className="text-xs text-[#777b86]">Discovered URL hierarchy and section distribution across {domain}.</p>
                       </div>
                       <span className="text-xs font-semibold bg-[#17191c] text-[#fbe1d1] px-3 py-1 rounded-full">
@@ -815,7 +815,7 @@ export default function SeoTrackingPage() {
                   <div className="space-y-6">
                     <div className="pb-3 border-b border-[#f2f2f3]">
                       <h3 className="font-semibold text-[16px] text-[#17191c]">Live SERP Competitor Benchmarking</h3>
-                      <p className="text-xs text-[#777b86]">Competing domains and ranking pages discovered via Firecrawl Search.</p>
+                      <p className="text-xs text-[#777b86]">Competing domains and ranking pages discovered via live search intelligence.</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -878,7 +878,7 @@ export default function SeoTrackingPage() {
                     <div className="p-4 bg-[#17191c] text-[#ffffff] rounded-xl space-y-2 text-xs font-mono">
                       <div className="text-[#fbe1d1] font-bold">Rerun Workflow Specification</div>
                       <pre className="text-xs overflow-x-auto text-[#979799]">
-{`workflow: firecrawl-seo-audit
+{`workflow: technical-seo-audit
 site: ${result.url || url}
 keywords: [${keywordOpps.map((k: any) => `"${k.keyword}"`).join(', ')}]
 output: markdown/json`}
@@ -895,7 +895,7 @@ output: markdown/json`}
                     <div className="flex items-center justify-between pb-3 border-b border-[#f2f2f3]">
                       <div>
                         <h3 className="font-semibold text-[16px] text-[#17191c]">Client-Ready Deliverable Markdown</h3>
-                        <p className="text-xs text-[#777b86]">Standardized markdown report formatted according to Firecrawl SEO Audit specification.</p>
+                        <p className="text-xs text-[#777b86]">Standardized markdown report formatted according to technical SEO audit specification.</p>
                       </div>
                       <button
                         type="button"
