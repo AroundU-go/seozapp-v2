@@ -112,7 +112,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
         setCheckoutLoading(productId);
         try {
-            const redirectUrl = `https://seozapp.com/analyze?payment=success`;
+            const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/dashboard?payment=success` : `https://seozapp.com/dashboard?payment=success`;
             const checkoutUrl = `https://checkout.dodopayments.com/buy/${productId}?quantity=1&redirect_url=${encodeURIComponent(redirectUrl)}&email=${encodeURIComponent(user.email || '')}&disableEmail=true&metadata_user_id=${encodeURIComponent(user.id)}`;
             window.location.href = checkoutUrl;
         } catch (err) {

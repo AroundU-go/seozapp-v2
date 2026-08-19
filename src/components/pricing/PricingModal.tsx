@@ -131,7 +131,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
       baseUrl += `&metadata[user_id]=${encodeURIComponent(user.id)}`;
     }
 
-    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/analyze?payment=success` : 'https://www.seozapp.com/analyze?payment=success';
+    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/dashboard?payment=success` : 'https://www.seozapp.com/dashboard?payment=success';
     baseUrl += `&redirect_url=${encodeURIComponent(redirectUrl)}`;
 
     if (typeof window !== 'undefined') {

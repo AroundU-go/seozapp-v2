@@ -39,10 +39,22 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   activeDomain = 'Enter Domain',
 }) => {
   const router = useRouter();
-  const { user, signOut, isAdmin, paymentType } = useAuth();
+  const { user, signOut, isAdmin, isPro, paymentType, refreshProStatus } = useAuth();
   const [displayDomain, setDisplayDomain] = useState(activeDomain);
   const [showSetupModal, setShowSetupModal] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [paymentSuccessToast, setPaymentSuccessToast] = useState(false);
+
+  // Handle post-payment redirect
+  useEffect(() => {
+    if (router.query.payment === 'success') {
+      refreshProStatus();
+      setPaymentSuccessToast(true);
+      router.replace(router.pathname, undefined, { shallow: true });
+      const timer = setTimeout(() => setPaymentSuccessToast(false), 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [router.query.payment, refreshProStatus, router]);
 
   // Multi-domain management according to pricing tiers ($49 Starter: 2 sites, $99 Pro: 5 sites)
   const maxSites = (isAdmin || paymentType === 'enterprise') ? 999 : (paymentType === 'pro' ? 5 : 2);
@@ -342,9 +354,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="mb-8 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2.5">
               <img src="/seozapp-logo.jpeg" alt="SEOzapp Logo" className="w-7 h-7 rounded-lg object-cover shadow-sm" />
-              <span className="font-signifier text-2xl font-normal text-[#17191c] tracking-tight">
-                SEOzapp
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-signifier text-2xl font-normal text-[#17191c] tracking-tight">
+                  SEOzapp
+                </span>
+                {(isPro || isAdmin) && (
+                  <span className="text-[10px] font-bold tracking-wider bg-[#17191c] text-[#fbe1d1] px-2 py-0.5 rounded-md uppercase shadow-xs">
+                    PRO
+                  </span>
+                )}
+              </div>
             </Link>
           </div>
 
@@ -504,7 +523,18 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       </aside>
 
       {/* Main Content View Right */}
-      <div className="flex-1 min-w-0 overflow-y-auto">
+      <div className="flex-1 min-w-0 overflow-y-auto relative">
+        {paymentSuccessToast && (
+          <div className="bg-[#10a37f] text-white px-6 py-3 text-xs font-semibold flex items-center justify-between shadow-md animate-in slide-in-from-top duration-300 sticky top-0 z-50">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#fbe1d1]" />
+              <span>🎉 Payment successful! Welcome to SEOzapp Pro — your account has been upgraded with full access.</span>
+            </div>
+            <button onClick={() => setPaymentSuccessToast(false)} className="text-white/80 hover:text-white ml-4">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
         {children}
       </div>
     </div>

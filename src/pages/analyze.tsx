@@ -514,7 +514,7 @@ export default function SeoToolPage() {
                                     window.location.href = '/auth?return_to=/analyze';
                                     return;
                                 }
-                                const redirectUrl = `https://seozapp.com/analyze?payment=success`;
+                                const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/dashboard?payment=success` : `https://seozapp.com/dashboard?payment=success`;
                                 const checkoutUrl = `https://checkout.dodopayments.com/buy/${PRODUCT_SUBSCRIPTION}?quantity=1&redirect_url=${encodeURIComponent(redirectUrl)}&email=${encodeURIComponent(user.email || '')}&disableEmail=true&metadata_user_id=${encodeURIComponent(user.id)}`;
                                 window.location.href = checkoutUrl;
                             }}
@@ -559,7 +559,7 @@ export default function SeoToolPage() {
                                         window.location.href = '/auth?return_to=/analyze';
                                         return;
                                     }
-                                    const redirectUrl = `https://seozapp.com/analyze?payment=success`;
+                                    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/dashboard?payment=success` : `https://seozapp.com/dashboard?payment=success`;
                                     const checkoutUrl = `https://checkout.dodopayments.com/buy/${PRODUCT_ONE_TIME}?quantity=1&redirect_url=${encodeURIComponent(redirectUrl)}&email=${encodeURIComponent(user.email || '')}&disableEmail=true&metadata_user_id=${encodeURIComponent(user.id)}`;
                                     window.location.href = checkoutUrl;
                                 }}
@@ -575,7 +575,7 @@ export default function SeoToolPage() {
                                         window.location.href = '/auth?return_to=/analyze';
                                         return;
                                     }
-                                    const redirectUrl = `https://seozapp.com/analyze?payment=success`;
+                                    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/dashboard?payment=success` : `https://seozapp.com/dashboard?payment=success`;
                                     const checkoutUrl = `https://checkout.dodopayments.com/buy/${PRODUCT_SUBSCRIPTION}?quantity=1&redirect_url=${encodeURIComponent(redirectUrl)}&email=${encodeURIComponent(user.email || '')}&disableEmail=true&metadata_user_id=${encodeURIComponent(user.id)}`;
                                     window.location.href = checkoutUrl;
                                 }}

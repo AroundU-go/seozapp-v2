@@ -54,7 +54,7 @@ const HERO_AI_ENGINES = [
 
 export default function SteepLandingPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isPro, isAdmin } = useAuth();
   const [currentEngineIndex, setCurrentEngineIndex] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showAlertBanner, setShowAlertBanner] = useState(true);
@@ -133,9 +133,16 @@ export default function SteepLandingPage() {
             {/* Logo Left */}
             <Link href="/" className="flex items-center gap-2.5">
               <img src="/seozapp-logo.jpeg" alt="SEOzapp Logo" className="w-8 h-8 rounded-lg object-cover shadow-sm" />
-              <span className="font-signifier text-2xl font-normal text-[#17191c] tracking-tight">
-                SEOzapp
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-signifier text-2xl font-normal text-[#17191c] tracking-tight">
+                  SEOzapp
+                </span>
+                {(isPro || isAdmin) && (
+                  <span className="text-[10px] font-bold tracking-wider bg-[#17191c] text-[#fbe1d1] px-2 py-0.5 rounded-md uppercase shadow-xs">
+                    PRO
+                  </span>
+                )}
+              </div>
             </Link>
 
             {/* Links Center */}
