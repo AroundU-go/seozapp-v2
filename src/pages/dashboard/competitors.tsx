@@ -101,10 +101,12 @@ export default function CompetitorsPage() {
         const data = await res.json();
         if (data.success && Array.isArray(data.analyses) && data.analyses.length > 0) {
           const latest = data.analyses[0];
+          const rawGaps = latest.gaps_summary;
+          const gapsParsed = typeof rawGaps === 'string' ? rawGaps.split('\n').filter(Boolean) : Array.isArray(rawGaps) ? rawGaps : [];
           const loadedReport = {
             ownSite: latest.own_site_data,
             competitors: latest.competitors_data,
-            gapsSummary: latest.gaps_summary,
+            gapsSummary: gapsParsed,
             groqSynthesis: latest.own_site_data?.groqSynthesis || latest.groq_synthesis,
           };
           setReport(loadedReport);
