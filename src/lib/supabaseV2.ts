@@ -29,4 +29,5 @@ export const V2_TABLES = {
   AI_BOT_AUDITS: 'v2_ai_bot_audits',
   BRAND_MENTIONS: 'v2_brand_mentions',
   CONTENT_GAPS: 'v2_content_gaps',
+  COMPETITOR_KEYWORDS: 'v2_competitor_keywords',
 } as const;

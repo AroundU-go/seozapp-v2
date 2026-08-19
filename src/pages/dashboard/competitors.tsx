@@ -13,6 +13,8 @@ import {
   Plus,
   X,
   AlertCircle,
+  Search,
+  Key,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -45,6 +47,12 @@ export default function CompetitorsPage() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+
+  // Keyword Gap Analysis state
+  const [keywordCompetitor, setKeywordCompetitor] = useState('');
+  const [keywordLoading, setKeywordLoading] = useState(false);
+  const [keywordError, setKeywordError] = useState<string | null>(null);
+  const [keywordData, setKeywordData] = useState<any>(null);
 
   const fetchHistory = async () => {
     setLoadingHistory(true);
@@ -122,6 +130,72 @@ export default function CompetitorsPage() {
     loadHistory();
   }, [user]);
 
+  // Load latest keyword gap data from Supabase on mount
+  useEffect(() => {
+    if (!user?.email) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/v2/competitor-keywords?userEmail=${encodeURIComponent(user?.email || '')}`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.analyses) && data.analyses.length > 0) {
+          const latest = data.analyses[0];
+          setKeywordData({
+            ownDomain: latest.own_domain,
+            competitorDomain: latest.competitor_domain,
+            keywords: latest.keywords_data || [],
+          });
+          if (latest.competitor_domain) setKeywordCompetitor(latest.competitor_domain);
+        }
+      } catch (err) {
+        console.warn('Failed to load keyword gap history:', err);
+      }
+    })();
+  }, [user]);
+
+  const handleRunKeywordGap = async () => {
+    if (!keywordCompetitor.trim() || !ownUrl.trim()) {
+      setKeywordError('Please enter your website URL above and a competitor domain.');
+      return;
+    }
+    if (!isAdmin && !isPro) {
+      setShowPricingModal(true);
+      return;
+    }
+
+    setKeywordLoading(true);
+    setKeywordError(null);
+
+    try {
+      const res = await fetch('/api/v2/competitor-keywords', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ownDomain: ownUrl.trim(),
+          competitorDomain: keywordCompetitor.trim(),
+          userEmail: user?.email || null,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        setKeywordError(data.error || `HTTP ${res.status}`);
+        return;
+      }
+
+      if (data.success) {
+        setKeywordData({
+          ownDomain: data.ownDomain,
+          competitorDomain: data.competitorDomain,
+          keywords: data.keywords || [],
+        });
+      }
+    } catch (err: any) {
+      console.error('Keyword gap error:', err);
+      setKeywordError(err.message || 'Failed to run keyword gap analysis');
+    } finally {
+      setKeywordLoading(false);
+    }
+  };
   const handleAddCompetitor = () => {
     const maxComp = getMaxCompetitors();
     if (competitorInputs.length >= maxComp) {
@@ -532,6 +606,110 @@ export default function CompetitorsPage() {
             </p>
           </div>
         )}
+
+        {/* Competitor Keyword Gap Analysis */}
+        <div className="bg-[#ffffff] rounded-2xl p-6 border border-[#17191c]/10 shadow-sm space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#f2f2f3]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#17191c] text-[#ffffff] flex items-center justify-center">
+                <Key className="w-4 h-4 text-[#fbe1d1]" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-[16px] text-[#17191c]">Competitor Keyword Gap</h3>
+                <p className="text-xs text-[#777b86]">Discover keywords your competitor ranks for that you don&apos;t — powered by live keyword intelligence.</p>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold bg-[#17191c] text-[#fbe1d1] px-2.5 py-1 rounded-full uppercase w-fit">Gap Mode</span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-end gap-3">
+            <div className="flex-1 w-full">
+              <label className="block text-xs font-medium text-[#777b86] mb-1">Competitor Domain *</label>
+              <input
+                type="text"
+                value={keywordCompetitor}
+                onChange={(e) => setKeywordCompetitor(e.target.value)}
+                placeholder="e.g. competitor.com"
+                className="bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-4 py-2.5 text-sm w-full focus:outline-none"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleRunKeywordGap}
+              disabled={keywordLoading || !keywordCompetitor.trim() || !ownUrl.trim()}
+              className="bg-[#17191c] text-[#ffffff] rounded-xl px-5 py-2.5 text-sm font-medium hover:bg-[#17191c]/90 disabled:opacity-50 flex items-center gap-2 shadow-sm flex-shrink-0"
+            >
+              {keywordLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4 text-[#fbe1d1]" />}
+              <span>{keywordLoading ? 'Analyzing Keywords...' : 'Analyze Keyword Gap'}</span>
+            </button>
+          </div>
+
+          {keywordError && (
+            <div className="p-3 bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-xl text-xs text-[#ef4444] font-medium flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{keywordError}</span>
+            </div>
+          )}
+
+          {keywordData && keywordData.keywords && keywordData.keywords.length > 0 ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[#777b86]">
+                  Showing {keywordData.keywords.length} keyword gaps: <span className="font-semibold text-[#17191c]">{keywordData.competitorDomain}</span> vs <span className="font-semibold text-[#17191c]">{keywordData.ownDomain}</span>
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-[13px]">
+                  <thead>
+                    <tr className="border-b border-[#f2f2f3] text-[#979799] text-[11px] uppercase tracking-wider">
+                      <th className="pb-2.5 font-medium">Keyword</th>
+                      <th className="pb-2.5 font-medium">Volume</th>
+                      <th className="pb-2.5 font-medium">Difficulty</th>
+                      <th className="pb-2.5 font-medium">Intent</th>
+                      <th className="pb-2.5 font-medium">Their Pos.</th>
+                      <th className="pb-2.5 font-medium">Your Pos.</th>
+                      <th className="pb-2.5 font-medium text-right">Traffic Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#f2f2f3]">
+                    {keywordData.keywords.map((kw: any, idx: number) => (
+                      <tr key={idx} className="hover:bg-[#fafafb] transition-colors">
+                        <td className="py-3 text-[#17191c] font-medium max-w-[220px] truncate">{kw.keyword}</td>
+                        <td className="py-3 text-[#17191c]">{(kw.volume || 0).toLocaleString()}</td>
+                        <td className="py-3">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            kw.difficulty >= 70 ? 'bg-[#ef4444]/10 text-[#ef4444]' :
+                            kw.difficulty >= 40 ? 'bg-[#f59e0b]/10 text-[#f59e0b]' :
+                            'bg-[#10a37f]/10 text-[#10a37f]'
+                          }`}>
+                            {kw.difficulty}
+                          </span>
+                        </td>
+                        <td className="py-3 text-[#777b86] text-xs capitalize">{kw.intent || '—'}</td>
+                        <td className="py-3 text-[#17191c] font-medium">{kw.targetPosition ?? '—'}</td>
+                        <td className="py-3">
+                          {kw.comparePosition ? (
+                            <span className="text-[#10a37f] font-medium">{kw.comparePosition}</span>
+                          ) : (
+                            <span className="text-[#ef4444] text-xs font-semibold">Not ranking</span>
+                          )}
+                        </td>
+                        <td className="py-3 text-right text-[#777b86]">${(kw.trafficValue || 0).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : keywordData && keywordData.keywords && keywordData.keywords.length === 0 ? (
+            <div className="py-8 text-center space-y-2">
+              <Search className="w-8 h-8 text-[#777b86]/40 mx-auto" />
+              <p className="text-sm font-medium text-[#17191c]">No keyword gaps found</p>
+              <p className="text-xs text-[#777b86]">The competitor may not rank for keywords in the specified criteria, or the analysis returned no results.</p>
+            </div>
+          ) : null}
+        </div>
       </main>
     </DashboardLayout>
   );
