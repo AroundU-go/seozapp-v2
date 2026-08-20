@@ -178,7 +178,28 @@ export default function SeoTrackingPage() {
         }),
       });
 
-      const data = await res.json();
+      // Safely parse JSON — Vercel may return HTML/plain text on timeouts or gateway errors
+      let data: any;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          showToast(`❌ Server returned invalid response (HTTP ${res.status}). The audit may have timed out — please try again.`, 'error');
+          return;
+        }
+      } else {
+        // Non-JSON response (HTML error page, gateway timeout, etc.)
+        const textBody = await res.text().catch(() => '');
+        console.warn('[SEO Audit] Non-JSON response:', res.status, textBody.slice(0, 200));
+        showToast(
+          res.status === 504
+            ? `❌ Audit timed out — the target site took too long to respond. Please try again.`
+            : `❌ Server error (HTTP ${res.status}). Please try again in a moment.`,
+          'error'
+        );
+        return;
+      }
 
       if (!res.ok || data.error) {
         showToast(`❌ Audit Failed: ${data.error || `HTTP ${res.status}`}`, 'error');
@@ -230,7 +251,7 @@ export default function SeoTrackingPage() {
       }
     } catch (err: any) {
       console.error('Audit failed:', err);
-      showToast(`❌ Network error: ${err.message || 'Unable to reach scanner'}`, 'error');
+      showToast(`❌ Unable to reach the audit engine. Check your connection and try again.`, 'error');
     } finally {
       setLoading(false);
     }

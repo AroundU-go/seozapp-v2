@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 import { firecrawlClient } from '@/lib/providers/firecrawlClient';
 import { kimiClient } from '@/lib/providers/kimiClient';
 import { computeSeoScore } from '@/lib/scoring/seo-score';
