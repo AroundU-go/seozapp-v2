@@ -4,7 +4,7 @@ import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 import { REGIONS, RegionCode } from '@/components/dashboard/RegionSelector';
 import { getServerPlanLimits } from '@/lib/planLimits';
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // ─── GET: Fetch saved prompt runs from Supabase ───
@@ -60,6 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const regionInfo = REGIONS[targetRegion] || REGIONS.US;
     const targetLocationCode = locationCode || regionInfo.locationCode || '2840';
     const targetLanguageCode = languageCode || regionInfo.languageCode || 'en';
+    const targetCountryCode = regionInfo.firecrawlCountry || targetRegion;
 
     // Build prompts list
     const promptList: string[] = [];
@@ -125,7 +126,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         brandDomain: brandDomain || '',
         queries: promptList,
         platforms: platformList,
-        competitors: Array.isArray(competitors) ? competitors : [],
+        country: targetCountryCode,
+        competitors: [], // Skipped for now
         locationCode: targetLocationCode,
         languageCode: targetLanguageCode,
       });

@@ -1,32 +1,39 @@
 import { ApifyClient } from 'apify-client';
 
-const APIFY_TOKEN = process.env.APIFY_API_KEY || '';
-const ACTOR_ID = 'XY6nIlojvN5ySDhSk';
+const APIFY_TOKEN = process.env.APIFY_API_KEY || process.env.APIFY_TOKEN || '';
+const ACTOR_ID = 'inovaflow/ai-brand-monitoring';
 
 /**
- * Maps our internal engine IDs to the Apify actor's platform identifiers.
+ * Maps our internal engine IDs to inovaflow/ai-brand-monitoring surface identifiers.
  */
 const PLATFORM_MAP: Record<string, string> = {
   chatgpt: 'chatgpt',
   perplexity: 'perplexity',
   gemini: 'gemini',
-  ai_overview: 'google_aio',
-  google_aio: 'google_aio',
-  claude: 'claude',
+  ai_overview: 'aio',
+  google_aio: 'aio',
+  aio: 'aio',
+  claude: 'copilot',
+  copilot: 'copilot',
+  ai_mode: 'ai_mode',
 };
 
 /**
- * Reverse map: actor platform ID → our internal engine ID.
+ * Reverse map: actor surface identifier → our internal engine ID.
  */
 const REVERSE_PLATFORM_MAP: Record<string, string> = {
   chatgpt: 'chatgpt',
   perplexity: 'perplexity',
   gemini: 'gemini',
+  aio: 'ai_overview',
   google_aio: 'ai_overview',
+  ai_overview: 'ai_overview',
+  ai_mode: 'ai_overview',
+  copilot: 'claude',
   claude: 'claude',
 };
 
-/** A single per-query, per-platform result from the brand tracker. */
+/** A single per-query, per-surface result from the brand tracker. */
 export interface BrandTrackerResult {
   query: string;
   platform: string;        // our internal engine ID (e.g. 'chatgpt', 'ai_overview')
@@ -46,120 +53,133 @@ export interface BrandTrackerResult {
 export interface BrandTrackerInput {
   brandName: string;
   brandDomain?: string;
+  brandAliases?: string[];
   queries: string[];
   platforms: string[];      // our internal engine IDs
+  country?: string;         // e.g. 'US', 'GB', 'CA', 'DE', or 2-letter ISO code
   competitors?: string[];
   locationCode?: string;
   languageCode?: string;
 }
 
 /**
- * Runs the Apify AI Brand Tracker actor with all queries and platforms in a single call.
- * Returns a flat array of per-query, per-platform results.
+ * Converts a region code (e.g. 'US', 'UK', 'CA', 'GLOBAL') to lowercase 2-letter ISO code.
+ */
+function resolveCountryCode(country?: string): string {
+  if (!country) return 'us';
+  const c = country.trim().toLowerCase();
+  if (c === 'uk') return 'gb';
+  if (c === 'global') return 'us';
+  if (c.length === 2) return c;
+  return 'us';
+}
+
+/**
+ * Runs the inovaflow/ai-brand-monitoring Apify actor with all queries and surfaces.
+ * Returns a flat array of standardized per-query, per-surface results.
  */
 export async function runApifyBrandTracker(
   params: BrandTrackerInput
 ): Promise<BrandTrackerResult[]> {
-  const token = APIFY_TOKEN || process.env.APIFY_API_KEY || '';
+  const token = APIFY_TOKEN || process.env.APIFY_API_KEY || process.env.APIFY_TOKEN || '';
   if (!token) {
     throw new Error('APIFY_API_KEY is missing in environment variables');
   }
 
   const client = new ApifyClient({ token });
 
-  // Convert our engine IDs to the actor's platform identifiers
-  const actorPlatforms = params.platforms
+  // Convert our engine IDs to the actor's surface identifiers
+  const actorSurfaces = (params.platforms || ['chatgpt', 'gemini', 'perplexity', 'ai_overview'])
     .map((p) => PLATFORM_MAP[p] || p)
     .filter((v, i, a) => a.indexOf(v) === i); // dedupe
 
-  // Ensure queries array has at least 3 items as required by Apify actor input schema
-  const formattedQueries = ensureMinQueries(params.queries, params.brandName);
+  const countryCode = resolveCountryCode(params.country);
+
+  // Clean brand domains
+  const cleanBrandDomains: string[] = [];
+  if (params.brandDomain) {
+    const d = params.brandDomain
+      .trim()
+      .replace(/^https?:\/\//i, '')
+      .replace(/\/.*$/, '')
+      .replace(/^www\./i, '')
+      .toLowerCase();
+    if (d) cleanBrandDomains.push(d);
+  }
+
+  // Format valid prompt queries
+  const cleanPrompts = (params.queries || [])
+    .map((q) => (typeof q === 'string' ? q.trim() : ''))
+    .filter(Boolean);
+
+  if (cleanPrompts.length === 0) {
+    cleanPrompts.push(`${params.brandName} software reviews`);
+  }
 
   const input = {
-    brandName: params.brandName,
-    brandDomain: params.brandDomain || '',
-    brandAliases: [] as string[],
-    queries: formattedQueries,
-    platforms: actorPlatforms,
-    competitors: params.competitors || [],
-    competitorDomains: [] as string[],
-    locationCode: params.locationCode || '2840',
-    languageCode: params.languageCode || 'en',
-    includeAggregatedMetrics: false,
-    enableQueryFanout: false,
-    fanoutVariantsPerQuery: 4,
-    responseFormat: 'detailed',
-    demoMode: false,
+    prompts: cleanPrompts,
+    brand: params.brandName.trim(),
+    brandAliases: Array.isArray(params.brandAliases) ? params.brandAliases : [],
+    brandDomains: cleanBrandDomains,
+    competitors: [], // Skipped competitor feature for now as requested
+    country: [countryCode],
+    surfaces: actorSurfaces.length > 0 ? actorSurfaces : ['aio', 'perplexity', 'chatgpt', 'gemini'],
+    publishVisibilityPage: true,
+    watchCompetitors: false,
+    deepDiveModel: 'haiku',
   };
 
   try {
+    console.log(`[Apify BrandTracker] Calling ${ACTOR_ID} with ${cleanPrompts.length} prompts across surfaces: ${input.surfaces.join(', ')} (country: ${countryCode})`);
+    
     const run = await client.actor(ACTOR_ID).call(input);
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
 
     if (!Array.isArray(items) || items.length === 0) {
-      console.warn('[Apify BrandTracker] No items returned from actor run');
+      console.warn('[Apify BrandTracker] No items returned from dataset run');
       return [];
     }
 
     const results: BrandTrackerResult[] = [];
 
     for (const item of items) {
-      // The detailed response format may have different structures.
-      // We handle both flat items and nested per-query/per-platform items.
-
-      // Case 1: Item has explicit query + platform fields (flat structure)
-      if (item.query && item.platform) {
-        results.push(parseResultItem(item, params.brandName));
-        continue;
-      }
-
-      // Case 2: Item has queryResults array (nested structure)
+      // The dataset may contain flat items or nested query/surface items
       if (Array.isArray(item.queryResults)) {
         for (const qr of item.queryResults) {
-          if (Array.isArray(qr.platformResults)) {
-            for (const pr of qr.platformResults) {
+          if (Array.isArray(qr.platformResults || qr.surfaceResults)) {
+            const list = qr.platformResults || qr.surfaceResults;
+            for (const pr of list) {
               results.push(parseResultItem(
-                { ...pr, query: qr.query || qr.prompt || item.query },
-                params.brandName
+                { ...pr, prompt: qr.prompt || qr.query || item.prompt },
+                params.brandName,
+                cleanBrandDomains
               ));
             }
           } else {
-            // Single platform result per query
             results.push(parseResultItem(
-              { ...qr, query: qr.query || qr.prompt },
-              params.brandName
+              { ...qr, prompt: qr.prompt || qr.query },
+              params.brandName,
+              cleanBrandDomains
             ));
           }
         }
         continue;
       }
 
-      // Case 3: Item has results array (alternative nesting)
       if (Array.isArray(item.results)) {
         for (const r of item.results) {
-          results.push(parseResultItem(r, params.brandName));
+          results.push(parseResultItem(r, params.brandName, cleanBrandDomains));
         }
         continue;
       }
 
-      // Case 4: Item has platformResults directly (single query)
-      if (Array.isArray(item.platformResults)) {
-        for (const pr of item.platformResults) {
-          results.push(parseResultItem(
-            { ...pr, query: item.query || item.prompt || params.queries[0] || '' },
-            params.brandName
-          ));
-        }
-        continue;
-      }
-
-      // Fallback: treat the item itself as a result
-      results.push(parseResultItem(item, params.brandName));
+      // Default: flat item in dataset
+      results.push(parseResultItem(item, params.brandName, cleanBrandDomains));
     }
 
     return results;
   } catch (err: any) {
-    console.error(`[Apify BrandTracker] Actor call failed:`, err.message);
+    console.error(`[Apify BrandTracker] Actor call failed for ${ACTOR_ID}:`, err.message);
     throw err;
   }
 }
@@ -167,35 +187,89 @@ export async function runApifyBrandTracker(
 /**
  * Parses a single result item from the actor's dataset into our standardized format.
  */
-function parseResultItem(item: any, brandName: string): BrandTrackerResult {
-  // Extract platform, converting back to our internal ID
-  const rawPlatform = item.platform || item.engine || item.provider || item.source || 'unknown';
-  const platform = REVERSE_PLATFORM_MAP[rawPlatform] || rawPlatform;
+function parseResultItem(item: any, brandName: string, brandDomains: string[] = []): BrandTrackerResult {
+  // Extract surface / engine ID
+  const rawSurface =
+    item.surface ||
+    item.platform ||
+    item.engine ||
+    item.provider ||
+    item.source ||
+    'chatgpt';
+  const platform = REVERSE_PLATFORM_MAP[rawSurface] || rawSurface;
 
-  // Extract query/prompt text
-  const query = item.query || item.prompt || item.searchQuery || '';
+  // Extract prompt text
+  const query = item.prompt || item.query || item.question || item.searchQuery || '';
+
+  // Extract cited URLs
+  let citedUrls: string[] = [];
+  const sources =
+    item.cited_urls ||
+    item.citations ||
+    item.sources ||
+    item.citedUrls ||
+    item.urls ||
+    item.links ||
+    [];
+  if (Array.isArray(sources)) {
+    citedUrls = sources.map((s: any) => {
+      if (typeof s === 'string') return s;
+      if (s && typeof s === 'object') return s.url || s.link || s.href || '';
+      return '';
+    }).filter(Boolean);
+  }
 
   // Brand mention detection
-  const brandMentioned =
+  const cleanBrand = brandName.trim().toLowerCase();
+  const explicitMention =
     item.brand_mentioned ??
     item.brandMentioned ??
-    item.isBrandMentioned ??
+    item.is_mentioned ??
     item.mentioned ??
     item.cited ??
-    false;
+    null;
 
-  // Sentiment (direct from Apify schema: "sentiment")
+  let brandMentioned = false;
+  if (explicitMention !== null && explicitMention !== undefined) {
+    brandMentioned = Boolean(explicitMention);
+  } else {
+    // Fallback: check if brand name or domain is mentioned in snippet/answer
+    const textToCheck = `${item.snippet || ''} ${item.answer || ''} ${item.full_answer || ''} ${item.response || ''}`.toLowerCase();
+    brandMentioned = cleanBrand ? textToCheck.includes(cleanBrand) : false;
+  }
+
+  // Citation detection
+  const explicitCited =
+    item.cited ??
+    item.is_cited ??
+    item.brand_cited ??
+    item.isCited ??
+    null;
+
+  let isCited = false;
+  if (explicitCited !== null && explicitCited !== undefined) {
+    isCited = Boolean(explicitCited);
+  } else if (brandDomains.length > 0) {
+    isCited = citedUrls.some((u) => brandDomains.some((d) => u.toLowerCase().includes(d)));
+  } else {
+    isCited = brandMentioned;
+  }
+
+  // Sentiment
   const sentiment =
     item.sentiment ??
     item.brand_sentiment ??
     item.brandSentiment ??
     (brandMentioned ? 'positive' : 'neutral');
 
-  // Response snippet (direct from Apify schema: "ai_response_summary")
+  // AI Response snippet / full answer
   const responseSnippet =
+    item.snippet ??
     item.ai_response_summary ??
     item.mention_context ??
     item.answer ??
+    item.full_answer ??
+    item.ai_response ??
     item.response ??
     item.responseSnippet ??
     item.content ??
@@ -203,23 +277,13 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
     item.output ??
     '';
 
-  // Cited URLs (direct from Apify schema: "cited_urls")
-  let citedUrls: string[] = [];
-  const sources = item.cited_urls || item.sources || item.citations || item.citedUrls || item.urls || item.links || [];
-  if (Array.isArray(sources)) {
-    citedUrls = sources.map((s: any) => {
-      if (typeof s === 'string') return s;
-      if (s && typeof s === 'object') return s.url || s.link || '';
-      return '';
-    }).filter(Boolean);
-  }
-
-  // Position / Rank (direct from Apify schema: "mention_position_score")
+  // Position / Rank
   const rawPosScore =
-    item.mention_position_score ??
-    item.position_score ??
     item.position ??
     item.rank ??
+    item.mention_position ??
+    item.mention_position_score ??
+    item.position_score ??
     item.brandPosition ??
     item.positionEstimate ??
     null;
@@ -232,12 +296,14 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
     } else {
       position = String(rawPosScore);
     }
-  } else if (!brandMentioned) {
+  } else if (!brandMentioned && !isCited) {
     position = 'Uncited';
   } else {
-    const cleanBrand = brandName.trim().toLowerCase();
-    // Fallback 1: Check index in cited source URLs
-    const urlIdx = citedUrls.findIndex((u) => u.toLowerCase().includes(cleanBrand));
+    // Check index in cited source URLs
+    const urlIdx = brandDomains.length > 0
+      ? citedUrls.findIndex((u) => brandDomains.some((d) => u.toLowerCase().includes(d)))
+      : citedUrls.findIndex((u) => u.toLowerCase().includes(cleanBrand));
+
     if (urlIdx === 0) {
       position = '#1 Position';
     } else if (urlIdx > 0 && urlIdx < 3) {
@@ -245,7 +311,6 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
     } else if (urlIdx >= 3) {
       position = `Top 5 (#${urlIdx + 1})`;
     } else {
-      // Fallback 2: Check position of mention in answer text
       const snippetLower = String(responseSnippet).toLowerCase();
       const mentionIdx = snippetLower.indexOf(cleanBrand);
       if (mentionIdx >= 0 && mentionIdx < 150) {
@@ -255,22 +320,28 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
       } else if (mentionIdx >= 0) {
         position = 'Cited in AI response';
       } else {
-        position = 'Cited';
+        position = isCited ? 'Cited' : 'Uncited';
       }
     }
   }
 
-  // Competitors mentioned (direct from Apify schema: "competitor_mentions")
+  // Competitor mentions
   let competitorsMentioned: string[] = [];
-  const comps = item.competitor_mentions || item.competitorsMentioned || item.competitors_mentioned || item.competitorsFound || [];
+  const comps =
+    item.competitor_mentions ??
+    item.competitors_mentioned ??
+    item.competitorsMentioned ??
+    item.competitorsFound ??
+    item.competitors ??
+    [];
   if (Array.isArray(comps)) {
-    competitorsMentioned = comps.map((c: any) => (typeof c === 'string' ? c : c.name || '')).filter(Boolean);
+    competitorsMentioned = comps.map((c: any) => (typeof c === 'string' ? c : c.name || c.brand || '')).filter(Boolean);
   }
 
-  // AI Search Volume & Share of Voice (direct from Apify schema: "ai_search_volume", "brand_share_of_voice")
+  // Metrics
   const aiSearchVolume = item.ai_search_volume ?? item.monthly_searches ?? item.search_volume ?? undefined;
   const shareOfVoice = item.brand_share_of_voice ?? item.shareOfVoice ?? item.share_of_voice ?? undefined;
-  const visibilityScore = item.visibilityScore ?? item.visibility_score ?? item.score ?? undefined;
+  const visibilityScore = item.visibility_score ?? item.visibilityScore ?? item.score ?? undefined;
 
   return {
     query,
@@ -278,7 +349,7 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
     brandMentioned: Boolean(brandMentioned),
     position: String(position),
     sentiment: String(sentiment),
-    responseSnippet: String(responseSnippet).slice(0, 500),
+    responseSnippet: String(responseSnippet).slice(0, 1000),
     citedUrls,
     competitorsMentioned,
     visibilityScore,
@@ -286,34 +357,4 @@ function parseResultItem(item: any, brandName: string): BrandTrackerResult {
     aiSearchVolume,
     rawData: item,
   };
-}
-
-/**
- * Ensures input.queries has at least 3 items as required by the Apify AI Brand Tracker schema.
- */
-function ensureMinQueries(queries: string[], brandName: string): string[] {
-  const clean = (queries || []).map((q) => (typeof q === 'string' ? q.trim() : '')).filter(Boolean);
-  if (clean.length >= 3) return clean;
-
-  const result = [...clean];
-  const first = clean[0] || `${brandName} software review`;
-
-  const fallbackVariants = [
-    `${first} reviews and ratings`,
-    `best alternatives to ${brandName}`,
-    `top ${brandName} features 2026`,
-  ];
-
-  for (const variant of fallbackVariants) {
-    if (result.length >= 3) break;
-    if (!result.includes(variant)) {
-      result.push(variant);
-    }
-  }
-
-  while (result.length < 3) {
-    result.push(`${first} comparison ${result.length + 1}`);
-  }
-
-  return result;
 }
