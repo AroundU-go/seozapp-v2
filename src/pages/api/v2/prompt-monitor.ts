@@ -121,7 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       // Single Apify actor call with all queries + allowed platforms
-      const trackerResults: BrandTrackerResult[] = await runApifyBrandTracker({
+      const trackerResponse = await runApifyBrandTracker({
         brandName: brandName.trim(),
         brandDomain: brandDomain || '',
         queries: promptList,
@@ -132,6 +132,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         languageCode: targetLanguageCode,
       });
 
+      const trackerResults = trackerResponse.results || [];
       const nowIso = new Date().toISOString();
       const results: any[] = [];
 
@@ -179,6 +180,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({
         success: true,
         results,
+        reportMarkdown: trackerResponse.reportMarkdown,
+        reportUrl: trackerResponse.reportUrl,
+        reportMarkdownUrl: trackerResponse.reportMarkdownUrl,
+        visibilityPageUrl: trackerResponse.visibilityPageUrl,
+        datasetUrl: trackerResponse.datasetUrl,
+        runUrl: trackerResponse.runUrl,
+        overallScore: trackerResponse.overallScore,
       });
     } catch (err: any) {
       console.error('v2 prompt-monitor POST error:', err);

@@ -79,13 +79,24 @@ function resolveCountryCode(country?: string): string {
   return 'us';
 }
 
+export interface BrandTrackerResponse {
+  results: BrandTrackerResult[];
+  reportMarkdown?: string;
+  reportUrl?: string;
+  reportMarkdownUrl?: string;
+  visibilityPageUrl?: string;
+  datasetUrl?: string;
+  runUrl?: string;
+  overallScore?: number;
+}
+
 /**
  * Runs the inovaflow/ai-brand-monitoring Apify actor with all queries and surfaces.
- * Returns a flat array of standardized per-query, per-surface results.
+ * Returns standardized results, report markdown, and report URLs.
  */
 export async function runApifyBrandTracker(
   params: BrandTrackerInput
-): Promise<BrandTrackerResult[]> {
+): Promise<BrandTrackerResponse> {
   const token = APIFY_TOKEN || process.env.APIFY_API_KEY || process.env.APIFY_TOKEN || '';
   if (!token) {
     throw new Error('APIFY_API_KEY is missing in environment variables');
@@ -153,9 +164,46 @@ export async function runApifyBrandTracker(
     const run = await client.actor(ACTOR_ID).call(input);
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
 
+    // Fetch Key-Value Store records for the generated report
+    let reportMarkdown = '';
+    let overallScore: number | undefined;
+    const kvsId = run.defaultKeyValueStoreId;
+    const datasetId = run.defaultDatasetId;
+
+    if (kvsId) {
+      try {
+        const mdRecord = await client.keyValueStore(kvsId).getRecord('REPORT.md');
+        if (mdRecord && typeof mdRecord.value === 'string') {
+          reportMarkdown = mdRecord.value;
+          // Extract visibility score if present in markdown (e.g. "Visibility score: 47/100")
+          const scoreMatch = reportMarkdown.match(/visibility\s*score:\s*(\d+)/i);
+          if (scoreMatch && scoreMatch[1]) {
+            overallScore = parseInt(scoreMatch[1], 10);
+          }
+        }
+      } catch (kvsErr) {
+        console.warn('[Apify BrandTracker] Could not fetch REPORT.md from KVS:', kvsErr);
+      }
+    }
+
+    const reportUrl = kvsId ? `https://api.apify.com/v2/key-value-stores/${kvsId}/records/REPORT` : undefined;
+    const reportMarkdownUrl = kvsId ? `https://api.apify.com/v2/key-value-stores/${kvsId}/records/REPORT.md` : undefined;
+    const visibilityPageUrl = kvsId ? `https://api.apify.com/v2/key-value-stores/${kvsId}/records/index.html` : undefined;
+    const datasetUrl = datasetId ? `https://console.apify.com/storage/datasets/${datasetId}` : undefined;
+    const runUrl = `https://console.apify.com/actors/fxds1UA2ctnb8NrL4/runs/${run.id}`;
+
     if (!Array.isArray(items) || items.length === 0) {
       console.warn('[Apify BrandTracker] No items returned from dataset run');
-      return [];
+      return {
+        results: [],
+        reportMarkdown,
+        reportUrl,
+        reportMarkdownUrl,
+        visibilityPageUrl,
+        datasetUrl,
+        runUrl,
+        overallScore,
+      };
     }
 
     const results: BrandTrackerResult[] = [];
@@ -195,7 +243,16 @@ export async function runApifyBrandTracker(
       results.push(parseResultItem(item, params.brandName, cleanBrandDomains));
     }
 
-    return results;
+    return {
+      results,
+      reportMarkdown,
+      reportUrl,
+      reportMarkdownUrl,
+      visibilityPageUrl,
+      datasetUrl,
+      runUrl,
+      overallScore,
+    };
   } catch (err: any) {
     console.error(`[Apify BrandTracker] Actor call failed for ${ACTOR_ID}:`, err.message);
     throw err;

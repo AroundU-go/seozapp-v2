@@ -12,6 +12,11 @@ import {
   Trash2,
   Plus,
   X,
+  Download,
+  FileText,
+  ExternalLink,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,6 +28,7 @@ import {
   AI_ENGINES,
 } from '@/components/dashboard/AiEngineBadges';
 import { RegionDropdown, RegionCode, REGIONS } from '@/components/dashboard/RegionSelector';
+import { generateAiVisibilityPdf } from '@/utils/aiVisibilityPdfGenerator';
 
 interface PromptResult {
   id: string;
@@ -53,12 +59,16 @@ export default function CitationMonitoringPage() {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
 
+  // Generated Report & PDF state
+  const [latestReportMarkdown, setLatestReportMarkdown] = useState<string | null>(null);
+  const [latestVisibilityPageUrl, setLatestVisibilityPageUrl] = useState<string | null>(null);
+  const [latestReportUrl, setLatestReportUrl] = useState<string | null>(null);
+  const [latestOverallScore, setLatestOverallScore] = useState<number | null>(null);
+  const [copiedMd, setCopiedMd] = useState(false);
+
   const isPro = true;
 
   // Allowed AI Search Engines based on subscription plan
-  // Starter ($49): ChatGPT + Gemini + Perplexity (3 LLMs)
-  // Pro ($99): ChatGPT + Gemini + Perplexity + AI Overviews (4 LLMs)
-  // Enterprise ($249) / Admin: All 5 LLMs (including Claude)
   const getAllowedEngines = (): AiEngineId[] => {
     const pay = (paymentType || '').toLowerCase();
     if (isAdmin || pay.includes('enterprise') || pay.includes('scale')) {
@@ -124,6 +134,16 @@ export default function CitationMonitoringPage() {
       if (storedBrand) {
         setBrandName(storedBrand);
       }
+
+      // Load local report cache
+      const storedMd = localStorage.getItem('latest_ai_report_markdown');
+      if (storedMd) setLatestReportMarkdown(storedMd);
+      const storedVisUrl = localStorage.getItem('latest_ai_visibility_url');
+      if (storedVisUrl) setLatestVisibilityPageUrl(storedVisUrl);
+      const storedRepUrl = localStorage.getItem('latest_ai_report_url');
+      if (storedRepUrl) setLatestReportUrl(storedRepUrl);
+      const storedScore = localStorage.getItem('latest_ai_overall_score');
+      if (storedScore) setLatestOverallScore(Number(storedScore));
 
       // Load local cache history
       const localHistory = localStorage.getItem('monitored_prompts_history');
@@ -288,12 +308,41 @@ export default function CitationMonitoringPage() {
       }
 
       if (!res.ok || data.error) {
-        setErrorMsg(data.error || `HTTP ${res.status}`);
+        if (res.status === 504) {
+          setErrorMsg('The AI engines took longer than expected to respond (504 timeout). Please try selecting 1 or 2 engines or running with fewer prompts.');
+        } else {
+          setErrorMsg(data.error || `HTTP ${res.status}`);
+        }
         setLoading(false);
         return;
       }
 
       if (data.success && Array.isArray(data.results)) {
+        if (data.reportMarkdown) {
+          setLatestReportMarkdown(data.reportMarkdown);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('latest_ai_report_markdown', data.reportMarkdown);
+          }
+        }
+        if (data.visibilityPageUrl) {
+          setLatestVisibilityPageUrl(data.visibilityPageUrl);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('latest_ai_visibility_url', data.visibilityPageUrl);
+          }
+        }
+        if (data.reportUrl) {
+          setLatestReportUrl(data.reportUrl);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('latest_ai_report_url', data.reportUrl);
+          }
+        }
+        if (data.overallScore !== undefined && data.overallScore !== null) {
+          setLatestOverallScore(data.overallScore);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('latest_ai_overall_score', String(data.overallScore));
+          }
+        }
+
         const newItems: PromptResult[] = data.results.map((r: any) => ({
           id: r.id || `pr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
           prompt: r.prompt,
@@ -320,17 +369,45 @@ export default function CitationMonitoringPage() {
       }
     } catch (err: any) {
       console.error(`Prompt monitor error:`, err);
-      setErrorMsg('Failed to run prompt monitoring. Please try again.');
+      setErrorMsg('Failed to run prompt monitoring. The request may have timed out — please try again with fewer engines.');
     }
 
     setPromptInputs(['', '', '']);
     setLoading(false);
   };
 
+  const handleDownloadPdf = () => {
+    if (promptResults.length === 0) return;
+    generateAiVisibilityPdf({
+      brandName: brandName || 'Brand',
+      brandDomain: brandDomain || undefined,
+      visibilityScore: latestOverallScore ?? undefined,
+      reportMarkdown: latestReportMarkdown || undefined,
+      results: promptResults,
+      reportUrl: latestReportUrl || undefined,
+      visibilityPageUrl: latestVisibilityPageUrl || undefined,
+    });
+  };
+
+  const handleCopyMarkdown = () => {
+    if (!latestReportMarkdown) return;
+    navigator.clipboard.writeText(latestReportMarkdown);
+    setCopiedMd(true);
+    setTimeout(() => setCopiedMd(false), 2000);
+  };
+
   const handleClearResults = () => {
     setPromptResults([]);
+    setLatestReportMarkdown(null);
+    setLatestVisibilityPageUrl(null);
+    setLatestReportUrl(null);
+    setLatestOverallScore(null);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('monitored_prompts_history');
+      localStorage.removeItem('latest_ai_report_markdown');
+      localStorage.removeItem('latest_ai_visibility_url');
+      localStorage.removeItem('latest_ai_report_url');
+      localStorage.removeItem('latest_ai_overall_score');
     }
   };
 
@@ -372,17 +449,30 @@ export default function CitationMonitoringPage() {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              setShowHistoryModal(true);
-              fetchHistory();
-            }}
-            className="bg-[#ffffff] hover:bg-[#17191c] text-[#17191c] hover:text-[#ffffff] border border-[#17191c]/15 rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm flex-shrink-0 self-start md:self-auto"
-          >
-            <Clock className="w-4 h-4 text-[#5d2a1a]" />
-            <span>History</span>
-          </button>
+          <div className="flex items-center gap-2.5 flex-shrink-0 self-start md:self-auto">
+            {promptResults.length > 0 && (
+              <button
+                type="button"
+                onClick={handleDownloadPdf}
+                className="bg-[#17191c] hover:bg-[#2c3036] text-[#ffffff] border border-[#17191c] rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
+              >
+                <Download className="w-4 h-4 text-[#fbe1d1]" />
+                <span>Export PDF</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowHistoryModal(true);
+                fetchHistory();
+              }}
+              className="bg-[#ffffff] hover:bg-[#17191c] text-[#17191c] hover:text-[#ffffff] border border-[#17191c]/15 rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
+            >
+              <Clock className="w-4 h-4 text-[#5d2a1a]" />
+              <span>History</span>
+            </button>
+          </div>
         </div>
 
         <HistoryModal
@@ -401,7 +491,7 @@ export default function CitationMonitoringPage() {
                   id: r.id || `hist_${Date.now()}`,
                   prompt: r.prompt_text || item.title,
                   brandName: r.brand_name || 'Brand',
-                  engineId: (r.llm_provider || 'kimi') as AiEngineId,
+                  engineId: (r.llm_provider || 'chatgpt') as AiEngineId,
                   region: (r.region || 'US') as RegionCode,
                   cited: !!r.cited,
                   position: r.position || 'Uncited',
@@ -450,8 +540,8 @@ export default function CitationMonitoringPage() {
                   required
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
-                  placeholder="e.g. HubSpot"
-                  className="bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-4 py-2.5 text-sm w-full focus:outline-none"
+                  placeholder="e.g. SEOzapp, Linear, HubSpot"
+                  className="w-full bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-3.5 py-2.5 text-sm text-[#17191c] focus:outline-none focus:border-[#17191c] transition-colors"
                 />
               </div>
               <div>
@@ -460,49 +550,46 @@ export default function CitationMonitoringPage() {
                   type="text"
                   value={brandDomain}
                   onChange={(e) => setBrandDomain(e.target.value)}
-                  placeholder="e.g. hubspot.com"
-                  className="bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-4 py-2.5 text-sm w-full focus:outline-none"
+                  placeholder="e.g. seozapp.com (used to detect cited sources)"
+                  className="w-full bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-3.5 py-2.5 text-sm text-[#17191c] focus:outline-none focus:border-[#17191c] transition-colors"
                 />
               </div>
             </div>
 
-            <div className="space-y-3">
+            {/* Dynamic Multi-Prompt Inputs */}
+            <div className="space-y-3 pt-2">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-medium text-[#777b86]">
-                  Monitoring Query Prompts ({promptInputs.length})
+                <label className="block text-xs font-semibold text-[#17191c] uppercase tracking-wider">
+                  Customer Prompts to Test ({promptInputs.length})
                 </label>
                 <button
                   type="button"
                   onClick={handleAddPromptInput}
-                  className="text-xs font-semibold text-[#17191c] bg-[#fafafb] border border-[#17191c]/15 px-3 py-1 rounded-lg hover:bg-[#f2f2f3] transition-colors flex items-center gap-1"
+                  className="text-xs font-medium text-[#17191c] hover:text-[#5d2a1a] flex items-center gap-1 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Add Prompt</span>
+                  <span>Add Query</span>
                 </button>
               </div>
 
               {promptInputs.map((val, idx) => (
                 <div key={idx} className="flex items-center gap-2">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#f2f2f3] text-[#777b86] text-[11px] font-semibold flex items-center justify-center">
+                    {idx + 1}
+                  </div>
                   <input
                     type="text"
+                    required
                     value={val}
                     onChange={(e) => handlePromptInputChange(idx, e.target.value)}
-                    placeholder={
-                      idx === 0
-                        ? "Query 1: e.g. Best CRM software for small business 2026"
-                        : idx === 1
-                        ? "Query 2: e.g. Top CRM solutions for growing teams"
-                        : idx === 2
-                        ? "Query 3: e.g. HubSpot vs Salesforce alternatives"
-                        : `Query ${idx + 1}...`
-                    }
-                    className="bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-4 py-2.5 text-sm flex-1 focus:outline-none"
+                    placeholder={`e.g. "What is the best AI SEO tool in 2026?"`}
+                    className="flex-1 bg-[#fafafb] border border-[#17191c]/15 rounded-xl px-3.5 py-2.5 text-sm text-[#17191c] focus:outline-none focus:border-[#17191c] transition-colors"
                   />
                   {promptInputs.length > 1 && (
                     <button
                       type="button"
                       onClick={() => handleRemovePromptInput(idx)}
-                      className="p-2 text-[#777b86] hover:text-[#ef4444] hover:bg-[#ef4444]/10 rounded-lg transition-colors"
+                      className="p-2 text-[#777b86] hover:text-[#ef4444] rounded-lg transition-colors"
                       title="Remove prompt"
                     >
                       <X className="w-4 h-4" />
@@ -512,16 +599,16 @@ export default function CitationMonitoringPage() {
               ))}
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="pt-2 flex justify-end">
               <button
                 type="submit"
-                disabled={loading || promptInputs.every((p) => !p.trim()) || !brandName.trim()}
-                className="bg-[#17191c] text-[#ffffff] rounded-xl px-6 py-2.5 text-sm font-medium hover:bg-[#17191c]/90 disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
+                disabled={loading}
+                className="bg-[#17191c] hover:bg-[#2c3036] disabled:opacity-50 text-[#ffffff] px-6 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
               >
                 {loading ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Analyzing {promptInputs.filter((p) => p.trim()).length} Prompts...</span>
+                    <span>Analyzing {promptInputs.filter((p) => p.trim()).length} Prompts across AI Engines...</span>
                   </>
                 ) : (
                   <>
@@ -535,7 +622,7 @@ export default function CitationMonitoringPage() {
 
           {/* Error Message */}
           {errorMsg && (
-            <div className="p-3 bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-xl text-xs text-[#ef4444] font-medium flex items-center gap-2">
+            <div className="p-3.5 bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-xl text-xs text-[#ef4444] font-medium flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{errorMsg}</span>
             </div>
@@ -543,31 +630,86 @@ export default function CitationMonitoringPage() {
 
           {/* Loading State */}
           {loading && (
-            <div className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10 flex items-center justify-center gap-3">
-              <RefreshCw className="w-5 h-5 animate-spin text-[#17191c]" />
-              <span className="text-sm text-[#777b86]">Querying AI Search Engines across active prompts and analyzing citation visibility...</span>
+            <div className="p-5 bg-[#fafafb] rounded-xl border border-[#17191c]/10 flex flex-col items-center justify-center gap-2 text-center">
+              <RefreshCw className="w-6 h-6 animate-spin text-[#17191c]" />
+              <span className="text-sm font-medium text-[#17191c]">Running Live Multi-LLM Brand Visibility Test</span>
+              <span className="text-xs text-[#777b86]">Querying ChatGPT, Perplexity, Google AI Overviews &amp; Gemini... This takes about 30-45 seconds.</span>
             </div>
           )}
+        </div>
 
-          {/* Latest Result Display */}
-          {!loading && promptResults.length > 0 && (
-            <div className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10 space-y-3 mt-4">
-              <div className="flex items-center justify-between">
+        {/* AI Brand Visibility Report & Download Card */}
+        {promptResults.length > 0 && (
+          <div className="bg-[#ffffff] rounded-2xl p-6 border border-[#17191c]/10 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[#f2f2f3]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#17191c] text-[#fbe1d1] flex items-center justify-center font-bold text-sm">
+                  {latestOverallScore !== null ? `${latestOverallScore}` : `${Math.round((promptResults.filter(r => r.cited).length / promptResults.length) * 100)}`}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[16px] text-[#17191c] flex items-center gap-2">
+                    <span>AI Brand Visibility Report</span>
+                    <span className="text-[11px] font-medium bg-[#10a37f]/10 text-[#10a37f] px-2 py-0.5 rounded-full">Live Audit</span>
+                  </h3>
+                  <p className="text-xs text-[#777b86]">
+                    {brandName || 'Brand'} appeared in {promptResults.filter(r => r.cited).length} of {promptResults.length} test checks ({Math.round((promptResults.filter(r => r.cited).length / promptResults.length) * 100)}% citation rate).
+                  </p>
+                </div>
+              </div>
+
+              {/* Report Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  className="bg-[#17191c] hover:bg-[#2c3036] text-[#ffffff] px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-sm"
+                >
+                  <Download className="w-3.5 h-3.5 text-[#fbe1d1]" />
+                  <span>Download PDF Report</span>
+                </button>
+
+                {latestVisibilityPageUrl && (
+                  <a
+                    href={latestVisibilityPageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#ffffff] hover:bg-[#fafafb] text-[#17191c] border border-[#17191c]/15 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-[#777b86]" />
+                    <span>Visibility Page</span>
+                  </a>
+                )}
+
+                {latestReportMarkdown && (
+                  <button
+                    type="button"
+                    onClick={handleCopyMarkdown}
+                    className="bg-[#ffffff] hover:bg-[#fafafb] text-[#17191c] border border-[#17191c]/15 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                  >
+                    {copiedMd ? <Check className="w-3.5 h-3.5 text-[#10a37f]" /> : <Copy className="w-3.5 h-3.5 text-[#777b86]" />}
+                    <span>{copiedMd ? 'Copied!' : 'Copy Markdown'}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Latest Answer Snippet */}
+            <div className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/5 space-y-2">
+              <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <AiEngineBadge engineId={promptResults[0].engineId} />
-                  <span className="text-xs font-semibold text-[#17191c]">Region: {REGIONS[promptResults[0].region]?.flag || '🌍'} {REGIONS[promptResults[0].region]?.name || promptResults[0].region || 'Global'}</span>
-                  <span className="font-semibold text-sm text-[#17191c] ml-2">Latest: &quot;{promptResults[0].prompt}&quot;</span>
+                  <span className="font-semibold text-[#17191c]">Latest Answer: &quot;{promptResults[0].prompt}&quot;</span>
                 </div>
-                <span className={`text-xs font-medium px-3 py-1 rounded-full ${promptResults[0].cited ? 'bg-[#10a37f] text-white' : 'bg-[#fbe1d1] text-[#5d2a1a]'}`}>
+                <span className={`px-2.5 py-0.5 rounded-full font-medium ${promptResults[0].cited ? 'bg-[#10a37f]/10 text-[#10a37f] border border-[#10a37f]/20' : 'bg-[#fbe1d1] text-[#5d2a1a]'}`}>
                   {promptResults[0].cited ? `✓ Cited (${promptResults[0].position})` : '✕ Not Cited'}
                 </span>
               </div>
               <p className="text-xs text-[#777b86] leading-relaxed bg-[#ffffff] p-3 rounded-lg border border-[#17191c]/5 font-mono">
-                {promptResults[0].responseSnippet}
+                {promptResults[0].responseSnippet || 'No answer preview available.'}
               </p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Per-Engine Citation Stats */}
         {promptResults.length > 0 && (
