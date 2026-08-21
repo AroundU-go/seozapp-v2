@@ -65,7 +65,6 @@ export default function CitationMonitoringPage() {
   const [latestReportUrl, setLatestReportUrl] = useState<string | null>(null);
   const [latestOverallScore, setLatestOverallScore] = useState<number | null>(null);
   const [copiedMd, setCopiedMd] = useState(false);
-  const [showFullReport, setShowFullReport] = useState(false);
   const [expandedAnswerIndices, setExpandedAnswerIndices] = useState<number[]>([]);
 
   const isPro = true;
@@ -670,15 +669,6 @@ export default function CitationMonitoringPage() {
                     <span>Download PDF Report</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowFullReport(!showFullReport)}
-                    className="bg-[#ffffff] hover:bg-[#fafafb] text-[#17191c] border border-[#17191c]/15 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
-                  >
-                    <FileText className="w-3.5 h-3.5 text-[#777b86]" />
-                    <span>{showFullReport ? 'Hide Raw Report' : 'View Full Report (As-It-Is)'}</span>
-                  </button>
-
                   {latestReportMarkdown && (
                     <button
                       type="button"
@@ -888,29 +878,6 @@ export default function CitationMonitoringPage() {
                   })}
                 </div>
               </div>
-
-              {/* 5. Complete Raw Report Viewer (Generated As-It-Is) */}
-              {showFullReport && latestReportMarkdown && (
-                <div className="space-y-2 pt-3 border-t border-[#f2f2f3]">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-[#17191c] uppercase tracking-wider flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5 text-[#17191c]" />
-                      <span>Complete AI Visibility Audit Document (As Generated)</span>
-                    </h4>
-                    <button
-                      type="button"
-                      onClick={handleCopyMarkdown}
-                      className="text-xs font-medium text-[#17191c] hover:text-[#5d2a1a] flex items-center gap-1"
-                    >
-                      {copiedMd ? <Check className="w-3 h-3 text-[#10a37f]" /> : <Copy className="w-3 h-3" />}
-                      <span>{copiedMd ? 'Copied' : 'Copy'}</span>
-                    </button>
-                  </div>
-                  <pre className="p-4 bg-[#fafafb] text-[#17191c] rounded-xl border border-[#17191c]/10 text-xs font-mono whitespace-pre-wrap leading-relaxed max-h-[500px] overflow-y-auto">
-                    {cleanApifyReportMarkdown(latestReportMarkdown)}
-                  </pre>
-                </div>
-              )}
             </div>
           );
         })()}
