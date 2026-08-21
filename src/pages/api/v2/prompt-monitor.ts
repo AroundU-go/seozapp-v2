@@ -60,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const regionInfo = REGIONS[targetRegion] || REGIONS.US;
     const targetLocationCode = locationCode || regionInfo.locationCode || '2840';
     const targetLanguageCode = languageCode || regionInfo.languageCode || 'en';
-    const targetCountryCode = regionInfo.firecrawlCountry || targetRegion;
+    const targetCountryCode = targetRegion;
 
     // Build prompts list
     const promptList: string[] = [];

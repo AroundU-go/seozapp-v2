@@ -62,15 +62,20 @@ export interface BrandTrackerInput {
   languageCode?: string;
 }
 
+const ALLOWED_ACTOR_COUNTRIES = new Set([
+  'us', 'uk', 'ca', 'au', 'de', 'fr', 'es', 'it', 'nl', 'cz', 'sk', 'pl', 'jp', 'br', 'mx', 'in'
+]);
+
 /**
- * Converts a region code (e.g. 'US', 'UK', 'CA', 'GLOBAL') to lowercase 2-letter ISO code.
+ * Converts a region code (e.g. 'US', 'UK', 'GB', 'CA', 'GLOBAL') to one of the actor's allowed country codes.
  */
 function resolveCountryCode(country?: string): string {
   if (!country) return 'us';
   const c = country.trim().toLowerCase();
-  if (c === 'uk') return 'gb';
-  if (c === 'global') return 'us';
-  if (c.length === 2) return c;
+  if (c === 'gb' || c === 'uk') return 'uk';
+  if (ALLOWED_ACTOR_COUNTRIES.has(c)) {
+    return c;
+  }
   return 'us';
 }
 
