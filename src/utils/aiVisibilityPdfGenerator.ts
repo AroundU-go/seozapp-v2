@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { parseVisibilityReport } from './aiVisibilityParser';
 
 export interface PromptResultItem {
   id?: string;
@@ -25,12 +26,13 @@ export function generateAiVisibilityPdf(params: {
   reportMarkdown?: string;
   results: PromptResultItem[];
   reportUrl?: string;
-  visibilityPageUrl?: string;
 }) {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const pageHeight = doc.internal.pageSize.height;
   const contentWidth = pageWidth - 28; // 14mm margins
+
+  const parsed = params.reportMarkdown ? parseVisibilityReport(params.reportMarkdown) : null;
 
   // Helper for Logo & Header
   const drawHeader = () => {
@@ -48,7 +50,7 @@ export function generateAiVisibilityPdf(params: {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(251, 225, 209); // #fbe1d1 accent peach
-    doc.text('AI BRAND VISIBILITY & CITATION REPORT', pageWidth - 14, 15, { align: 'right' });
+    doc.text('AI BRAND VISIBILITY & CITATION AUDIT', pageWidth - 14, 15, { align: 'right' });
   };
 
   // Helper for Footer
@@ -76,47 +78,84 @@ export function generateAiVisibilityPdf(params: {
   doc.setFontSize(9);
   doc.setTextColor(119, 123, 134);
   const formattedDate = params.date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  doc.text(`Target Domain: ${params.brandDomain || params.brandName} • Date: ${formattedDate}`, 14, y);
-  y += 12;
+  doc.text(`Target Domain: ${params.brandDomain || params.brandName} • Audit Date: ${formattedDate}`, 14, y);
+  y += 11;
 
   // High-Level Summary Card
   const totalChecks = params.results.length;
   const citedChecks = params.results.filter((r) => r.cited).length;
   const citationRate = totalChecks > 0 ? Math.round((citedChecks / totalChecks) * 100) : 0;
-  const score = params.visibilityScore ?? citationRate;
+  const score = params.visibilityScore ?? parsed?.visibilityScore ?? citationRate;
 
   doc.setFillColor(250, 250, 251);
   doc.setDrawColor(230, 230, 235);
-  doc.roundedRect(14, y, contentWidth, 28, 3, 3, 'FD');
+  doc.roundedRect(14, y, contentWidth, 26, 3, 3, 'FD');
 
   // Score badge box
   doc.setFillColor(23, 25, 28);
-  doc.roundedRect(20, y + 4, 38, 20, 2, 2, 'F');
+  doc.roundedRect(19, y + 3, 38, 20, 2, 2, 'F');
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   doc.setTextColor(251, 225, 209);
-  doc.text(`${score}`, 39, y + 14, { align: 'center' });
+  doc.text(`${score}`, 38, y + 14, { align: 'center' });
   doc.setFontSize(7.5);
-  doc.text('VISIBILITY SCORE', 39, y + 20, { align: 'center' });
+  doc.text('VISIBILITY SCORE', 38, y + 20, { align: 'center' });
 
   // Score details
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
+  doc.setFontSize(10.5);
   doc.setTextColor(23, 25, 28);
-  doc.text(`AI Citation Rate: ${citationRate}% (${citedChecks} of ${totalChecks} checks cited)`, 65, y + 12);
+  doc.text(`AI Citation Rate: ${citationRate}% (${citedChecks} of ${totalChecks} checks cited)`, 64, y + 10);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(119, 123, 134);
-  doc.text(`Tested across leading AI search engines: ChatGPT, Perplexity, Google AI Overviews, Gemini, Claude.`, 65, y + 20);
+  doc.text(`Audited across ChatGPT, Perplexity, Google AI Overviews, Gemini, and Copilot.`, 64, y + 18);
 
-  y += 36;
+  y += 32;
 
-  // Table: Monitored Prompts Summary
+  // 1. Recommendation: What to fix next (from Report)
+  if (parsed?.recommendation || (parsed?.promptsNeedingWork && parsed.promptsNeedingWork.length > 0)) {
+    doc.setFillColor(251, 246, 240); // light warm peach bg
+    doc.setDrawColor(240, 215, 195);
+    
+    const recText = parsed.recommendation || (parsed.promptsNeedingWork ? parsed.promptsNeedingWork[0] : '');
+    const splitRec = doc.splitTextToSize(`🎯 ACTION PLAN / WHAT TO FIX NEXT: ${recText}`, contentWidth - 10);
+    const boxHeight = Math.max(18, splitRec.length * 4.5 + 8);
+
+    doc.roundedRect(14, y, contentWidth, boxHeight, 2, 2, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(93, 42, 26);
+    doc.text(splitRec, 19, y + 6);
+
+    y += boxHeight + 8;
+  }
+
+  // 2. Prompts Needing Work list
+  if (parsed?.promptsNeedingWork && parsed.promptsNeedingWork.length > 0) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(23, 25, 28);
+    doc.text('🔧 Prompts Needing Work & AEO Opportunities', 14, y);
+    y += 5;
+
+    for (const p of parsed.promptsNeedingWork.slice(0, 3)) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(70, 70, 70);
+      const splitP = doc.splitTextToSize(`• ${p}`, contentWidth - 6);
+      doc.text(splitP, 18, y);
+      y += splitP.length * 4 + 2;
+    }
+    y += 4;
+  }
+
+  // 3. Monitored Prompts Table
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(23, 25, 28);
-  doc.text('Monitored Prompts & Citation Placement', 14, y);
+  doc.text('Tested Queries & Citation Placement Summary', 14, y);
   y += 4;
 
   const tableRows = params.results.map((r) => [
@@ -134,7 +173,7 @@ export function generateAiVisibilityPdf(params: {
 
   autoTable(doc, {
     startY: y,
-    head: [['Query / Prompt', 'Engine', 'Status', 'Rank / Position', 'Sentiment', 'Cited Sources']],
+    head: [['Query / Customer Prompt', 'Engine', 'Status', 'Rank / Position', 'Sentiment', 'Cited Sources']],
     body: tableRows,
     theme: 'grid',
     headStyles: {
@@ -144,7 +183,7 @@ export function generateAiVisibilityPdf(params: {
       fontSize: 8,
     },
     bodyStyles: {
-      fontSize: 8,
+      fontSize: 7.5,
       textColor: [30, 30, 30],
     },
     alternateRowStyles: {
@@ -170,24 +209,35 @@ export function generateAiVisibilityPdf(params: {
     },
   });
 
-  y = (doc as any).lastAutoTable?.finalY + 12 || y + 50;
+  y = (doc as any).lastAutoTable?.finalY + 10 || y + 50;
 
-  // Detailed AI Responses & Snippets Section
-  if (y > pageHeight - 60) {
+  // 4. Section: Your questions — where you show up
+  if (y > pageHeight - 65) {
     doc.addPage();
     drawHeader();
     y = 34;
   }
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(23, 25, 28);
-  doc.text('Detailed AI Search Engine Answers & Snippets', 14, y);
+  doc.text('✅ Your Questions — Where You Show Up (Exact AI Answers)', 14, y);
   y += 6;
 
-  for (let i = 0; i < params.results.length; i++) {
-    const item = params.results[i];
-    const neededSpace = 36;
+  // Use answers from parsed report or fallback to results
+  const itemsToShow = (parsed?.answersShowedUp && parsed.answersShowedUp.length > 0)
+    ? parsed.answersShowedUp
+    : params.results.map((r) => ({
+        prompt: r.prompt,
+        engineAndCountry: `${r.engineId.toUpperCase()} (${r.region || 'US'})`,
+        mentionStatus: r.cited ? `✓ Cited (${r.position})` : '✕ Not Cited',
+        snippet: r.responseSnippet || 'Mention verified in answer stream.',
+        fullAnswer: r.responseSnippet || '',
+      }));
+
+  for (let i = 0; i < itemsToShow.length; i++) {
+    const item = itemsToShow[i];
+    const neededSpace = 34;
     if (y + neededSpace > pageHeight - 25) {
       doc.addPage();
       drawHeader();
@@ -200,31 +250,23 @@ export function generateAiVisibilityPdf(params: {
 
     // Query heading
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
+    doc.setFontSize(8.5);
     doc.setTextColor(23, 25, 28);
-    doc.text(`"${item.prompt}"`, 18, y + 6);
+    doc.text(`"${item.prompt}" — ${item.engineAndCountry}`, 18, y + 6);
 
     // Status pill
-    const statusText = item.cited ? `✓ Cited (${item.position || 'Top'})` : '✕ Not Cited';
+    const isCited = item.mentionStatus.includes('Named') || item.mentionStatus.includes('Cited') || !item.mentionStatus.includes('Not');
     doc.setFontSize(8);
-    doc.setTextColor(item.cited ? 16 : 220, item.cited ? 163 : 38, item.cited ? 127 : 38);
-    doc.text(statusText, pageWidth - 18, y + 6, { align: 'right' });
+    doc.setTextColor(isCited ? 16 : 220, isCited ? 163 : 38, isCited ? 127 : 38);
+    doc.text(item.mentionStatus, pageWidth - 18, y + 6, { align: 'right' });
 
-    // Snippet
+    // Snippet / full answer text
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(90, 90, 90);
-    const snippet = item.responseSnippet || 'No detailed snippet available.';
-    const splitSnippet = doc.splitTextToSize(snippet, contentWidth - 8);
-    doc.text(splitSnippet.slice(0, 3), 18, y + 13);
-
-    // Sources
-    if (item.citedUrls && item.citedUrls.length > 0) {
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(7);
-      doc.setTextColor(93, 42, 26);
-      doc.text(`Sources: ${item.citedUrls.slice(0, 3).join(' • ')}`, 18, y + 26);
-    }
+    const textToShow = item.fullAnswer || item.snippet || 'No snippet available.';
+    const splitText = doc.splitTextToSize(textToShow, contentWidth - 8);
+    doc.text(splitText.slice(0, 3), 18, y + 13);
 
     y += 34;
   }

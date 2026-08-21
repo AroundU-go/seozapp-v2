@@ -3,6 +3,7 @@ import { runApifyBrandTracker, BrandTrackerResult } from '@/lib/providers/apifyC
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 import { REGIONS, RegionCode } from '@/components/dashboard/RegionSelector';
 import { getServerPlanLimits } from '@/lib/planLimits';
+import { cleanApifyReportMarkdown } from '@/utils/aiVisibilityParser';
 
 export const maxDuration = 120;
 
@@ -177,15 +178,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         results.push(runItem);
       }
 
+      const sanitizedMarkdown = trackerResponse.reportMarkdown
+        ? cleanApifyReportMarkdown(trackerResponse.reportMarkdown)
+        : '';
+
       return res.status(200).json({
         success: true,
         results,
-        reportMarkdown: trackerResponse.reportMarkdown,
-        reportUrl: trackerResponse.reportUrl,
-        reportMarkdownUrl: trackerResponse.reportMarkdownUrl,
-        visibilityPageUrl: trackerResponse.visibilityPageUrl,
-        datasetUrl: trackerResponse.datasetUrl,
-        runUrl: trackerResponse.runUrl,
+        reportMarkdown: sanitizedMarkdown,
         overallScore: trackerResponse.overallScore,
       });
     } catch (err: any) {

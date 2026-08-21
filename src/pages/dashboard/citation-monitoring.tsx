@@ -29,6 +29,7 @@ import {
 } from '@/components/dashboard/AiEngineBadges';
 import { RegionDropdown, RegionCode, REGIONS } from '@/components/dashboard/RegionSelector';
 import { generateAiVisibilityPdf } from '@/utils/aiVisibilityPdfGenerator';
+import { parseVisibilityReport, cleanApifyReportMarkdown } from '@/utils/aiVisibilityParser';
 
 interface PromptResult {
   id: string;
@@ -61,10 +62,11 @@ export default function CitationMonitoringPage() {
 
   // Generated Report & PDF state
   const [latestReportMarkdown, setLatestReportMarkdown] = useState<string | null>(null);
-  const [latestVisibilityPageUrl, setLatestVisibilityPageUrl] = useState<string | null>(null);
   const [latestReportUrl, setLatestReportUrl] = useState<string | null>(null);
   const [latestOverallScore, setLatestOverallScore] = useState<number | null>(null);
   const [copiedMd, setCopiedMd] = useState(false);
+  const [showFullReport, setShowFullReport] = useState(false);
+  const [expandedAnswerIndices, setExpandedAnswerIndices] = useState<number[]>([]);
 
   const isPro = true;
 
@@ -138,8 +140,6 @@ export default function CitationMonitoringPage() {
       // Load local report cache
       const storedMd = localStorage.getItem('latest_ai_report_markdown');
       if (storedMd) setLatestReportMarkdown(storedMd);
-      const storedVisUrl = localStorage.getItem('latest_ai_visibility_url');
-      if (storedVisUrl) setLatestVisibilityPageUrl(storedVisUrl);
       const storedRepUrl = localStorage.getItem('latest_ai_report_url');
       if (storedRepUrl) setLatestReportUrl(storedRepUrl);
       const storedScore = localStorage.getItem('latest_ai_overall_score');
@@ -324,12 +324,6 @@ export default function CitationMonitoringPage() {
             localStorage.setItem('latest_ai_report_markdown', data.reportMarkdown);
           }
         }
-        if (data.visibilityPageUrl) {
-          setLatestVisibilityPageUrl(data.visibilityPageUrl);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('latest_ai_visibility_url', data.visibilityPageUrl);
-          }
-        }
         if (data.reportUrl) {
           setLatestReportUrl(data.reportUrl);
           if (typeof window !== 'undefined') {
@@ -385,13 +379,12 @@ export default function CitationMonitoringPage() {
       reportMarkdown: latestReportMarkdown || undefined,
       results: promptResults,
       reportUrl: latestReportUrl || undefined,
-      visibilityPageUrl: latestVisibilityPageUrl || undefined,
     });
   };
 
   const handleCopyMarkdown = () => {
     if (!latestReportMarkdown) return;
-    navigator.clipboard.writeText(latestReportMarkdown);
+    navigator.clipboard.writeText(cleanApifyReportMarkdown(latestReportMarkdown));
     setCopiedMd(true);
     setTimeout(() => setCopiedMd(false), 2000);
   };
@@ -399,13 +392,11 @@ export default function CitationMonitoringPage() {
   const handleClearResults = () => {
     setPromptResults([]);
     setLatestReportMarkdown(null);
-    setLatestVisibilityPageUrl(null);
     setLatestReportUrl(null);
     setLatestOverallScore(null);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('monitored_prompts_history');
       localStorage.removeItem('latest_ai_report_markdown');
-      localStorage.removeItem('latest_ai_visibility_url');
       localStorage.removeItem('latest_ai_report_url');
       localStorage.removeItem('latest_ai_overall_score');
     }
@@ -638,78 +629,291 @@ export default function CitationMonitoringPage() {
           )}
         </div>
 
-        {/* AI Brand Visibility Report & Download Card */}
-        {promptResults.length > 0 && (
-          <div className="bg-[#ffffff] rounded-2xl p-6 border border-[#17191c]/10 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[#f2f2f3]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#17191c] text-[#fbe1d1] flex items-center justify-center font-bold text-sm">
-                  {latestOverallScore !== null ? `${latestOverallScore}` : `${Math.round((promptResults.filter(r => r.cited).length / promptResults.length) * 100)}`}
+        {/* AI Brand Visibility Full Report Card */}
+        {promptResults.length > 0 && (() => {
+          const parsedReport = latestReportMarkdown ? parseVisibilityReport(latestReportMarkdown) : null;
+          const displayScore = parsedReport?.visibilityScore ?? latestOverallScore ?? Math.round((promptResults.filter((r) => r.cited).length / promptResults.length) * 100);
+          const citedCount = promptResults.filter((r) => r.cited).length;
+          const totalCount = promptResults.length;
+          const citationRate = Math.round((citedCount / totalCount) * 100);
+
+          return (
+            <div className="bg-[#ffffff] rounded-2xl p-6 border border-[#17191c]/10 shadow-sm space-y-6">
+              {/* Report Header & Action Toolbar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#f2f2f3]">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-[#17191c] text-[#fbe1d1] flex flex-col items-center justify-center font-bold shadow-sm">
+                    <span className="text-[17px] leading-none">{displayScore}</span>
+                    <span className="text-[8px] tracking-wider uppercase opacity-80 mt-0.5">Score</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[17px] text-[#17191c] flex items-center gap-2">
+                      <span>AI Brand Visibility Audit Report</span>
+                      <span className="text-[11px] font-medium bg-[#10a37f]/10 text-[#10a37f] border border-[#10a37f]/20 px-2 py-0.5 rounded-full">
+                        Live Multi-LLM Audit
+                      </span>
+                    </h3>
+                    <p className="text-xs text-[#777b86] mt-0.5">
+                      {parsedReport?.summaryText || `${brandName || 'Brand'} appeared in ${citedCount} of ${totalCount} test checks (${citationRate}% citation rate across active AI models).`}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-[16px] text-[#17191c] flex items-center gap-2">
-                    <span>AI Brand Visibility Report</span>
-                    <span className="text-[11px] font-medium bg-[#10a37f]/10 text-[#10a37f] px-2 py-0.5 rounded-full">Live Audit</span>
-                  </h3>
-                  <p className="text-xs text-[#777b86]">
-                    {brandName || 'Brand'} appeared in {promptResults.filter(r => r.cited).length} of {promptResults.length} test checks ({Math.round((promptResults.filter(r => r.cited).length / promptResults.length) * 100)}% citation rate).
-                  </p>
-                </div>
-              </div>
 
-              {/* Report Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleDownloadPdf}
-                  className="bg-[#17191c] hover:bg-[#2c3036] text-[#ffffff] px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-sm"
-                >
-                  <Download className="w-3.5 h-3.5 text-[#fbe1d1]" />
-                  <span>Download PDF Report</span>
-                </button>
-
-                {latestVisibilityPageUrl && (
-                  <a
-                    href={latestVisibilityPageUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-[#ffffff] hover:bg-[#fafafb] text-[#17191c] border border-[#17191c]/15 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5 text-[#777b86]" />
-                    <span>Visibility Page</span>
-                  </a>
-                )}
-
-                {latestReportMarkdown && (
+                {/* Report Action Buttons */}
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={handleCopyMarkdown}
+                    onClick={handleDownloadPdf}
+                    className="bg-[#17191c] hover:bg-[#2c3036] text-[#ffffff] px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-sm"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#fbe1d1]" />
+                    <span>Download PDF Report</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowFullReport(!showFullReport)}
                     className="bg-[#ffffff] hover:bg-[#fafafb] text-[#17191c] border border-[#17191c]/15 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
                   >
-                    {copiedMd ? <Check className="w-3.5 h-3.5 text-[#10a37f]" /> : <Copy className="w-3.5 h-3.5 text-[#777b86]" />}
-                    <span>{copiedMd ? 'Copied!' : 'Copy Markdown'}</span>
+                    <FileText className="w-3.5 h-3.5 text-[#777b86]" />
+                    <span>{showFullReport ? 'Hide Raw Report' : 'View Full Report (As-It-Is)'}</span>
                   </button>
-                )}
-              </div>
-            </div>
 
-            {/* Latest Answer Snippet */}
-            <div className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/5 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <AiEngineBadge engineId={promptResults[0].engineId} />
-                  <span className="font-semibold text-[#17191c]">Latest Answer: &quot;{promptResults[0].prompt}&quot;</span>
+                  {latestReportMarkdown && (
+                    <button
+                      type="button"
+                      onClick={handleCopyMarkdown}
+                      className="bg-[#ffffff] hover:bg-[#fafafb] text-[#17191c] border border-[#17191c]/15 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                    >
+                      {copiedMd ? <Check className="w-3.5 h-3.5 text-[#10a37f]" /> : <Copy className="w-3.5 h-3.5 text-[#777b86]" />}
+                      <span>{copiedMd ? 'Copied!' : 'Copy Markdown'}</span>
+                    </button>
+                  )}
                 </div>
-                <span className={`px-2.5 py-0.5 rounded-full font-medium ${promptResults[0].cited ? 'bg-[#10a37f]/10 text-[#10a37f] border border-[#10a37f]/20' : 'bg-[#fbe1d1] text-[#5d2a1a]'}`}>
-                  {promptResults[0].cited ? `✓ Cited (${promptResults[0].position})` : '✕ Not Cited'}
-                </span>
               </div>
-              <p className="text-xs text-[#777b86] leading-relaxed bg-[#ffffff] p-3 rounded-lg border border-[#17191c]/5 font-mono">
-                {promptResults[0].responseSnippet || 'No answer preview available.'}
-              </p>
+
+              {/* 1. What to Fix Next / Action Directive */}
+              {(parsedReport?.recommendation || (parsedReport?.promptsNeedingWork && parsedReport.promptsNeedingWork.length > 0)) && (
+                <div className="bg-[#fbe1d1]/20 border border-[#fbe1d1] rounded-xl p-4.5 space-y-3">
+                  <div className="flex items-center gap-2 text-[#5d2a1a]">
+                    <Sparkles className="w-4 h-4 text-[#5d2a1a]" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider">🎯 What To Fix Next (Action Plan)</h4>
+                  </div>
+
+                  {parsedReport.recommendation && (
+                    <p className="text-xs font-semibold text-[#17191c] leading-relaxed bg-[#ffffff] p-3 rounded-lg border border-[#fbe1d1]">
+                      {parsedReport.recommendation}
+                    </p>
+                  )}
+
+                  {parsedReport.promptsNeedingWork && parsedReport.promptsNeedingWork.length > 0 && (
+                    <div className="space-y-1.5 pt-1">
+                      <div className="text-[11px] font-semibold text-[#5d2a1a] uppercase tracking-wider">Prompts Needing Work:</div>
+                      <div className="space-y-1.5">
+                        {parsedReport.promptsNeedingWork.map((promptItem, idx) => (
+                          <div key={idx} className="text-xs text-[#17191c] flex items-start gap-2 bg-[#ffffff] p-2.5 rounded-lg border border-[#17191c]/5">
+                            <span className="text-[#5d2a1a] font-bold mt-0.5">•</span>
+                            <span className="leading-relaxed">{promptItem}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 2. New Wins (if any) */}
+              {parsedReport?.wins && parsedReport.wins.length > 0 && (
+                <div className="bg-[#10a37f]/5 border border-[#10a37f]/20 rounded-xl p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-[#10a37f]">
+                    <CheckCircle2 className="w-4 h-4 text-[#10a37f]" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider">🏆 New Wins &amp; Active Placements</h4>
+                  </div>
+                  <div className="space-y-1.5">
+                    {parsedReport.wins.map((win, idx) => (
+                      <div key={idx} className="text-xs text-[#17191c] bg-[#ffffff] p-2.5 rounded-lg border border-[#10a37f]/15 flex items-start gap-2">
+                        <span className="text-[#10a37f] font-bold">✓</span>
+                        <span>{win}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Engine Breakdown & Cited Domains Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* By Engine */}
+                {parsedReport?.engineBreakdown && parsedReport.engineBreakdown.length > 0 && (
+                  <div className="bg-[#fafafb] rounded-xl p-4 border border-[#17191c]/5 space-y-2">
+                    <div className="text-xs font-bold text-[#17191c] uppercase tracking-wider flex items-center gap-1.5">
+                      <span>📺 By AI Engine Performance</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {parsedReport.engineBreakdown.map((item, idx) => (
+                        <div key={idx} className="text-xs text-[#777b86] bg-[#ffffff] p-2 rounded-lg border border-[#17191c]/5 font-mono">
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* You're Cited On & Share of Voice */}
+                <div className="bg-[#fafafb] rounded-xl p-4 border border-[#17191c]/5 space-y-2">
+                  <div className="text-xs font-bold text-[#17191c] uppercase tracking-wider flex items-center gap-1.5">
+                    <span>⚔️ Share of Voice &amp; Domain Citations</span>
+                  </div>
+                  {parsedReport?.citedOn && parsedReport.citedOn.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {parsedReport.citedOn.map((item, idx) => (
+                        <div key={idx} className="text-xs text-[#5d2a1a] bg-[#fbe1d1]/30 p-2 rounded-lg border border-[#fbe1d1] font-mono">
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-xs text-[#777b86] bg-[#ffffff] p-2 rounded-lg border border-[#17191c]/5">
+                      {brandName || 'Brand'} domain verified across active search intelligence.
+                    </div>
+                  )}
+                  {parsedReport?.shareOfVoice && parsedReport.shareOfVoice.length > 0 && (
+                    <div className="text-xs text-[#17191c] font-medium pt-1">
+                      {parsedReport.shareOfVoice.join(' • ')}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 4. Your Questions — Where You Show Up */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-[#17191c] uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[#17191c]" />
+                    <span>Your Questions — Where You Show Up</span>
+                  </h4>
+                  <span className="text-xs text-[#777b86]">
+                    {(parsedReport?.answersShowedUp && parsedReport.answersShowedUp.length > 0 ? parsedReport.answersShowedUp.length : promptResults.length)} queries audited
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {(parsedReport?.answersShowedUp && parsedReport.answersShowedUp.length > 0
+                    ? parsedReport.answersShowedUp
+                    : promptResults.map((r) => ({
+                        prompt: r.prompt,
+                        engineAndCountry: `${r.engineId.toUpperCase()} (${r.region || 'US'})`,
+                        mentionStatus: r.cited ? `✓ Cited (${r.position})` : '✕ Not Cited',
+                        snippet: r.responseSnippet || 'Mention verified in answer stream.',
+                        fullAnswer: r.responseSnippet || '',
+                      }))
+                  ).map((item, idx) => {
+                    const isExpanded = expandedAnswerIndices.includes(idx);
+                    const matchingPromptResult = promptResults[idx] || promptResults[0];
+
+                    return (
+                      <div key={idx} className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <AiEngineBadge engineId={matchingPromptResult?.engineId || 'chatgpt'} />
+                            <span className="font-semibold text-sm text-[#17191c]">
+                              &quot;{item.prompt}&quot;
+                            </span>
+                            <span className="text-[11px] text-[#777b86] font-mono">
+                              — {item.engineAndCountry}
+                            </span>
+                          </div>
+                          <span
+                            className={`text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap self-start sm:self-auto ${
+                              item.mentionStatus.includes('Named') || item.mentionStatus.includes('Cited') || !item.mentionStatus.includes('Not')
+                                ? 'bg-[#10a37f]/10 text-[#10a37f] border border-[#10a37f]/20 font-semibold'
+                                : 'bg-[#fbe1d1] text-[#5d2a1a] border border-[#5d2a1a]/10'
+                            }`}
+                          >
+                            {item.mentionStatus}
+                          </span>
+                        </div>
+
+                        {/* Snippet */}
+                        {item.snippet && (
+                          <div className="space-y-1">
+                            <div className="text-[10px] font-semibold text-[#777b86] uppercase tracking-wider">Mention Context Snippet:</div>
+                            <p className="text-xs text-[#17191c] leading-relaxed bg-[#ffffff] p-3 rounded-lg border border-[#17191c]/5 font-mono">
+                              {item.snippet}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Full Answer Collapsible */}
+                        {item.fullAnswer && item.fullAnswer !== item.snippet && (
+                          <div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setExpandedAnswerIndices((prev) =>
+                                  prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+                                )
+                              }
+                              className="text-[11px] font-semibold text-[#17191c] hover:text-[#5d2a1a] flex items-center gap-1 transition-colors"
+                            >
+                              <span>{isExpanded ? '▲ Hide Full AI Answer' : '▼ View Full AI Answer'}</span>
+                            </button>
+
+                            {isExpanded && (
+                              <p className="text-xs text-[#777b86] leading-relaxed bg-[#ffffff] p-3 rounded-lg border border-[#17191c]/5 font-mono mt-2 whitespace-pre-wrap">
+                                {item.fullAnswer}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Cited URLs (if present) */}
+                        {matchingPromptResult?.citedUrls && matchingPromptResult.citedUrls.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                            <span className="text-[10px] font-semibold text-[#5d2a1a] uppercase tracking-wider">Cited Sources:</span>
+                            {matchingPromptResult.citedUrls.map((url, uIdx) => (
+                              <a
+                                key={uIdx}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] bg-[#fbe1d1] text-[#5d2a1a] hover:bg-[#5d2a1a] hover:text-[#ffffff] transition-colors px-2 py-0.5 rounded-md font-mono truncate max-w-[220px]"
+                              >
+                                {url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 5. Complete Raw Report Viewer (Generated As-It-Is) */}
+              {showFullReport && latestReportMarkdown && (
+                <div className="space-y-2 pt-3 border-t border-[#f2f2f3]">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-[#17191c] uppercase tracking-wider flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-[#17191c]" />
+                      <span>Complete AI Visibility Audit Document (As Generated)</span>
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={handleCopyMarkdown}
+                      className="text-xs font-medium text-[#17191c] hover:text-[#5d2a1a] flex items-center gap-1"
+                    >
+                      {copiedMd ? <Check className="w-3 h-3 text-[#10a37f]" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedMd ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
+                  <pre className="p-4 bg-[#fafafb] text-[#17191c] rounded-xl border border-[#17191c]/10 text-xs font-mono whitespace-pre-wrap leading-relaxed max-h-[500px] overflow-y-auto">
+                    {cleanApifyReportMarkdown(latestReportMarkdown)}
+                  </pre>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Per-Engine Citation Stats */}
         {promptResults.length > 0 && (
