@@ -95,16 +95,29 @@ export async function runApifyBrandTracker(
 
   const countryCode = resolveCountryCode(params.country);
 
-  // Clean brand domains
+  // Clean and expand brand domains (include with and without www)
   const cleanBrandDomains: string[] = [];
   if (params.brandDomain) {
-    const d = params.brandDomain
+    const raw = params.brandDomain
       .trim()
       .replace(/^https?:\/\//i, '')
       .replace(/\/.*$/, '')
-      .replace(/^www\./i, '')
       .toLowerCase();
-    if (d) cleanBrandDomains.push(d);
+
+    const rootDomain = raw.replace(/^www\./i, '');
+    if (rootDomain) {
+      cleanBrandDomains.push(rootDomain);
+      cleanBrandDomains.push(`www.${rootDomain}`);
+    }
+  }
+
+  // Also derive domain from brandName if brandName looks like a domain
+  if (params.brandName && params.brandName.includes('.') && !params.brandDomain) {
+    const root = params.brandName.trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/.*$/, '').toLowerCase();
+    if (root && !cleanBrandDomains.includes(root)) {
+      cleanBrandDomains.push(root);
+      cleanBrandDomains.push(`www.${root}`);
+    }
   }
 
   // Format valid prompt queries
@@ -130,7 +143,7 @@ export async function runApifyBrandTracker(
   };
 
   try {
-    console.log(`[Apify BrandTracker] Calling ${ACTOR_ID} with ${cleanPrompts.length} prompts across surfaces: ${input.surfaces.join(', ')} (country: ${countryCode})`);
+    console.log(`[Apify BrandTracker] Calling ${ACTOR_ID} with ${cleanPrompts.length} prompts across surfaces: ${input.surfaces.join(', ')} (country: ${countryCode}, domains: ${cleanBrandDomains.join(', ')})`);
     
     const run = await client.actor(ACTOR_ID).call(input);
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
@@ -185,6 +198,41 @@ export async function runApifyBrandTracker(
 }
 
 /**
+ * Checks if a cited URL belongs to the brand domain or brand name.
+ */
+function isBrandUrlMatch(url: string, brandDomains: string[], brandName: string): boolean {
+  if (!url || typeof url !== 'string') return false;
+  const cleanUrl = url.toLowerCase();
+
+  // Extract hostname from URL
+  let hostname = '';
+  try {
+    hostname = new URL(url.startsWith('http') ? url : `https://${url}`).hostname.toLowerCase().replace(/^www\./, '');
+  } catch {
+    hostname = cleanUrl.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+  }
+
+  // Check against brandDomains
+  for (const domain of brandDomains) {
+    const cleanDomain = domain.toLowerCase().replace(/^www\./, '').replace(/\/.*$/, '');
+    if (cleanDomain && (hostname === cleanDomain || hostname.endsWith(`.${cleanDomain}`) || cleanUrl.includes(cleanDomain))) {
+      return true;
+    }
+  }
+
+  // Check against clean brand name (e.g. "seozapp" in "seozapp.com" or "app.seozapp.com")
+  const cleanBrand = brandName.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (cleanBrand.length >= 3) {
+    const hostNoTld = hostname.split('.')[0];
+    if (hostNoTld === cleanBrand || hostname.includes(cleanBrand)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Parses a single result item from the actor's dataset into our standardized format.
  */
 function parseResultItem(item: any, brandName: string, brandDomains: string[] = []): BrandTrackerResult {
@@ -219,6 +267,10 @@ function parseResultItem(item: any, brandName: string, brandDomains: string[] = 
     }).filter(Boolean);
   }
 
+  // Check if any cited URL matches the brand domain or brand name
+  const matchingUrlIndex = citedUrls.findIndex((u) => isBrandUrlMatch(u, brandDomains, brandName));
+  const hasUrlCitation = matchingUrlIndex !== -1;
+
   // Brand mention detection
   const cleanBrand = brandName.trim().toLowerCase();
   const explicitMention =
@@ -226,11 +278,12 @@ function parseResultItem(item: any, brandName: string, brandDomains: string[] = 
     item.brandMentioned ??
     item.is_mentioned ??
     item.mentioned ??
-    item.cited ??
     null;
 
   let brandMentioned = false;
-  if (explicitMention !== null && explicitMention !== undefined) {
+  if (hasUrlCitation) {
+    brandMentioned = true;
+  } else if (explicitMention !== null && explicitMention !== undefined) {
     brandMentioned = Boolean(explicitMention);
   } else {
     // Fallback: check if brand name or domain is mentioned in snippet/answer
@@ -238,7 +291,8 @@ function parseResultItem(item: any, brandName: string, brandDomains: string[] = 
     brandMentioned = cleanBrand ? textToCheck.includes(cleanBrand) : false;
   }
 
-  // Citation detection
+  // Citation detection:
+  // If the brand URL is found in citedUrls, isCited MUST be true!
   const explicitCited =
     item.cited ??
     item.is_cited ??
@@ -247,10 +301,10 @@ function parseResultItem(item: any, brandName: string, brandDomains: string[] = 
     null;
 
   let isCited = false;
-  if (explicitCited !== null && explicitCited !== undefined) {
+  if (hasUrlCitation) {
+    isCited = true;
+  } else if (explicitCited !== null && explicitCited !== undefined) {
     isCited = Boolean(explicitCited);
-  } else if (brandDomains.length > 0) {
-    isCited = citedUrls.some((u) => brandDomains.some((d) => u.toLowerCase().includes(d)));
   } else {
     isCited = brandMentioned;
   }
@@ -290,38 +344,35 @@ function parseResultItem(item: any, brandName: string, brandDomains: string[] = 
 
   let position = 'Uncited';
 
-  if (rawPosScore !== undefined && rawPosScore !== null && rawPosScore !== '') {
+  if (rawPosScore !== undefined && rawPosScore !== null && rawPosScore !== '' && rawPosScore !== 'Uncited') {
     if (typeof rawPosScore === 'number') {
       position = `#${rawPosScore} Position`;
     } else {
       position = String(rawPosScore);
     }
+  } else if (hasUrlCitation) {
+    if (matchingUrlIndex === 0) {
+      position = '#1 Position';
+    } else if (matchingUrlIndex > 0 && matchingUrlIndex < 3) {
+      position = `Top 3 (#${matchingUrlIndex + 1})`;
+    } else if (matchingUrlIndex >= 3) {
+      position = `Top 5 (#${matchingUrlIndex + 1})`;
+    } else {
+      position = 'Cited Source';
+    }
   } else if (!brandMentioned && !isCited) {
     position = 'Uncited';
   } else {
-    // Check index in cited source URLs
-    const urlIdx = brandDomains.length > 0
-      ? citedUrls.findIndex((u) => brandDomains.some((d) => u.toLowerCase().includes(d)))
-      : citedUrls.findIndex((u) => u.toLowerCase().includes(cleanBrand));
-
-    if (urlIdx === 0) {
-      position = '#1 Position';
-    } else if (urlIdx > 0 && urlIdx < 3) {
-      position = `Top 3 (#${urlIdx + 1})`;
-    } else if (urlIdx >= 3) {
-      position = `Top 5 (#${urlIdx + 1})`;
+    const snippetLower = String(responseSnippet).toLowerCase();
+    const mentionIdx = cleanBrand ? snippetLower.indexOf(cleanBrand) : -1;
+    if (mentionIdx >= 0 && mentionIdx < 150) {
+      position = '#1 Mention';
+    } else if (mentionIdx >= 150 && mentionIdx < 400) {
+      position = 'Top 3 Mention';
+    } else if (mentionIdx >= 0) {
+      position = 'Cited in AI response';
     } else {
-      const snippetLower = String(responseSnippet).toLowerCase();
-      const mentionIdx = snippetLower.indexOf(cleanBrand);
-      if (mentionIdx >= 0 && mentionIdx < 150) {
-        position = '#1 Mention';
-      } else if (mentionIdx >= 150 && mentionIdx < 400) {
-        position = 'Top 3 Mention';
-      } else if (mentionIdx >= 0) {
-        position = 'Cited in AI response';
-      } else {
-        position = isCited ? 'Cited' : 'Uncited';
-      }
+      position = isCited ? 'Cited' : 'Uncited';
     }
   }
 
