@@ -1,0 +1,35 @@
+# SEOzapp
+
+> SEOzapp is an AI-search visibility platform that combines traditional technical SEO auditing with AEO/GEO (Answer Engine Optimization / Generative Engine Optimization). It tracks how brands are cited across ChatGPT, Perplexity, Claude, Gemini, and Google AI Overviews, audits 25+ on-page and technical SEO factors, benchmarks brands against competitors, audits AI crawler (bot) access, and surfaces brand mentions and backlinks — built primarily for solo and small SEO agencies.
+
+Core capabilities:
+- Technical SEO Tracking: continuous automated audits across 25+ ranking signals (DOM hierarchy, meta structure, indexability, heading flow), with historical score drift and anomaly alerts.
+- Multi-LLM Prompt Monitoring: scheduled prompt runs across ChatGPT, Perplexity, Claude, Gemini, and Google AI Overviews to measure citation frequency, rank/citation position, and response sentiment.
+- Competitor Intelligence: side-by-side AI Readiness, structural health, topic coverage, and schema adoption benchmarking against rival domains.
+- AI Citation & GEO: semantic scoring for answer clarity and passage quoteability, plus generation of standardized `/llms.txt` context manifests.
+- AI Crawlability & Bot Access Audit: checks whether GPTBot, ClaudeBot, PerplexityBot, Google-Extended, ByteSpider, and CCBot can access site content via robots.txt and meta tags.
+- Brand Mention & Backlink Intelligence: discovers unlinked brand mentions, backlinks, and domain authority/sentiment signals, with outreach pitch templates.
+
+## Product
+- [Home](https://www.seozapp.com/): Overview of features, how it works, and pricing.
+- [Pricing](https://www.seozapp.com/#pricing): Starter ($49/mo), Pro ($99/mo, most popular), Enterprise/Scale ($249/mo).
+- [Book a Demo](https://cal.com/uddipan): Schedule a live product demo.
+- [Legacy v1 tool](https://v1.seozapp.com): On-page SEO analysis tool for existing v1 customers.
+
+## Blog & Resources
+- [Blog](https://www.seozapp.com/blog): SEO/AEO/GEO articles and guides.
+- [AI Citation Tracking Tool for Agencies](https://www.seozapp.com/ai-citation-tracking-tool-for-agencies)
+- [How to Measure Brand Visibility in ChatGPT](https://www.seozapp.com/how-to-measure-brand-visibility-in-chatgpt)
+- [How to Track Brand Mentions in AI Search](https://www.seozapp.com/how-to-track-brand-mentions-in-ai-search)
+- [How to Rank on Google AI Overviews](https://www.seozapp.com/how-to-rank-on-google-ai-overview)
+- [Best SEO Tool for Agencies](https://www.seozapp.com/best-seo-tool-for-agencies)
+- [Best SEO Agency Software 2026](https://www.seozapp.com/Best-SEO-Agency-Software-in-2026)
+- [SEO Audit Tool for Agencies](https://www.seozapp.com/seo-audit-tool-for-agencies-2026)
+- [Most Affordable B2B AI Visibility Tracking](https://www.seozapp.com/most-affordable-ai-visibility-tracking-for-b2b)
+
+## Legal
+- [Privacy Policy](https://www.seozapp.com/privacy)
+- [Terms of Service](https://www.seozapp.com/terms)
+
+## Optional
+- [Compare](https://www.seozapp.com/): Competitor comparison pages (coming soon).
