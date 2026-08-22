@@ -39,6 +39,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/affiliates" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors font-medium text-[#5d2a1a]">
+                  Affiliate Program
+                </Link>
+              </li>
+              <li>
                 <a
                   href="https://cal.com/uddipan"
                   target="_blank"
