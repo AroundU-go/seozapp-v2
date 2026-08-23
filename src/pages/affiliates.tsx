@@ -17,7 +17,6 @@ import {
   Users,
   Share2,
   ShieldCheck,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Mail,
@@ -31,7 +30,7 @@ export default function AffiliatesPage() {
 
   // Interactive Calculator State
   const [referralsCount, setReferralsCount] = useState<number>(30);
-  const commissionPerUser = 29.70; // 30% of $99/mo Pro plan
+  const commissionPerUser = 24.75; // 25% of $99/mo Pro plan
   const monthlyEarnings = Math.round(referralsCount * commissionPerUser);
   const annualEarnings = Math.round(monthlyEarnings * 12);
 
@@ -42,10 +41,12 @@ export default function AffiliatesPage() {
     setOpenFaq(openFaq === index ? null : index);
   };
 
+  const AFFILIATE_FORM_URL = 'https://forms.gle/kKUF5H38Vo3qBvoE9';
+
   const faqs = [
     {
       q: 'How much commission can I earn?',
-      a: 'You earn a 30% recurring monthly commission on all subscriptions (Starter $49/mo, Pro $99/mo, Enterprise $249/mo) for the entire lifetime of the active customer. There is no cap on how much you can earn.',
+      a: 'You earn a 25% recurring monthly commission on all subscriptions (Starter $49/mo, Pro $99/mo, Enterprise $249/mo) for the entire lifetime of the active customer. There is no cap on how much you can earn.',
     },
     {
       q: 'How and when do I get paid?',
@@ -72,16 +73,16 @@ export default function AffiliatesPage() {
   return (
     <>
       <Head>
-        <title>Affiliate Program — Earn 30% Recurring Commission | SEOzapp</title>
+        <title>Affiliate Program — Earn 25% Recurring Commission | SEOzapp</title>
         <meta
           name="description"
-          content="Join the SEOzapp Affiliate Program. Earn 30% recurring monthly commissions by recommending the all-in-one SEO & AEO audit toolkit to your audience."
+          content="Join the SEOzapp Affiliate Program. Earn 25% recurring monthly commissions by recommending the all-in-one SEO & AEO audit toolkit to your audience."
         />
         <link rel="canonical" href="https://www.seozapp.com/affiliates" />
-        <meta property="og:title" content="SEOzapp Affiliate Program — 30% Lifetime Recurring Commission" />
+        <meta property="og:title" content="SEOzapp Affiliate Program — 25% Lifetime Recurring Commission" />
         <meta
           property="og:description"
-          content="Partner with SEOzapp. Earn 30% lifetime monthly recurring revenue with 60-day cookie tracking and monthly payouts."
+          content="Partner with SEOzapp. Earn 25% lifetime monthly recurring revenue with 60-day cookie tracking and monthly payouts."
         />
         <meta property="og:url" content="https://www.seozapp.com/affiliates" />
         <meta property="og:type" content="website" />
@@ -128,7 +129,7 @@ export default function AffiliatesPage() {
             </div>
 
             <h1 className="font-signifier text-4xl sm:text-5xl md:text-6xl font-normal tracking-tight text-[#17191c] mb-6 leading-tight">
-              Earn <span className="underline decoration-[#fbe1d1] decoration-4 underline-offset-4">30% Recurring</span> Commission Every Month
+              Earn <span className="underline decoration-[#fbe1d1] decoration-4 underline-offset-4">25% Recurring</span> Commission Every Month
             </h1>
 
             <p className="text-lg sm:text-xl text-[#777b86] max-w-2xl mx-auto leading-relaxed mb-10">
@@ -138,7 +139,7 @@ export default function AffiliatesPage() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
               <a
-                href="https://x.com/ItsUddipan"
+                href={AFFILIATE_FORM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 bg-[#17191c] text-[#ffffff] font-medium rounded-full hover:bg-[#17191c]/90 transition-all text-sm shadow-xs"
@@ -162,7 +163,7 @@ export default function AffiliatesPage() {
                 <div className="w-10 h-10 rounded-xl bg-[#ffffff] border border-[#17191c]/10 flex items-center justify-center mb-4 text-[#17191c] shadow-xs">
                   <Percent className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-semibold text-[#17191c] mb-1">30% Lifetime</h3>
+                <h3 className="text-base font-semibold text-[#17191c] mb-1">25% Lifetime</h3>
                 <p className="text-xs text-[#777b86] leading-relaxed">
                   Continuous recurring revenue for the full lifecycle of each paying customer.
                 </p>
@@ -269,7 +270,7 @@ export default function AffiliatesPage() {
 
               <div className="mt-8 text-center">
                 <a
-                  href="https://x.com/ItsUddipan"
+                  href={AFFILIATE_FORM_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-8 py-3 bg-[#17191c] text-[#ffffff] font-medium rounded-full hover:bg-[#17191c]/90 transition-all text-sm"
@@ -319,7 +320,7 @@ export default function AffiliatesPage() {
                 </div>
                 <h3 className="text-lg font-semibold text-[#17191c] mb-2">Earn Recurring Payouts</h3>
                 <p className="text-[#777b86] text-sm leading-relaxed flex-1">
-                  Receive 30% every month for each active customer. Track clicks, conversions, and payouts in real-time.
+                  Receive 25% every month for each active customer. Track clicks, conversions, and payouts in real-time.
                 </p>
               </div>
             </div>
@@ -448,11 +449,11 @@ export default function AffiliatesPage() {
                   Ready to Start Earning with SEOzapp?
                 </h2>
                 <p className="text-[#777b86] text-base mb-8">
-                  Apply today, get your link in minutes, and start earning 30% recurring commission on every customer you refer.
+                  Apply today, get your link in minutes, and start earning 25% recurring commission on every customer you refer.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <a
-                    href="https://x.com/ItsUddipan"
+                    href={AFFILIATE_FORM_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#17191c] text-[#ffffff] font-medium rounded-full hover:bg-[#17191c]/90 transition-all text-sm"
