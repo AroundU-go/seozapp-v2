@@ -93,7 +93,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/how-to-rank-on-google-ai-overview" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors">
+                <Link href="/blog/how-to-rank-on-google-ai-overview" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors">
                   How to Rank on Google AI Overviews
                 </Link>
               </li>

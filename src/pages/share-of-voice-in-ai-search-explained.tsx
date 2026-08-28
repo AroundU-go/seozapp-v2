@@ -244,7 +244,7 @@ export default function ShareOfVoiceInAiSearchExplained() {
               </div>
 
               <div className="mt-8 pt-6 border-t border-[#17191c]/10 text-sm text-[#777b86]">
-                Also read: <Link href="/how-to-rank-on-google-ai-overview" className="text-[#17191c] font-semibold underline hover:opacity-80">How to Rank on Google AI Overviews in 2026: A Practical Guide</Link>
+                Also read: <Link href="/blog/how-to-rank-on-google-ai-overview" className="text-[#17191c] font-semibold underline hover:opacity-80">How to Rank on Google AI Overviews in 2026: A Practical Guide</Link>
               </div>
             </div>
           </article>

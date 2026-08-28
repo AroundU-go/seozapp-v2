@@ -72,12 +72,6 @@ function generateSiteMap(
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>${SITE_URL}/how-to-rank-on-google-ai-overview</loc>
-        <lastmod>${now}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
         <loc>${SITE_URL}/keyword-suggestions</loc>
         <lastmod>${now}</lastmod>
         <changefreq>monthly</changefreq>

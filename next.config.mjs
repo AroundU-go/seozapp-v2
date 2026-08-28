@@ -99,6 +99,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/how-to-rank-on-google-ai-overview',
+        destination: '/blog/how-to-rank-on-google-ai-overview',
+        permanent: true,
+      },
+      {
         source: '/blog/best-ai-seo-tool-for-marketing-agencies-2026',
         destination: '/blog/best-ai-seo-tool-for-marketing-agencies-2026-a-complete-guide',
         permanent: true,
