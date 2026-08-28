@@ -274,7 +274,7 @@ export default function WhyAreSeoPagesNotShowingInAiSummaries() {
               </div>
 
               <div className="mt-8 pt-6 border-t border-[#17191c]/10 text-sm text-[#777b86]">
-                Also read: <Link href="/ai-citation-tracking-tool-for-agencies" className="text-[#17191c] font-semibold underline hover:opacity-80">AI Citation Tracking Tool for Agencies</Link>
+                Also read: <Link href="/blog/ai-citation-tracking-tool-for-agencies" className="text-[#17191c] font-semibold underline hover:opacity-80">AI Citation Tracking Tool for Agencies</Link>
               </div>
             </div>
           </article>

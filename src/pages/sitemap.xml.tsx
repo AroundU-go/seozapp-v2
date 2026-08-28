@@ -78,24 +78,6 @@ function generateSiteMap(
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>${SITE_URL}/how-to-track-brand-mentions-in-ai-search</loc>
-        <lastmod>${now}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>${SITE_URL}/how-to-measure-brand-visibility-in-chatgpt</loc>
-        <lastmod>${now}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>${SITE_URL}/ai-citation-tracking-tool-for-agencies</loc>
-        <lastmod>${now}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
         <loc>${SITE_URL}/keyword-suggestions</loc>
         <lastmod>${now}</lastmod>
         <changefreq>monthly</changefreq>

@@ -75,6 +75,36 @@ const nextConfig = {
       },
     ];
   },
-}
+
+  async redirects() {
+    return [
+      {
+        source: '/how-to-track-brand-mentions-in-ai-search',
+        destination: '/blog/how-to-track-brand-mentions-in-ai-search',
+        permanent: true,
+      },
+      {
+        source: '/how-to-measure-brand-visibility-in-chatgpt',
+        destination: '/blog/how-to-measure-brand-visibility-in-chatgpt',
+        permanent: true,
+      },
+      {
+        source: '/most-affordable-ai-visibility-tracking-for-b2b',
+        destination: '/blog/most-affordable-ai-visibility-tracking-for-b2b',
+        permanent: true,
+      },
+      {
+        source: '/ai-citation-tracking-tool-for-agencies',
+        destination: '/blog/ai-citation-tracking-tool-for-agencies',
+        permanent: true,
+      },
+      {
+        source: '/blog/best-ai-seo-tool-for-marketing-agencies-2026',
+        destination: '/blog/best-ai-seo-tool-for-marketing-agencies-2026-a-complete-guide',
+        permanent: true,
+      },
+    ];
+  },
+};
 
 export default nextConfig;

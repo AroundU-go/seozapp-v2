@@ -120,7 +120,7 @@ export default function BestEnterpriseAiSeoTool() {
                   <strong>Compliance and security posture.</strong> SSO/SAML, SOC 2, GDPR and CCPA handling — the stuff that doesn&apos;t matter to a five-person startup and matters enormously to a company with a security review process before any vendor gets approved.
                 </li>
                 <li>
-                  <strong>Actual scale in prompt volume and response analysis.</strong> A large brand isn&apos;t tracking 25 prompts. It&apos;s tracking hundreds, across dozens of product lines and regional variants, and needs the infrastructure to process that volume daily without the platform buckling. Learn more in our guide on <Link href="/how-to-track-brand-mentions-in-ai-search" className="text-[#17191c] underline font-semibold">How to Track Brand Mentions in AI Search</Link>.
+                  <strong>Actual scale in prompt volume and response analysis.</strong> A large brand isn&apos;t tracking 25 prompts. It&apos;s tracking hundreds, across dozens of product lines and regional variants, and needs the infrastructure to process that volume daily without the platform buckling. Learn more in our guide on <Link href="/blog/how-to-track-brand-mentions-in-ai-search" className="text-[#17191c] underline font-semibold">How to Track Brand Mentions in AI Search</Link>.
                 </li>
                 <li>
                   <strong>A path from insight to action.</strong> Enterprise-grade increasingly means the platform doesn&apos;t just tell you where you&apos;re weak — it helps generate the fix, whether that&apos;s AEO-optimized content, structured data, or crawler access repairs.
@@ -172,7 +172,7 @@ export default function BestEnterpriseAiSeoTool() {
               </p>
 
               <p>
-                The Pro plan, at $99/month, tracks all five major AI engines — ChatGPT, Gemini, Perplexity, Claude, and Google AI Overviews — which is roughly the engine coverage that sits behind custom pricing on several of the platforms above. It comes with competitor intelligence built in (up to 10 tracked competitors), not gated behind a separate add-on. For agency teams, explore our guide on <Link href="/ai-citation-tracking-tool-for-agencies" className="text-[#17191c] underline font-semibold">AI Citation Tracking Tool for Agencies</Link>.
+                The Pro plan, at $99/month, tracks all five major AI engines — ChatGPT, Gemini, Perplexity, Claude, and Google AI Overviews — which is roughly the engine coverage that sits behind custom pricing on several of the platforms above. It comes with competitor intelligence built in (up to 10 tracked competitors), not gated behind a separate add-on. For agency teams, explore our guide on <Link href="/blog/ai-citation-tracking-tool-for-agencies" className="text-[#17191c] underline font-semibold">AI Citation Tracking Tool for Agencies</Link>.
               </p>
 
               <p>

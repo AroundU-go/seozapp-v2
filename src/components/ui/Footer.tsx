@@ -78,17 +78,17 @@ export function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#17191c] mb-4">Resources</h4>
             <ul className="space-y-2.5">
               <li>
-                <Link href="/ai-citation-tracking-tool-for-agencies" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors font-medium text-[#5d2a1a]">
+                <Link href="/blog/ai-citation-tracking-tool-for-agencies" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors font-medium text-[#5d2a1a]">
                   AI Citation Tracking Tool for Agencies
                 </Link>
               </li>
               <li>
-                <Link href="/how-to-measure-brand-visibility-in-chatgpt" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors">
+                <Link href="/blog/how-to-measure-brand-visibility-in-chatgpt" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors">
                   How to Measure Brand Visibility in ChatGPT
                 </Link>
               </li>
               <li>
-                <Link href="/how-to-track-brand-mentions-in-ai-search" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors">
+                <Link href="/blog/how-to-track-brand-mentions-in-ai-search" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors">
                   How to Track Brand Mentions in AI Search
                 </Link>
               </li>
@@ -113,7 +113,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/most-affordable-ai-visibility-tracking-for-b2b" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors">
+                <Link href="/blog/most-affordable-ai-visibility-tracking-for-b2b" className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors">
                   Most Affordable B2B AI Visibility
                 </Link>
               </li>
