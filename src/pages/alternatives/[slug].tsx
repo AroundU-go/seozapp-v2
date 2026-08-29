@@ -6,6 +6,7 @@ import { ArrowLeft, Calendar, ArrowRight } from 'lucide-react';
 import { getBlogBySlug, BlogRecord } from '@/services/supabaseClient';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
+import { generateFAQPageSchema, extractFaqsFromContent } from '@/lib/seo/schema';
 
 export default function AlternativePostPage() {
   const router = useRouter();
@@ -55,6 +56,8 @@ export default function AlternativePostPage() {
     );
   }
 
+  const faqSchema = blog?.content ? generateFAQPageSchema(extractFaqsFromContent(blog.content)) : null;
+
   return (
     <>
       <Head>
@@ -93,6 +96,14 @@ export default function AlternativePostPage() {
             }),
           }}
         />
+        {faqSchema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(faqSchema),
+            }}
+          />
+        )}
       </Head>
 
       <div className="min-h-screen bg-[#ffffff] text-[#17191c] font-sohne selection:bg-[#fbe1d1] selection:text-[#5d2a1a] flex flex-col justify-between">

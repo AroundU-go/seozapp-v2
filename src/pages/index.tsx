@@ -16,6 +16,8 @@ import {
   CompetitorAnalysisArtifact,
 } from '@/components/landing/FeatureArtifacts';
 import { PricingSection } from '@/components/landing/PricingSection';
+import { LandingFaqSection, LANDING_FAQS } from '@/components/landing/LandingFaqSection';
+import { generateFAQPageSchema } from '@/lib/seo/schema';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -90,6 +92,12 @@ export default function SteepLandingPage() {
         <meta
           name="description"
           content="Continuous SEO health tracking, LLM citation monitoring, Competitor strategy analysis and Source intelligence - built for modern search visibility."
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateFAQPageSchema(LANDING_FAQS)),
+          }}
         />
       </Head>
 
@@ -487,7 +495,10 @@ export default function SteepLandingPage() {
         {/* 5. Pricing Section */}
         <PricingSection />
 
-        {/* 6. Footer Section */}
+        {/* 6. FAQ Section */}
+        <LandingFaqSection />
+
+        {/* 7. Footer Section */}
         <Footer />
       </div>
     </>

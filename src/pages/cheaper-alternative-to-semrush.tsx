@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { NavBar } from '@/components/ui/NavBar';
 import { useRouter } from 'next/router';
 import { Home, Rocket, DollarSign } from 'lucide-react';
+import { generateFAQPageSchema } from '@/lib/seo/schema';
 
 export default function CheaperAlternativeToSemrush() {
   const router = useRouter();
@@ -12,11 +13,30 @@ export default function CheaperAlternativeToSemrush() {
     { name: 'Pricing', url: '/#pricing', icon: DollarSign, onClick: () => router.push('/#pricing') }
   ];
 
+  const faqs = [
+    {
+      question: 'Why is SEOzapp a cheaper alternative to Semrush?',
+      answer:
+        'Semrush plans start at $139.95/mo and include legacy enterprise modules that many founders never use. SEOzapp focuses on modern actionable SEO, AI citation monitoring, and AEO audits starting at $49/mo.',
+    },
+    {
+      question: 'Does SEOzapp track AI search engines like ChatGPT and Perplexity?',
+      answer:
+        'Yes. Unlike traditional SEO tools that only monitor Google rankings, SEOzapp monitors brand mentions, source citations, and share-of-voice across ChatGPT, Perplexity, Claude, Gemini, and Google AI Overviews.',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
       <Head>
         <title>Cheaper Alternative to Semrush: A Simpler SEO Tool for Founders</title>
         <meta name="description" content="SEOzapp is a lightweight and affordable alternative to semrush/ahrefs. SEO tool built for founders and agencies who want actionable insights without complexity." />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateFAQPageSchema(faqs)),
+          }}
+        />
       </Head>
 
       <NavBar items={navItems} activeTab="Blog" />

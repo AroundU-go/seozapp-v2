@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
+import { generateFAQPageSchema } from '@/lib/seo/schema';
 
 export default function AffiliatesPage() {
   const router = useRouter();
@@ -86,6 +87,19 @@ export default function AffiliatesPage() {
         />
         <meta property="og:url" content="https://www.seozapp.com/affiliates" />
         <meta property="og:type" content="website" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              generateFAQPageSchema(
+                faqs.map((f) => ({
+                  question: f.q,
+                  answer: f.a,
+                }))
+              )
+            ),
+          }}
+        />
       </Head>
 
       <div className="min-h-screen bg-[#ffffff] text-[#17191c] font-sohne selection:bg-[#fbe1d1] selection:text-[#5d2a1a] flex flex-col justify-between">

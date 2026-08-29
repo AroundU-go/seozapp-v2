@@ -5,10 +5,24 @@ import { useRouter } from 'next/router';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react';
+import { generateFAQPageSchema } from '@/lib/seo/schema';
 
 export default function BestSeoAgencySoftwareIn2026() {
   const router = useRouter();
   const { user } = useAuth();
+
+  const faqs = [
+    {
+      question: 'What features should modern SEO agency software include in 2026?',
+      answer:
+        'Agencies require a combined stack: technical SEO site crawlers, multi-LLM citation tracking, GEO /llms.txt generators, competitor share of voice, AI bot access verification, and white-label client reporting.',
+    },
+    {
+      question: 'Why are agencies transitioning from legacy SEO tools to SEOzapp?',
+      answer:
+        'Legacy platforms only measure traditional search engine rankings. SEOzapp measures where and how AI models cite your clients across ChatGPT, Gemini, Perplexity, and Claude.',
+    },
+  ];
 
   return (
     <>
@@ -20,6 +34,12 @@ export default function BestSeoAgencySoftwareIn2026() {
         <meta property="og:description" content="The complete guide to choosing the best SEO agency software in 2026. Compare features, workflows, and discover why all-in-one platforms like SEOZapp are built for modern agencies." />
         <meta property="og:type" content="article" />
         <link rel="canonical" href="https://www.seozapp.com/Best-SEO-Agency-Software-in-2026" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateFAQPageSchema(faqs)),
+          }}
+        />
       </Head>
 
       <div className="min-h-screen bg-[#ffffff] text-[#17191c] font-sohne selection:bg-[#fbe1d1] selection:text-[#5d2a1a] flex flex-col justify-between">

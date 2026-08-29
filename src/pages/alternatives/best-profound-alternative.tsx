@@ -5,10 +5,29 @@ import { useRouter } from 'next/router';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react';
+import { generateFAQPageSchema } from '@/lib/seo/schema';
 
 export default function BestProfoundAlternativePage() {
   const router = useRouter();
   const { user } = useAuth();
+
+  const faqs = [
+    {
+      question: 'Why choose an alternative to Profound for AI SEO?',
+      answer:
+        'Profound is tailored for enterprise brands with custom annual contracts and usage-based credit pricing for automation features. SEOzapp provides flat monthly SaaS pricing starting at $49/mo with full 5-engine tracking, GEO audits, and zero credit friction.',
+    },
+    {
+      question: 'How does SEOzapp compare to Profound on engine coverage?',
+      answer:
+        'While Profound gates full multi-engine visibility behind enterprise plans, SEOzapp provides tracking across ChatGPT, Perplexity, Claude, Gemini, and Google AI Overviews on its self-serve Pro plan ($99/mo).',
+    },
+    {
+      question: 'Does SEOzapp include technical SEO audits alongside AEO monitoring?',
+      answer:
+        'Yes. SEOzapp uniquely unifies classical technical SEO audits (25+ ranking signals, meta tags, crawlability) with Generative Engine Optimization (GEO, /llms.txt manifests, AI bot access checks, and prompt citation tracking).',
+    },
+  ];
 
   return (
     <>
@@ -33,6 +52,12 @@ export default function BestProfoundAlternativePage() {
         <meta
           property="og:image"
           content="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateFAQPageSchema(faqs)),
+          }}
         />
       </Head>
 

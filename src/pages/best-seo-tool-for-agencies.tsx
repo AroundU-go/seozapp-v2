@@ -5,10 +5,24 @@ import { useRouter } from 'next/router';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react';
+import { generateFAQPageSchema } from '@/lib/seo/schema';
 
 export default function BestSeoToolForAgencies() {
   const router = useRouter();
   const { user } = useAuth();
+
+  const faqs = [
+    {
+      question: 'What is the best SEO and AEO tool for digital marketing agencies in 2026?',
+      answer:
+        'SEOzapp provides agencies with modern multi-engine prompt tracking, white-label client PDF audits, GEO passage optimization, and competitor share-of-voice benchmarking alongside classical technical SEO checks.',
+    },
+    {
+      question: 'Can agencies track multiple client domains and competitors in SEOzapp?',
+      answer:
+        'Yes. SEOzapp Pro supports 5 sites and 10 competitors, while the Enterprise plan provides unlimited client domains, unlimited competitors, and weekly automated reports.',
+    },
+  ];
 
   return (
     <>
@@ -19,6 +33,12 @@ export default function BestSeoToolForAgencies() {
         <meta property="og:title" content="Best SEO Tools for Agencies" />
         <meta property="og:description" content="Compare top SEO tools for agencies and discover SEOZapp — a simpler, faster alternative for small teams and founders." />
         <meta property="og:type" content="article" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateFAQPageSchema(faqs)),
+          }}
+        />
       </Head>
 
       <div className="min-h-screen bg-[#ffffff] text-[#17191c] font-sohne selection:bg-[#fbe1d1] selection:text-[#5d2a1a] flex flex-col justify-between">

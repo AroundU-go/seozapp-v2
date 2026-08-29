@@ -5,10 +5,24 @@ import { useRouter } from 'next/router';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react';
+import { generateFAQPageSchema } from '@/lib/seo/schema';
 
 export default function BestOtterlyAlternativePage() {
   const router = useRouter();
   const { user } = useAuth();
+
+  const faqs = [
+    {
+      question: 'What makes SEOzapp a strong alternative to OtterlyAI?',
+      answer:
+        'SEOzapp provides an all-in-one platform combining prompt citation monitoring with a full technical SEO audit suite, automated /llms.txt generation, and AI bot crawlability checks, without unexpected add-on costs.',
+    },
+    {
+      question: 'How do SEOzapp and OtterlyAI handle competitor benchmarking?',
+      answer:
+        'SEOzapp includes built-in competitor intelligence across up to 10 rivals in its Pro tier, measuring share of voice and citation frequency side-by-side in real time.',
+    },
+  ];
 
   return (
     <>
@@ -33,6 +47,12 @@ export default function BestOtterlyAlternativePage() {
         <meta
           property="og:image"
           content="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateFAQPageSchema(faqs)),
+          }}
         />
       </Head>
 

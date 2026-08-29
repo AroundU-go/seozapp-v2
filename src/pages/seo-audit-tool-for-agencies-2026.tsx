@@ -5,10 +5,24 @@ import { useRouter } from 'next/router';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react';
+import { generateFAQPageSchema } from '@/lib/seo/schema';
 
 export default function SeoAuditToolForAgencies2026() {
   const router = useRouter();
   const { user } = useAuth();
+
+  const faqs = [
+    {
+      question: 'What makes an SEO audit tool essential for agencies in 2026?',
+      answer:
+        'Modern agencies need to audit both traditional ranking factors (meta tags, site speed, status codes) and AI readiness signals (structured FAQ/Organization schema, passage quoteability, LLM crawler access).',
+    },
+    {
+      question: 'Can SEOzapp generate white-label audit reports for clients?',
+      answer:
+        'Yes. SEOzapp Enterprise includes white-label PDF audit export options and automated weekly client performance monitoring.',
+    },
+  ];
 
   return (
     <>
@@ -46,6 +60,12 @@ export default function SeoAuditToolForAgencies2026() {
                 '@id': 'https://www.seozapp.com/seo-audit-tool-for-agencies-2026',
               },
             }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateFAQPageSchema(faqs)),
           }}
         />
       </Head>

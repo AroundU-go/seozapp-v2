@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { NavBar } from '@/components/ui/NavBar';
 import { useRouter } from 'next/router';
 import { Home, Rocket, DollarSign } from 'lucide-react';
+import { generateFAQPageSchema } from '@/lib/seo/schema';
 
 export default function BestFreeWebsiteAuditTools() {
   const router = useRouter();
@@ -10,6 +11,19 @@ export default function BestFreeWebsiteAuditTools() {
     { name: 'Home', url: '/#hero', icon: Home, onClick: () => router.push('/#hero') },
     { name: 'Features', url: '/#features', icon: Rocket, onClick: () => router.push('/#features') },
     { name: 'Pricing', url: '/#pricing', icon: DollarSign, onClick: () => router.push('/#pricing') }
+  ];
+
+  const faqs = [
+    {
+      question: 'How does SEOzapp free website audit work?',
+      answer:
+        'Enter any website URL to run a live scan across 25+ ranking signals, checking meta tags, heading structure, JSON-LD schema markup, robots.txt bot access, and semantic readability in seconds.',
+    },
+    {
+      question: 'What issues does the free SEO audit detect?',
+      answer:
+        'The audit detects missing titles/descriptions, broken links, non-crawlable content, absent FAQ/Organization schema, slow response times, and AI bot blocking.',
+    },
   ];
 
   return (
@@ -21,6 +35,12 @@ export default function BestFreeWebsiteAuditTools() {
         <meta property="og:title" content="Best Free Website Audit Tool" />
         <meta property="og:description" content="SEOZapp helps you analyze your website and fix SEO issues with a simple, actionable audit." />
         <meta property="og:type" content="article" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateFAQPageSchema(faqs)),
+          }}
+        />
       </Head>
 
       <NavBar items={navItems} activeTab="Blog" />
