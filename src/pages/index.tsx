@@ -221,7 +221,7 @@ export default function SteepLandingPage() {
             {/* Main Headline with Box-Less Changing Badges */}
             <div className="max-w-4xl mx-auto mb-6 pt-4 px-2 sm:px-0">
               <h1 className="font-signifier font-normal text-3xl sm:text-5xl lg:text-7xl tracking-tight text-[#17191c] leading-[1.25] sm:leading-[1.2]">
-                <span className="inline sm:whitespace-nowrap">Get your brand recommended by</span>{' '}
+                <span className="inline sm:whitespace-nowrap">Get your brand recommended on</span>{' '}
                 <span className="inline-flex items-center relative min-w-[150px] sm:min-w-[280px] text-left align-middle mt-1 sm:mt-0">
                   <AnimatePresence mode="wait">
                     <motion.span
