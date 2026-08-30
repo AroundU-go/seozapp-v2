@@ -7,6 +7,7 @@ import { getBlogBySlug, BlogRecord } from '@/services/supabaseClient';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { generateFAQPageSchema, extractFaqsFromContent } from '@/lib/seo/schema';
+import { NewsletterSubscribeBox } from '@/components/blog/NewsletterSubscribeBox';
 
 export default function AlternativePostPage() {
   const router = useRouter();
@@ -174,6 +175,9 @@ export default function AlternativePostPage() {
               className="prose prose-neutral max-w-none text-[#777b86] text-base leading-relaxed space-y-6"
               dangerouslySetInnerHTML={{ __html: blog.content }}
             />
+
+            {/* Newsletter Subscription Box */}
+            <NewsletterSubscribeBox source={`alternatives:${blog.slug}`} />
           </article>
         </main>
 

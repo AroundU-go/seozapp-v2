@@ -6,6 +6,7 @@ import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react';
 import { generateFAQPageSchema } from '@/lib/seo/schema';
+import { NewsletterSubscribeBox } from '@/components/blog/NewsletterSubscribeBox';
 
 export default function BestProfoundAlternativePage() {
   const router = useRouter();
@@ -238,6 +239,9 @@ export default function BestProfoundAlternativePage() {
                 </Link>
               </div>
             </div>
+
+            {/* Newsletter Subscription Box */}
+            <NewsletterSubscribeBox source="alternatives:best-profound-alternative" />
           </article>
         </main>
 

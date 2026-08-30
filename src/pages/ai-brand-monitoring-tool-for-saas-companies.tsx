@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react';
+import { NewsletterSubscribeBox } from '@/components/blog/NewsletterSubscribeBox';
 
 export default function AiBrandMonitoringToolForSaasCompanies() {
   const router = useRouter();
@@ -232,6 +233,9 @@ export default function AiBrandMonitoringToolForSaasCompanies() {
                 Also read: <Link href="/blog/how-to-rank-on-google-ai-overview" className="text-[#17191c] font-semibold underline hover:opacity-80">How to Rank on Google AI Overviews in 2026: A Practical Guide</Link>
               </div>
             </div>
+
+            {/* Newsletter Subscription Box */}
+            <NewsletterSubscribeBox source="ai-brand-monitoring-tool-for-saas-companies" />
           </article>
         </main>
 

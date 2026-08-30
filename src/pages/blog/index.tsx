@@ -6,6 +6,7 @@ import { Calendar, ArrowRight, BookOpen, GitCompareArrows } from 'lucide-react';
 import { getPublishedBlogsByCategory, BlogRecord } from '@/services/supabaseClient';
 import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
+import { NewsletterSubscribeBox } from '@/components/blog/NewsletterSubscribeBox';
 
 export default function BlogPage() {
   const router = useRouter();
@@ -145,6 +146,9 @@ export default function BlogPage() {
               <p className="text-[#777b86] text-sm">Check back soon for upcoming SEO &amp; AEO guides.</p>
             </div>
           )}
+
+          {/* Newsletter Box */}
+          <NewsletterSubscribeBox source="blog_index" />
         </main>
 
         {/* Standard v2 Footer */}

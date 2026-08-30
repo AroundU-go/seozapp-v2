@@ -6,6 +6,7 @@ import { Footer } from '@/components/ui/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react';
 import { generateFAQPageSchema } from '@/lib/seo/schema';
+import { NewsletterSubscribeBox } from '@/components/blog/NewsletterSubscribeBox';
 
 export default function BestOtterlyAlternativePage() {
   const router = useRouter();
@@ -224,6 +225,9 @@ export default function BestOtterlyAlternativePage() {
                 Also read: <Link href="/alternatives/best-screamingfrog-alternative-suite-for-seo-and-aeo-agencies-2026" className="text-[#17191c] font-semibold underline hover:opacity-80">Best ScreamingFrog Alternative</Link>
               </div>
             </div>
+
+            {/* Newsletter Subscription Box */}
+            <NewsletterSubscribeBox source="alternatives:best-otterly-alternative" />
           </article>
         </main>
 
