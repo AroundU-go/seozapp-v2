@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getPublishedBlogsByCategory, BlogRecord } from '@/services/supabaseClient';
+import { TinyshelfBadge } from '@/components/ui/TinyshelfBadge';
 
 export function Footer() {
   const [alternatives, setAlternatives] = useState<BlogRecord[]>([]);
@@ -152,15 +153,18 @@ export function Footer() {
           <p className="text-xs text-[#777b86]">
             © {new Date().getFullYear()} SEOzapp. All rights reserved.
           </p>
-          <a href="https://startupfa.me/s/seozapp?utm_source=www.seozapp.com" target="_blank" rel="noreferrer">
-            <img
-              src="https://startupfa.me/badges/featured-badge-small.webp"
-              alt="SEOzapp - Featured on Startup Fame"
-              width="224"
-              height="36"
-              className="w-[140px] h-auto opacity-90 hover:opacity-100 transition-opacity"
-            />
-          </a>
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            <a href="https://startupfa.me/s/seozapp?utm_source=www.seozapp.com" target="_blank" rel="noreferrer">
+              <img
+                src="https://startupfa.me/badges/featured-badge-small.webp"
+                alt="SEOzapp - Featured on Startup Fame"
+                width="224"
+                height="36"
+                className="w-[140px] h-auto opacity-90 hover:opacity-100 transition-opacity"
+              />
+            </a>
+            <TinyshelfBadge />
+          </div>
         </div>
       </div>
     </footer>
