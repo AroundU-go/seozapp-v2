@@ -98,6 +98,7 @@ export default function Document() {
         />
 
         <meta name="google-site-verification" content="uBshYfQXK7hscynxU-zz5T1gn8UKwkH4CYno4lrX2O4" />
+        <meta name="ory-verify" content="orynth-a7076e980f864403b57844b5851c1b65" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;430;450;480;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet" />
