@@ -172,7 +172,7 @@ export default function BlogPostPage() {
             )}
 
             <div
-              className="prose prose-neutral max-w-none text-[#777b86] text-base leading-relaxed space-y-6"
+              className="blog-prose prose prose-neutral max-w-none text-[#777b86] text-base leading-relaxed space-y-6"
               dangerouslySetInnerHTML={{ __html: blog.content }}
             />
 
