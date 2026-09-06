@@ -153,7 +153,7 @@ export default function BlogPostPage() {
               <h1 className="font-signifier text-4xl sm:text-5xl font-normal tracking-tight text-[#17191c] leading-tight">
                 {blog.title}
               </h1>
-              <div className="flex items-center gap-2 text-xs text-[#979799]">
+              <div className="flex items-center gap-2 text-xs text-[#4b5563]">
                 <Calendar className="w-3.5 h-3.5" />
                 <span>
                   {new Date(blog.created_at || '').toLocaleDateString('en-US', {
@@ -172,7 +172,7 @@ export default function BlogPostPage() {
             )}
 
             <div
-              className="blog-prose prose prose-neutral max-w-none text-[#777b86] text-base leading-relaxed space-y-6"
+              className="blog-prose prose prose-neutral max-w-none text-[#17191c] text-base leading-relaxed space-y-6"
               dangerouslySetInnerHTML={{ __html: blog.content }}
             />
 

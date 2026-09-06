@@ -106,7 +106,7 @@ export default function HowToRankInChatgptPage() {
               <h1 className="font-signifier text-4xl sm:text-5xl font-normal tracking-tight text-[#17191c] leading-tight">
                 How to Rank in ChatGPT
               </h1>
-              <div className="flex items-center gap-2 text-xs text-[#979799]">
+              <div className="flex items-center gap-2 text-xs text-[#4b5563]">
                 <span>By SEOzapp Editorial</span>
                 <span>•</span>
                 <span>Updated September 2026</span>
@@ -123,8 +123,8 @@ export default function HowToRankInChatgptPage() {
               />
             </div>
 
-            <div className="prose prose-neutral max-w-none text-[#777b86] text-base leading-relaxed space-y-6">
-              <p className="lead text-lg text-[#777b86] mb-6">
+            <div className="prose prose-neutral max-w-none text-[#17191c] text-base leading-relaxed space-y-6">
+              <p className="lead text-lg text-[#17191c] font-normal leading-relaxed mb-6">
                 Here&apos;s the thing to get out of the way first: &quot;ranking in ChatGPT&quot; isn&apos;t really the right mental model, even though it&apos;s the phrase everyone reaches for. There&apos;s no ordered list of ten results, no position one through ten, no algorithm update to track the way you&apos;d track a Google core update. What you&apos;re actually trying to do is get ChatGPT to name you, describe you accurately, and describe you favorably when it answers a question you should be the answer to.
               </p>
 
