@@ -1,0 +1,84 @@
+Title: How to Rank in ChatGPT
+Meta description: There's no ChatGPT ranking algorithm to game the way you'd game Google — but there are real, specific factors that determine whether ChatGPT cites you. Here's what actually matters.
+
+# How to Rank in ChatGPT
+
+Here's the thing to get out of the way first: "ranking in ChatGPT" isn't really the right mental model, even though it's the phrase everyone reaches for. There's no ordered list of ten results, no position one through ten, no algorithm update to track the way you'd track a Google core update. What you're actually trying to do is get ChatGPT to name you, describe you accurately, and describe you favorably when it answers a question you should be the answer to.
+
+That's a different problem than classic SEO, but it's not an unknowable one. There are specific, identifiable factors that make ChatGPT more or less likely to cite a given source, and understanding them is what "ranking in ChatGPT" actually means in practice. Here's what genuinely matters.
+
+## First, understand the two different ways ChatGPT answers a question
+
+This matters more than almost anything else on this list, because the factors that help vary depending on which mode is doing the answering.
+
+**When browsing is active** — ChatGPT is actively searching the live web, similar to how a search engine works, and pulling from current, indexed pages. This is closer to traditional SEO territory: crawlability, indexability, and page-level content quality matter directly, because the model is genuinely retrieving and reading pages in real time.
+
+**When browsing isn't active** — ChatGPT is answering from its training data, which is a fixed snapshot from whenever the model was last trained, updated periodically. In this mode, whether you show up depends on whether you had enough of a footprint — your own content, but also third-party coverage, reviews, and mentions — at the time that training data was assembled, and that footprint is much harder to influence retroactively than a page you can edit today.
+
+Since you generally don't control which mode answers a given user's question, the practical implication is that you need to optimize for both: build the on-page factors that help in browsing mode, and build the broader web presence and mention footprint that helps you get folded into future training data.
+
+## What matters for browsing-mode citation
+
+### Crawlability, first and non-negotiably
+
+If GPTBot can't reach your page, nothing else on this list matters, because the model literally cannot read content it can't access. Check your robots.txt directly for any rule blocking GPTBot, and check any CDN or bot-protection service you use for default configurations that might be silently blocking it without an obvious flag in your dashboard. This is the single most common, and most invisible, reason a well-optimized page never gets cited.
+
+### A direct, self-contained answer near the top of the page
+
+ChatGPT favors content that reads as a complete, confident answer to the specific question being asked, ideally within the first few sentences. A page that builds toward its point across several paragraphs of context, however well-written, is less likely to get lifted than a competitor's page that states the answer plainly up front. Write the direct answer first, then build out the depth and nuance underneath it — you're serving two audiences in the same page, a model looking for something quotable early and a human reader who wants the full picture after that.
+
+### Clear structure the model can parse into discrete chunks
+
+Headers phrased as questions, short paragraphs or bullet points that each stand alone as a complete thought, and FAQ sections all make it easier for a model to extract a clean, citable passage. A long, unbroken wall of prose forces the model to do more work to isolate what's actually being claimed, which makes it a less attractive source when a more clearly structured alternative exists.
+
+### Structured data that removes ambiguity
+
+FAQ schema, Product schema, and Article schema give the model a machine-readable signal about what specific question a section of your page is answering, reducing the guesswork involved in deciding whether your content actually matches the query. This isn't just a technical SEO checkbox anymore — it's a direct input into whether your content gets selected as a source.
+
+### Content that reads as neutral fact, not marketing copy
+
+Language that sounds like an advertisement — "industry-leading," "best-in-class," "revolutionary" — is less likely to get lifted directly than a plainly stated, neutral fact. A model summarizing an answer generally prefers content that already sounds like a neutral statement over content it would need to rewrite to strip out promotional tone. Write your key passages the way you'd write a factual reference entry, not a landing page headline.
+
+### Freshness, especially for anything time-sensitive
+
+For pricing, feature comparisons, or "best of" content where facts genuinely change, recency carries real weight in browsing mode. A page last meaningfully updated over a year ago is competing against a rival's page updated last month, and that gap can matter more here than it does for your Google ranking specifically.
+
+## What matters for training-data-mode citation
+
+This is the harder, slower lever, because you're influencing a snapshot that gets assembled periodically rather than something you can edit and see reflected immediately.
+
+### A real footprint across the sources training data draws from
+
+This includes your own site, but weighs third-party coverage heavily — review platforms, established publications, comparison articles, community discussions. A brand with a thin footprint outside its own marketing pages is working with less raw material for a model to have learned about it from, regardless of how good that brand's own website is.
+
+### Consistency of facts across all of those sources
+
+If your pricing, positioning, or feature set is described differently across your own site, your G2 profile, and a third-party review, that inconsistency doesn't just confuse a human reader — it can make a model less confident about which version is accurate, and less likely to state anything specific about you at all rather than risk repeating something wrong.
+
+### Being part of the comparison conversation in your category
+
+If every major "best of" and comparison article in your category mentions your top three competitors but not you, that's the gap that training-data mode will reflect later, because that's the material the model actually learned the category from. Getting included in that third-party comparison conversation now is a lever for how you show up in future training data, even though it won't move today's browsing-mode answers.
+
+## Tactical things that help across both modes
+
+**Build dedicated comparison and alternative content.** "[You] vs [competitor]" and "alternative to [competitor]" pages are exactly the kind of clean, direct-answer content that helps in browsing mode and, if picked up and referenced elsewhere, contributes to your footprint for future training data too.
+
+**Answer the conversational version of your keywords, not just the keyword itself.** Nobody types "CRM comparison" into ChatGPT. They ask "what's a good CRM for a five-person sales team that doesn't need much setup." Build content that directly answers that fuller, more natural phrasing.
+
+**Manage your review presence actively.** Since third-party sentiment feeds both browsing-mode citation and long-term training-data footprint, your G2, Capterra, or industry-specific review profile is functioning as part of your ChatGPT visibility strategy whether you've treated it that way or not.
+
+**Get into the roundups and comparison articles already being written about your category.** This is often a bigger lever than anything you can do on your own domain alone, precisely because third-party comparison content carries real weight in how models learn about and describe a competitive category.
+
+## Checking whether any of this is actually working
+
+The only way to know if these changes are moving the needle is to actually run your buyer-intent prompts against ChatGPT on a recurring basis and track whether you're cited, where in the response, and how favorably — ideally compared against your real competitors, so you know whether a plateau is a genuine problem or just a category-wide pattern.
+
+Doing this by hand for a handful of prompts is a reasonable way to get your first read. It becomes hard to sustain once you're tracking a real prompt set consistently enough to separate a genuine trend from normal response-to-response noise, which is the specific gap SEOzapp's prompt monitoring is built to close — running your prompts on a recurring schedule, reporting citation frequency, position, and sentiment, and pairing that with the crawlability and structural audits that catch the technical reasons a page isn't getting picked up in the first place.
+
+## The bottom line
+
+"Ranking in ChatGPT" isn't a single algorithm to reverse-engineer — it's two different mechanisms, browsing-mode retrieval and training-data recall, that respond to different levers. Fix crawlability and structure for the browsing-mode wins you can see quickly, and build a genuine, consistent footprint across your own site and third-party coverage for the slower, training-data-mode gains that compound over time. Do both, and track whether it's actually working, rather than assuming a content change landed just because it felt like the right move.
+
+---
+
+*[Check whether ChatGPT is actually citing you with a free SEOzapp audit →](https://seozapp.com)*
