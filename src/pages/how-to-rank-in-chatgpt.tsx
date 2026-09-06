@@ -123,7 +123,7 @@ export default function HowToRankInChatgptPage() {
               />
             </div>
 
-            <div className="prose prose-neutral max-w-none text-[#17191c] text-base leading-relaxed space-y-6">
+            <div className="blog-prose max-w-none text-[#17191c] text-base leading-relaxed space-y-6">
               <p className="lead text-lg text-[#17191c] font-normal leading-relaxed mb-6">
                 Here&apos;s the thing to get out of the way first: &quot;ranking in ChatGPT&quot; isn&apos;t really the right mental model, even though it&apos;s the phrase everyone reaches for. There&apos;s no ordered list of ten results, no position one through ten, no algorithm update to track the way you&apos;d track a Google core update. What you&apos;re actually trying to do is get ChatGPT to name you, describe you accurately, and describe you favorably when it answers a question you should be the answer to.
               </p>
@@ -143,10 +143,10 @@ export default function HowToRankInChatgptPage() {
               </p>
 
               <ul className="space-y-4 my-6 list-none pl-0">
-                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10">
+                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10 text-[#17191c]">
                   <strong className="text-[#17191c]">When browsing is active</strong> — ChatGPT is actively searching the live web, similar to how a search engine works, and pulling from current, indexed pages. This is closer to traditional SEO territory: crawlability, indexability, and page-level content quality matter directly, because the model is genuinely retrieving and reading pages in real time.
                 </li>
-                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10">
+                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10 text-[#17191c]">
                   <strong className="text-[#17191c]">When browsing isn&apos;t active</strong> — ChatGPT is answering from its training data, which is a fixed snapshot from whenever the model was last trained, updated periodically. In this mode, whether you show up depends on whether you had enough of a footprint — your own content, but also third-party coverage, reviews, and mentions — at the time that training data was assembled, and that footprint is much harder to influence retroactively than a page you can edit today.
                 </li>
               </ul>
@@ -250,16 +250,16 @@ export default function HowToRankInChatgptPage() {
               </h2>
 
               <ul className="space-y-4 my-6 list-none pl-0">
-                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10">
+                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10 text-[#17191c]">
                   <strong className="text-[#17191c]">Build dedicated comparison and alternative content.</strong> &quot;[You] vs [competitor]&quot; and &quot;alternative to [competitor]&quot; pages are exactly the kind of clean, direct-answer content that helps in browsing mode and, if picked up and referenced elsewhere, contributes to your footprint for future training data too.
                 </li>
-                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10">
+                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10 text-[#17191c]">
                   <strong className="text-[#17191c]">Answer the conversational version of your keywords, not just the keyword itself.</strong> Nobody types &quot;CRM comparison&quot; into ChatGPT. They ask &quot;what&apos;s a good CRM for a five-person sales team that doesn&apos;t need much setup.&quot; Build content that directly answers that fuller, more natural phrasing.
                 </li>
-                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10">
+                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10 text-[#17191c]">
                   <strong className="text-[#17191c]">Manage your review presence actively.</strong> Since third-party sentiment feeds both browsing-mode citation and long-term training-data footprint, your G2, Capterra, or industry-specific review profile is functioning as part of your ChatGPT visibility strategy whether you&apos;ve treated it that way or not.
                 </li>
-                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10">
+                <li className="p-4 bg-[#fafafb] rounded-xl border border-[#17191c]/10 text-[#17191c]">
                   <strong className="text-[#17191c]">Get into the roundups and comparison articles already being written about your category.</strong> This is often a bigger lever than anything you can do on your own domain alone, precisely because third-party comparison content carries real weight in how models learn about and describe a competitive category.
                 </li>
               </ul>

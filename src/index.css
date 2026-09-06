@@ -429,18 +429,18 @@
 .blog-prose {
   font-size: 1.0625rem;
   line-height: 1.8;
-  color: #334155;
+  color: #17191c !important;
 }
 
 .dark .blog-prose {
-  color: #cbd5e1;
+  color: #17191c !important;
 }
 
 .blog-prose h1,
 .blog-prose h2,
 .blog-prose h3,
 .blog-prose h4 {
-  color: #0f172a;
+  color: #17191c !important;
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-top: 2rem;
@@ -452,17 +452,32 @@
 .dark .blog-prose h2,
 .dark .blog-prose h3,
 .dark .blog-prose h4 {
-  color: #f8fafc;
+  color: #17191c !important;
 }
 
 .blog-prose h1 { font-size: 2.25rem; }
-.blog-prose h2 { font-size: 1.75rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; }
-.dark .blog-prose h2 { border-bottom-color: #334155; }
+.blog-prose h2 { font-size: 1.75rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; }
+.dark .blog-prose h2 { border-bottom-color: #e2e8f0; }
 .blog-prose h3 { font-size: 1.375rem; }
 .blog-prose h4 { font-size: 1.125rem; }
 
 .blog-prose p {
   margin-bottom: 1.35rem;
+  color: #17191c !important;
+}
+
+.dark .blog-prose p {
+  color: #17191c !important;
+}
+
+.blog-prose li {
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+  color: #17191c !important;
+}
+
+.dark .blog-prose li {
+  color: #17191c !important;
 }
 
 .blog-prose a {
@@ -480,12 +495,12 @@
 .blog-prose strong,
 .blog-prose b {
   font-weight: 700;
-  color: #0f172a;
+  color: #17191c !important;
 }
 
 .dark .blog-prose strong,
 .dark .blog-prose b {
-  color: #f8fafc;
+  color: #17191c !important;
 }
 
 .blog-prose ul {
@@ -506,18 +521,19 @@
 }
 
 .blog-prose blockquote {
-  border-left: 4px solid #75DDFF;
-  background: #f8f9fe;
+  border-left: 4px solid #17191c;
+  background: #fafafb;
   padding: 1rem 1.25rem;
   margin: 1.5rem 0;
   border-radius: 0 0.75rem 0.75rem 0;
   font-style: italic;
-  color: #475569;
+  color: #17191c !important;
 }
 
 .dark .blog-prose blockquote {
-  background: #1e293b;
-  color: #94a3b8;
+  border-left-color: #17191c;
+  background: #fafafb;
+  color: #17191c !important;
 }
 
 .blog-prose code {

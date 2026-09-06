@@ -105,12 +105,6 @@ export default function Document() {
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </Head>
       <body className="antialiased font-sans text-foreground bg-background">
-        <script dangerouslySetInnerHTML={{ __html: `
-          const savedTheme = localStorage.getItem('theme');
-          if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-          }
-        `}} />
         <Main />
         <NextScript />
       </body>
