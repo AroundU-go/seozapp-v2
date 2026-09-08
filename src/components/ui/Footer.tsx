@@ -164,6 +164,9 @@ export function Footer() {
               />
             </a>
             <TinyshelfBadge />
+            <a href="https://www.scrolllaunch.com/products/seozapp?ref=badge" target="_blank" rel="noopener">
+              <img src="https://www.scrolllaunch.com/api/badge/seozapp" alt="Featured on ScrollLaunch" width="220" height="48" loading="lazy" />
+            </a>
           </div>
         </div>
       </div>

@@ -122,15 +122,20 @@ export function Footer() {
           <p className="text-xs text-[#777b86]">
             © {new Date().getFullYear()} SEOzapp. All rights reserved.
           </p>
-          <a href="https://startupfa.me/s/seozapp?utm_source=www.seozapp.com" target="_blank" rel="noreferrer">
-            <img
-              src="https://startupfa.me/badges/featured-badge-small.webp"
-              alt="SEOzapp - Featured on Startup Fame"
-              width="224"
-              height="36"
-              className="w-[140px] h-auto opacity-90 hover:opacity-100 transition-opacity"
-            />
-          </a>
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            <a href="https://startupfa.me/s/seozapp?utm_source=www.seozapp.com" target="_blank" rel="noreferrer">
+              <img
+                src="https://startupfa.me/badges/featured-badge-small.webp"
+                alt="SEOzapp - Featured on Startup Fame"
+                width="224"
+                height="36"
+                className="w-[140px] h-auto opacity-90 hover:opacity-100 transition-opacity"
+              />
+            </a>
+            <a href="https://www.scrolllaunch.com/products/seozapp?ref=badge" target="_blank" rel="noopener">
+              <img src="https://www.scrolllaunch.com/api/badge/seozapp" alt="Featured on ScrollLaunch" width="220" height="48" loading="lazy" />
+            </a>
+          </div>
         </div>
       </div>
     </footer>
