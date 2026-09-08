@@ -59,14 +59,6 @@ export default function SteepLandingPage() {
   const { user, isPro, isAdmin } = useAuth();
   const [currentEngineIndex, setCurrentEngineIndex] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showAlertBanner, setShowAlertBanner] = useState(true);
-
-  useEffect(() => {
-    const alertTimer = setTimeout(() => {
-      setShowAlertBanner(false);
-    }, 10000);
-    return () => clearTimeout(alertTimer);
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -102,36 +94,9 @@ export default function SteepLandingPage() {
       </Head>
 
       <div className="min-h-screen bg-[#ffffff] text-[#17191c] font-sohne selection:bg-[#fbe1d1] selection:text-[#5d2a1a]">
-        {/* Extreme Top 10-Second Alert Banner */}
-        <AnimatePresence>
-          {showAlertBanner && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="bg-[#17191c] text-[#ffffff] text-xs sm:text-sm py-2.5 px-4 text-center fixed top-0 left-0 right-0 z-[60] font-normal border-b border-[#ffffff]/10 flex items-center justify-center gap-1.5 shadow-sm"
-            >
-              <span>
-                This is the new version of seozapp. If you're an existing customer of our on-page seo analysis tool visit -{' '}
-                <a
-                  href="https://v1.seozapp.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline font-medium text-[#fbe1d1] hover:text-[#ffffff] transition-colors"
-                >
-                  v1.seozapp.com
-                </a>
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* 1. Dynamic Navigation Bar */}
         <nav
-          className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
-            showAlertBanner ? 'top-[41px]' : 'top-0'
-          } ${
+          className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
             isScrolled
               ? 'bg-[#ffffff]/85 backdrop-blur-md border-b border-[#17191c]/10 shadow-sm py-4'
               : 'bg-transparent border-b border-transparent py-5'
@@ -177,19 +142,19 @@ export default function SteepLandingPage() {
               {user ? (
                 <button
                   onClick={() => router.push('/dashboard')}
-                  className="bg-[#17191c] text-[#ffffff] rounded-full px-6 py-2.5 text-[15px] font-normal hover:bg-[#17191c]/90 transition-all shadow-sm flex items-center gap-2"
+                  className="bg-[#17191c] text-[#ffffff] rounded-full px-5 py-2.5 text-[15px] font-normal hover:bg-[#17191c]/90 transition-all shadow-sm flex items-center gap-2"
                 >
-                  <span>Go to Dashboard</span>
+                  <span>Dashboard</span>
                   <ArrowRight className="w-4 h-4 text-[#fbe1d1]" />
                 </button>
               ) : (
                 <>
-                  <button
-                    onClick={() => router.push('/auth')}
-                    className="text-[15px] font-normal text-[#17191c] hover:text-[#777b86] transition-colors px-3 py-2"
+                  <Link
+                    href="/auth"
+                    className="text-[#17191c] text-[15px] font-normal px-4 py-2 hover:text-[#777b86] transition-colors"
                   >
                     Log in
-                  </button>
+                  </Link>
                   <button
                     onClick={() => router.push('/auth')}
                     className="bg-[#17191c] text-[#ffffff] rounded-full px-5 py-2.5 text-[15px] font-normal hover:bg-[#17191c]/90 transition-all shadow-sm"
@@ -203,7 +168,7 @@ export default function SteepLandingPage() {
         </nav>
 
         {/* 2. Hero Section */}
-        <section className={`${showAlertBanner ? 'pt-44 sm:pt-44' : 'pt-36'} pb-24 px-6 overflow-hidden relative bg-[#ffffff] transition-all duration-300`}>
+        <section className="pt-36 pb-24 px-6 overflow-hidden relative bg-[#ffffff] transition-all duration-300">
           {/* Subtle Ambient Mesh Layer */}
           <div
             className="absolute inset-0 pointer-events-none z-0"
