@@ -173,7 +173,17 @@ export function PricingSection() {
               </div>
 
               <button
-                onClick={() => setShowOnboarding(true)}
+                onClick={() => {
+                  if (
+                    tier.name.toLowerCase().includes('scale') ||
+                    tier.name.toLowerCase().includes('enterprise') ||
+                    tier.cta.toLowerCase().includes('book') ||
+                    tier.cta.toLowerCase().includes('contact')
+                  ) {
+                    return; // Dummy button
+                  }
+                  setShowOnboarding(true);
+                }}
                 className={`w-full rounded-xl py-3 text-sm font-medium transition-all mt-8 ${
                   tier.highlight
                     ? 'bg-[#ffffff] text-[#17191c] hover:bg-[#fafafb]'

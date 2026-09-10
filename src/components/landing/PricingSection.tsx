@@ -185,8 +185,13 @@ export function PricingSection() {
 
               <button
                 onClick={() => {
-                  if (tier.name.toLowerCase().includes('scale') || tier.name.toLowerCase().includes('enterprise') || tier.cta.includes('Book')) {
-                    window.open('https://cal.com/uddipan', '_blank');
+                  if (
+                    tier.name.toLowerCase().includes('scale') ||
+                    tier.name.toLowerCase().includes('enterprise') ||
+                    tier.cta.toLowerCase().includes('book') ||
+                    tier.cta.toLowerCase().includes('contact')
+                  ) {
+                    // Dummy button
                   } else {
                     setShowOnboarding(true);
                   }

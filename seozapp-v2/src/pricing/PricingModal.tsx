@@ -78,6 +78,14 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
   if (!isOpen) return null;
 
   const handleSelectPlan = (planName: string) => {
+    if (
+      planName.toLowerCase().includes('scale') ||
+      planName.toLowerCase().includes('enterprise') ||
+      planName.toLowerCase().includes('book') ||
+      planName.toLowerCase().includes('contact')
+    ) {
+      return; // Dummy button
+    }
     alert(`Thank you for selecting the ${planName}! Payment integration modal redirect...`);
     onClose();
   };

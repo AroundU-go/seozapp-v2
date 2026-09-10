@@ -45,14 +45,12 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a
-                  href="https://cal.com/uddipan"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors font-medium"
+                <button
+                  type="button"
+                  className="text-xs text-[#777b86] hover:text-[#17191c] transition-colors font-medium cursor-pointer p-0 bg-transparent border-none"
                 >
                   Book a Demo
-                </a>
+                </button>
               </li>
             </ul>
           </div>

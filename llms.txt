@@ -13,7 +13,7 @@ Core capabilities:
 ## Product
 - [Home](https://www.seozapp.com/): Overview of features, how it works, and pricing.
 - [Pricing](https://www.seozapp.com/#pricing): Starter ($49/mo), Pro ($99/mo, most popular), Enterprise/Scale ($249/mo).
-- [Book a Demo](https://cal.com/uddipan): Schedule a live product demo.
+- Book a Demo: Schedule a live product demo.
 - [Legacy v1 tool](https://v1.seozapp.com): On-page SEO analysis tool for existing v1 customers.
 
 ## Blog & Resources

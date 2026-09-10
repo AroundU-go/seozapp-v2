@@ -209,7 +209,17 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
                                 {/* CTA */}
                                 <button
-                                    onClick={() => handleCheckout(tier.productId)}
+                                    onClick={() => {
+                                        if (
+                                            tier.name.toLowerCase().includes('scale') ||
+                                            tier.name.toLowerCase().includes('enterprise') ||
+                                            tier.cta.toLowerCase().includes('contact') ||
+                                            tier.cta.toLowerCase().includes('book')
+                                        ) {
+                                            return;
+                                        }
+                                        handleCheckout(tier.productId);
+                                    }}
                                     disabled={checkoutLoading === tier.productId}
                                     className={`
                                         block w-full py-3.5 rounded-full font-bold text-sm transition-all duration-300 text-center
