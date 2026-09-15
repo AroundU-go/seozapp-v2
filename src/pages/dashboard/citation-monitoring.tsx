@@ -126,6 +126,24 @@ export default function CitationMonitoringPage() {
   const [brandName, setBrandName] = useState('');
   const [brandDomain, setBrandDomain] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingElapsed, setLoadingElapsed] = useState(0);
+
+  // Timer while loading to show progress
+  useEffect(() => {
+    let timer: any;
+    if (loading) {
+      setLoadingElapsed(0);
+      timer = setInterval(() => {
+        setLoadingElapsed((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setLoadingElapsed(0);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [loading]);
+
   const [selectedRegion, setSelectedRegion] = useState<RegionCode>('US');
   // Default selected engine: ChatGPT only
   const [selectedEngines, setSelectedEngines] = useState<AiEngineId[]>(['chatgpt']);
@@ -330,27 +348,27 @@ export default function CitationMonitoringPage() {
         return;
       }
 
-      if (data.success && Array.isArray(data.results)) {
-        if (data.reportMarkdown) {
-          setLatestReportMarkdown(data.reportMarkdown);
+      const processCompletedResults = (completedData: any) => {
+        if (completedData.reportMarkdown) {
+          setLatestReportMarkdown(completedData.reportMarkdown);
           if (typeof window !== 'undefined') {
-            localStorage.setItem('latest_ai_report_markdown', data.reportMarkdown);
+            localStorage.setItem('latest_ai_report_markdown', completedData.reportMarkdown);
           }
         }
-        if (data.reportUrl) {
-          setLatestReportUrl(data.reportUrl);
+        if (completedData.reportUrl) {
+          setLatestReportUrl(completedData.reportUrl);
           if (typeof window !== 'undefined') {
-            localStorage.setItem('latest_ai_report_url', data.reportUrl);
+            localStorage.setItem('latest_ai_report_url', completedData.reportUrl);
           }
         }
-        if (data.overallScore !== undefined && data.overallScore !== null) {
-          setLatestOverallScore(data.overallScore);
+        if (completedData.overallScore !== undefined && completedData.overallScore !== null) {
+          setLatestOverallScore(completedData.overallScore);
           if (typeof window !== 'undefined') {
-            localStorage.setItem('latest_ai_overall_score', String(data.overallScore));
+            localStorage.setItem('latest_ai_overall_score', String(completedData.overallScore));
           }
         }
 
-        const newItems: PromptResult[] = data.results.map((r: any) => ({
+        const newItems: PromptResult[] = (completedData.results || []).map((r: any) => ({
           id: r.id || `pr_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
           prompt: r.prompt,
           brandName: r.brandName,
@@ -373,10 +391,70 @@ export default function CitationMonitoringPage() {
           }
           return updated;
         });
+      };
+
+      if (data.status === 'RUNNING' && data.runId) {
+        // Poll for completion asynchronously — eliminates Vercel 504 FUNCTION_INVOCATION_TIMEOUT!
+        const activeRunId = data.runId;
+        let isDone = false;
+        let pollCount = 0;
+        const maxPolls = 150; // up to ~8.5 minutes
+
+        while (!isDone && pollCount < maxPolls) {
+          await new Promise((resolve) => setTimeout(resolve, 3500));
+          pollCount++;
+
+          try {
+            const checkRes = await fetch('/api/v2/prompt-monitor', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'check',
+                runId: activeRunId,
+                brandName: brandName.trim(),
+                brandDomain: brandDomain.trim(),
+                region: selectedRegion,
+                userEmail: user?.email || null,
+              }),
+            });
+
+            const checkRaw = await checkRes.text();
+            let checkData: any = {};
+            try {
+              checkData = JSON.parse(checkRaw);
+            } catch {
+              // Retry on transient HTML response
+              continue;
+            }
+
+            if (checkData.status === 'SUCCEEDED' && Array.isArray(checkData.results)) {
+              isDone = true;
+              processCompletedResults(checkData);
+              break;
+            } else if (
+              checkData.status === 'FAILED' ||
+              checkData.status === 'TIMED-OUT' ||
+              checkData.status === 'ABORTED' ||
+              checkData.error
+            ) {
+              isDone = true;
+              setErrorMsg(checkData.error || `Monitoring run ended with status: ${checkData.status}`);
+              break;
+            }
+          } catch (pollErr) {
+            console.warn('Polling check error (will retry):', pollErr);
+          }
+        }
+
+        if (!isDone && pollCount >= maxPolls) {
+          setErrorMsg('The analysis is taking longer than expected. Your results will appear in History once complete.');
+        }
+      } else if (data.success && Array.isArray(data.results)) {
+        processCompletedResults(data);
       }
     } catch (err: any) {
       console.error(`Prompt monitor error:`, err);
-      setErrorMsg('Failed to run prompt monitoring. The request may have timed out — please try again with fewer engines.');
+      setErrorMsg('Failed to run prompt monitoring. Please try again.');
     }
 
     setPromptInputs(['', '', '']);
@@ -637,7 +715,9 @@ export default function CitationMonitoringPage() {
             <div className="p-5 bg-[#fafafb] rounded-xl border border-[#17191c]/10 flex flex-col items-center justify-center gap-2 text-center">
               <RefreshCw className="w-6 h-6 animate-spin text-[#17191c]" />
               <span className="text-sm font-medium text-[#17191c]">Running Live Multi-LLM Brand Visibility Test</span>
-              <span className="text-xs text-[#777b86]">Querying ChatGPT, Perplexity, Google AI Overviews &amp; Gemini... This takes about 30-45 seconds.</span>
+              <span className="text-xs text-[#777b86]">
+                Querying selected AI engines... {loadingElapsed > 0 ? `(${loadingElapsed}s elapsed)` : 'This takes about 30-90 seconds.'} Please keep this page open.
+              </span>
             </div>
           )}
         </div>

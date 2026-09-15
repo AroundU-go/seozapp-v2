@@ -1,5 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { runApifyBrandTracker, BrandTrackerResult } from '@/lib/providers/apifyClient';
+import {
+  startApifyBrandTracker,
+  checkApifyBrandTrackerRun,
+  runApifyBrandTracker,
+  BrandTrackerResult,
+} from '@/lib/providers/apifyClient';
 import { supabaseV2Admin, V2_TABLES } from '@/lib/supabaseV2';
 import { REGIONS, RegionCode } from '@/components/dashboard/RegionSelector';
 import { getServerPlanLimits } from '@/lib/planLimits';
@@ -40,9 +45,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  // ─── POST: Run Apify AI Brand Tracker and save results ───
+  // ─── POST: Start Apify Brand Tracker or Check ongoing run ───
   if (req.method === 'POST') {
     const {
+      action,
+      runId,
       brandName,
       brandDomain,
       prompts,
@@ -58,6 +65,103 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } = req.body;
 
     const targetRegion: RegionCode = (region as RegionCode) in REGIONS ? (region as RegionCode) : 'US';
+
+    // ─── If checking status of an ongoing/completed run ───
+    if (action === 'check' || (runId && typeof runId === 'string' && runId.trim())) {
+      const activeRunId = runId.trim();
+
+      try {
+        const check = await checkApifyBrandTrackerRun(activeRunId, {
+          brandName: (brandName || '').trim(),
+          brandDomain: brandDomain || '',
+        });
+
+        if (check.status === 'RUNNING' || check.status === 'READY') {
+          return res.status(200).json({
+            success: true,
+            status: check.status,
+            runId: activeRunId,
+          });
+        }
+
+        if (check.status === 'SUCCEEDED') {
+          const trackerResults = check.results || [];
+          const nowIso = new Date().toISOString();
+          const results: any[] = [];
+
+          for (const r of trackerResults) {
+            const runItem = {
+              id: `pr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+              prompt: r.query,
+              brandName: (brandName || '').trim(),
+              region: targetRegion,
+              engineId: r.platform,
+              cited: r.brandMentioned,
+              position: r.position,
+              sentiment: r.sentiment,
+              responseSnippet: r.responseSnippet,
+              citedUrls: r.citedUrls,
+              competitorsMentioned: r.competitorsMentioned,
+              visibilityScore: r.visibilityScore,
+              aiSearchVolume: r.aiSearchVolume,
+              isLiveSearch: true,
+              createdAt: nowIso,
+              runAt: nowIso,
+            };
+
+            // Save to Supabase (non-blocking)
+            try {
+              await supabaseV2Admin.from(V2_TABLES.PROMPT_RUNS).insert({
+                user_email: userEmail || null,
+                prompt_text: r.query,
+                brand_name: (brandName || '').trim(),
+                region: targetRegion,
+                llm_provider: r.platform,
+                cited: r.brandMentioned,
+                position: r.position,
+                sentiment: r.sentiment,
+                response_snippet: r.responseSnippet,
+                run_at: nowIso,
+              });
+            } catch (dbErr: any) {
+              console.warn('Supabase prompt_run insert failed (non-blocking):', dbErr?.message || dbErr);
+            }
+
+            results.push(runItem);
+          }
+
+          const sanitizedMarkdown = check.reportMarkdown
+            ? cleanApifyReportMarkdown(check.reportMarkdown)
+            : '';
+
+          return res.status(200).json({
+            success: true,
+            status: 'SUCCEEDED',
+            runId: activeRunId,
+            results,
+            reportMarkdown: sanitizedMarkdown,
+            reportUrl: check.reportUrl,
+            reportMarkdownUrl: check.reportMarkdownUrl,
+            visibilityPageUrl: check.visibilityPageUrl,
+            datasetUrl: check.datasetUrl,
+            runUrl: check.runUrl,
+            overallScore: check.overallScore,
+          });
+        }
+
+        return res.status(500).json({
+          success: false,
+          status: check.status,
+          runId: activeRunId,
+          error: check.error || `Actor run finished with status: ${check.status}`,
+        });
+      } catch (checkErr: any) {
+        console.error('v2 prompt-monitor check error:', checkErr);
+        return res.status(500).json({ error: checkErr.message || 'Failed to check run status' });
+      }
+    }
+
+    // ─── Starting a new prompt monitoring run ───
     const regionInfo = REGIONS[targetRegion] || REGIONS.US;
     const targetLocationCode = locationCode || regionInfo.locationCode || '2840';
     const targetLanguageCode = languageCode || regionInfo.languageCode || 'en';
@@ -121,76 +225,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      // Single Apify actor call with all queries + allowed platforms
-      const trackerResponse = await runApifyBrandTracker({
+      // Start Apify actor asynchronously — returns immediately in < 1 second!
+      // This completely avoids Vercel 504 FUNCTION_INVOCATION_TIMEOUT!
+      const startResult = await startApifyBrandTracker({
         brandName: brandName.trim(),
         brandDomain: brandDomain || '',
         queries: promptList,
         platforms: platformList,
         country: targetCountryCode,
-        competitors: [], // Skipped for now
+        competitors: [],
         locationCode: targetLocationCode,
         languageCode: targetLanguageCode,
       });
 
-      const trackerResults = trackerResponse.results || [];
-      const nowIso = new Date().toISOString();
-      const results: any[] = [];
-
-      for (const r of trackerResults) {
-        const runItem = {
-          id: `pr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-          prompt: r.query,
-          brandName: brandName.trim(),
-          region: targetRegion,
-          engineId: r.platform,
-          cited: r.brandMentioned,
-          position: r.position,
-          sentiment: r.sentiment,
-          responseSnippet: r.responseSnippet,
-          citedUrls: r.citedUrls,
-          competitorsMentioned: r.competitorsMentioned,
-          visibilityScore: r.visibilityScore,
-          aiSearchVolume: r.aiSearchVolume,
-          isLiveSearch: true,
-          createdAt: nowIso,
-          runAt: nowIso,
-        };
-
-        // Save to Supabase (non-blocking)
-        try {
-          await supabaseV2Admin.from(V2_TABLES.PROMPT_RUNS).insert({
-            user_email: userEmail || null,
-            prompt_text: r.query,
-            brand_name: brandName.trim(),
-            region: targetRegion,
-            llm_provider: r.platform,
-            cited: r.brandMentioned,
-            position: r.position,
-            sentiment: r.sentiment,
-            response_snippet: r.responseSnippet,
-            run_at: nowIso,
-          });
-        } catch (dbErr: any) {
-          console.warn('Supabase prompt_run insert failed (non-blocking):', dbErr?.message || dbErr);
-        }
-
-        results.push(runItem);
-      }
-
-      const sanitizedMarkdown = trackerResponse.reportMarkdown
-        ? cleanApifyReportMarkdown(trackerResponse.reportMarkdown)
-        : '';
-
       return res.status(200).json({
         success: true,
-        results,
-        reportMarkdown: sanitizedMarkdown,
-        overallScore: trackerResponse.overallScore,
+        status: 'RUNNING',
+        runId: startResult.runId,
       });
     } catch (err: any) {
-      console.error('v2 prompt-monitor POST error:', err);
-      return res.status(500).json({ error: err.message || 'Failed to run prompt monitoring' });
+      console.error('v2 prompt-monitor POST start error:', err);
+      return res.status(500).json({ error: err.message || 'Failed to start prompt monitoring' });
     }
   }
 

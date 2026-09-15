@@ -91,30 +91,12 @@ export interface BrandTrackerResponse {
 }
 
 /**
- * Runs the inovaflow/ai-brand-monitoring Apify actor with all queries and surfaces.
- * Returns standardized results, report markdown, and report URLs.
+ * Derives and normalizes clean brand domain variations.
  */
-export async function runApifyBrandTracker(
-  params: BrandTrackerInput
-): Promise<BrandTrackerResponse> {
-  const token = APIFY_TOKEN || process.env.APIFY_API_KEY || process.env.APIFY_TOKEN || '';
-  if (!token) {
-    throw new Error('APIFY_API_KEY is missing in environment variables');
-  }
-
-  const client = new ApifyClient({ token });
-
-  // Convert our engine IDs to the actor's surface identifiers
-  const actorSurfaces = (params.platforms || ['chatgpt', 'gemini', 'perplexity', 'ai_overview'])
-    .map((p) => PLATFORM_MAP[p] || p)
-    .filter((v, i, a) => a.indexOf(v) === i); // dedupe
-
-  const countryCode = resolveCountryCode(params.country);
-
-  // Clean and expand brand domains (include with and without www)
+export function getCleanBrandDomains(brandName: string, brandDomain?: string): string[] {
   const cleanBrandDomains: string[] = [];
-  if (params.brandDomain) {
-    const raw = params.brandDomain
+  if (brandDomain) {
+    const raw = brandDomain
       .trim()
       .replace(/^https?:\/\//i, '')
       .replace(/\/.*$/, '')
@@ -127,16 +109,27 @@ export async function runApifyBrandTracker(
     }
   }
 
-  // Also derive domain from brandName if brandName looks like a domain
-  if (params.brandName && params.brandName.includes('.') && !params.brandDomain) {
-    const root = params.brandName.trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/.*$/, '').toLowerCase();
+  if (brandName && brandName.includes('.') && !brandDomain) {
+    const root = brandName.trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/.*$/, '').toLowerCase();
     if (root && !cleanBrandDomains.includes(root)) {
       cleanBrandDomains.push(root);
       cleanBrandDomains.push(`www.${root}`);
     }
   }
+  return cleanBrandDomains;
+}
 
-  // Format valid prompt queries
+/**
+ * Builds normalized input parameters for the inovaflow/ai-brand-monitoring actor.
+ */
+export function buildBrandTrackerInput(params: BrandTrackerInput) {
+  const actorSurfaces = (params.platforms || ['chatgpt', 'gemini', 'perplexity', 'ai_overview'])
+    .map((p) => PLATFORM_MAP[p] || p)
+    .filter((v, i, a) => a.indexOf(v) === i); // dedupe
+
+  const countryCode = resolveCountryCode(params.country);
+  const cleanBrandDomains = getCleanBrandDomains(params.brandName, params.brandDomain);
+
   const cleanPrompts = (params.queries || [])
     .map((q) => (typeof q === 'string' ? q.trim() : ''))
     .filter(Boolean);
@@ -158,13 +151,67 @@ export async function runApifyBrandTracker(
     deepDiveModel: 'haiku',
   };
 
-  try {
-    console.log(`[Apify BrandTracker] Calling ${ACTOR_ID} with ${cleanPrompts.length} prompts across surfaces: ${input.surfaces.join(', ')} (country: ${countryCode}, domains: ${cleanBrandDomains.join(', ')})`);
-    
-    const run = await client.actor(ACTOR_ID).call(input);
-    const { items } = await client.dataset(run.defaultDatasetId).listItems();
+  return { input, cleanBrandDomains, actorSurfaces, countryCode };
+}
 
-    // Fetch Key-Value Store records for the generated report
+/**
+ * Starts the Apify brand tracker actor asynchronously and returns immediately.
+ * This takes < 1 second and prevents Vercel serverless function timeouts.
+ */
+export async function startApifyBrandTracker(params: BrandTrackerInput): Promise<{ runId: string; status: string }> {
+  const token = APIFY_TOKEN || process.env.APIFY_API_KEY || process.env.APIFY_TOKEN || '';
+  if (!token) {
+    throw new Error('APIFY_API_KEY is missing in environment variables');
+  }
+
+  const client = new ApifyClient({ token });
+  const { input, actorSurfaces, countryCode, cleanBrandDomains } = buildBrandTrackerInput(params);
+
+  console.log(`[Apify BrandTracker] Starting async run for ${ACTOR_ID} with ${input.prompts.length} prompts across surfaces: ${input.surfaces.join(', ')} (country: ${countryCode}, domains: ${cleanBrandDomains.join(', ')})`);
+
+  const run = await client.actor(ACTOR_ID).start(input);
+  return { runId: run.id, status: run.status };
+}
+
+/**
+ * Checks the status of an ongoing or completed Apify brand tracker run.
+ * When SUCCEEDED, parses dataset items and key-value store records into standardized results.
+ */
+export async function checkApifyBrandTrackerRun(
+  runId: string,
+  params: { brandName: string; brandDomain?: string }
+): Promise<{
+  status: 'RUNNING' | 'READY' | 'SUCCEEDED' | 'FAILED' | 'TIMED-OUT' | 'ABORTED';
+  runId: string;
+  results?: BrandTrackerResult[];
+  reportMarkdown?: string;
+  reportUrl?: string;
+  reportMarkdownUrl?: string;
+  visibilityPageUrl?: string;
+  datasetUrl?: string;
+  runUrl?: string;
+  overallScore?: number;
+  error?: string;
+}> {
+  const token = APIFY_TOKEN || process.env.APIFY_API_KEY || process.env.APIFY_TOKEN || '';
+  if (!token) {
+    throw new Error('APIFY_API_KEY is missing in environment variables');
+  }
+
+  const client = new ApifyClient({ token });
+  const run = await client.run(runId).get();
+  if (!run) {
+    return { status: 'FAILED', runId, error: 'Run not found' };
+  }
+
+  if (run.status === 'RUNNING' || run.status === 'READY') {
+    return { status: run.status as any, runId };
+  }
+
+  if (run.status === 'SUCCEEDED') {
+    const { items } = await client.dataset(run.defaultDatasetId).listItems();
+    const cleanBrandDomains = getCleanBrandDomains(params.brandName, params.brandDomain);
+
     let reportMarkdown = '';
     let overallScore: number | undefined;
     const kvsId = run.defaultKeyValueStoreId;
@@ -175,7 +222,6 @@ export async function runApifyBrandTracker(
         const mdRecord = await client.keyValueStore(kvsId).getRecord('REPORT.md');
         if (mdRecord && typeof mdRecord.value === 'string') {
           reportMarkdown = mdRecord.value;
-          // Extract visibility score if present in markdown (e.g. "Visibility score: 47/100")
           const scoreMatch = reportMarkdown.match(/visibility\s*score:\s*(\d+)/i);
           if (scoreMatch && scoreMatch[1]) {
             overallScore = parseInt(scoreMatch[1], 10);
@@ -192,58 +238,45 @@ export async function runApifyBrandTracker(
     const datasetUrl = datasetId ? `https://console.apify.com/storage/datasets/${datasetId}` : undefined;
     const runUrl = `https://console.apify.com/actors/fxds1UA2ctnb8NrL4/runs/${run.id}`;
 
-    if (!Array.isArray(items) || items.length === 0) {
-      console.warn('[Apify BrandTracker] No items returned from dataset run');
-      return {
-        results: [],
-        reportMarkdown,
-        reportUrl,
-        reportMarkdownUrl,
-        visibilityPageUrl,
-        datasetUrl,
-        runUrl,
-        overallScore,
-      };
-    }
-
     const results: BrandTrackerResult[] = [];
-
-    for (const item of items) {
-      // The dataset may contain flat items or nested query/surface items
-      if (Array.isArray(item.queryResults)) {
-        for (const qr of item.queryResults) {
-          if (Array.isArray(qr.platformResults || qr.surfaceResults)) {
-            const list = qr.platformResults || qr.surfaceResults;
-            for (const pr of list) {
+    if (Array.isArray(items)) {
+      for (const item of items) {
+        if (Array.isArray(item.queryResults)) {
+          for (const qr of item.queryResults) {
+            if (Array.isArray(qr.platformResults || qr.surfaceResults)) {
+              const list = qr.platformResults || qr.surfaceResults;
+              for (const pr of list) {
+                results.push(parseResultItem(
+                  { ...pr, prompt: qr.prompt || qr.query || item.prompt },
+                  params.brandName,
+                  cleanBrandDomains
+                ));
+              }
+            } else {
               results.push(parseResultItem(
-                { ...pr, prompt: qr.prompt || qr.query || item.prompt },
+                { ...qr, prompt: qr.prompt || qr.query },
                 params.brandName,
                 cleanBrandDomains
               ));
             }
-          } else {
-            results.push(parseResultItem(
-              { ...qr, prompt: qr.prompt || qr.query },
-              params.brandName,
-              cleanBrandDomains
-            ));
           }
+          continue;
         }
-        continue;
-      }
 
-      if (Array.isArray(item.results)) {
-        for (const r of item.results) {
-          results.push(parseResultItem(r, params.brandName, cleanBrandDomains));
+        if (Array.isArray(item.results)) {
+          for (const r of item.results) {
+            results.push(parseResultItem(r, params.brandName, cleanBrandDomains));
+          }
+          continue;
         }
-        continue;
-      }
 
-      // Default: flat item in dataset
-      results.push(parseResultItem(item, params.brandName, cleanBrandDomains));
+        results.push(parseResultItem(item, params.brandName, cleanBrandDomains));
+      }
     }
 
     return {
+      status: 'SUCCEEDED',
+      runId,
       results,
       reportMarkdown,
       reportUrl,
@@ -252,6 +285,49 @@ export async function runApifyBrandTracker(
       datasetUrl,
       runUrl,
       overallScore,
+    };
+  }
+
+  return {
+    status: run.status as any,
+    runId,
+    error: `Apify run finished with status: ${run.status}`,
+  };
+}
+
+/**
+ * Runs the inovaflow/ai-brand-monitoring Apify actor with all queries and surfaces.
+ * Returns standardized results, report markdown, and report URLs.
+ */
+export async function runApifyBrandTracker(
+  params: BrandTrackerInput
+): Promise<BrandTrackerResponse> {
+  const token = APIFY_TOKEN || process.env.APIFY_API_KEY || process.env.APIFY_TOKEN || '';
+  if (!token) {
+    throw new Error('APIFY_API_KEY is missing in environment variables');
+  }
+
+  const client = new ApifyClient({ token });
+  const { input, cleanBrandDomains, actorSurfaces, countryCode } = buildBrandTrackerInput(params);
+
+  try {
+    console.log(`[Apify BrandTracker] Calling ${ACTOR_ID} with ${input.prompts.length} prompts across surfaces: ${input.surfaces.join(', ')} (country: ${countryCode}, domains: ${cleanBrandDomains.join(', ')})`);
+    
+    const run = await client.actor(ACTOR_ID).call(input);
+    const checkResult = await checkApifyBrandTrackerRun(run.id, {
+      brandName: params.brandName,
+      brandDomain: params.brandDomain,
+    });
+
+    return {
+      results: checkResult.results || [],
+      reportMarkdown: checkResult.reportMarkdown,
+      reportUrl: checkResult.reportUrl,
+      reportMarkdownUrl: checkResult.reportMarkdownUrl,
+      visibilityPageUrl: checkResult.visibilityPageUrl,
+      datasetUrl: checkResult.datasetUrl,
+      runUrl: checkResult.runUrl,
+      overallScore: checkResult.overallScore,
     };
   } catch (err: any) {
     console.error(`[Apify BrandTracker] Actor call failed for ${ACTOR_ID}:`, err.message);
