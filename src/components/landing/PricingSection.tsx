@@ -191,7 +191,7 @@ export function PricingSection() {
                     tier.cta.toLowerCase().includes('book') ||
                     tier.cta.toLowerCase().includes('contact')
                   ) {
-                    // Dummy button
+                    window.open('https://cal.com/uddipan', '_blank');
                   } else {
                     setShowOnboarding(true);
                   }

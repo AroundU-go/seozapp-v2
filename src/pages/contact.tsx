@@ -40,13 +40,15 @@ export default function ContactPage() {
                             <h2 className="text-xl font-bold text-gray-900 mb-2">Book a Live Demo</h2>
                             <p className="text-gray-500 mb-6 text-sm">Schedule a live demo to explore custom enterprise features &amp; LLM monitoring.</p>
                         </div>
-                        <button
-                            type="button"
-                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#17191c] text-white font-bold rounded-xl shadow-md hover:bg-[#17191c]/90 transition-all duration-300 cursor-pointer"
+                        <a
+                            href="https://cal.com/uddipan"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#17191c] text-white font-bold rounded-xl shadow-md hover:bg-[#17191c]/90 transition-all duration-300"
                         >
                             <Calendar className="w-5 h-5 text-[#fbe1d1]" />
-                            Book Demo
-                        </button>
+                            Book Demo on Cal.com
+                        </a>
                     </div>
 
                     {/* Contact Card */}

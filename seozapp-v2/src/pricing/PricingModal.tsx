@@ -84,7 +84,8 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
       planName.toLowerCase().includes('book') ||
       planName.toLowerCase().includes('contact')
     ) {
-      return; // Dummy button
+      window.open('https://cal.com/uddipan', '_blank');
+      return;
     }
     alert(`Thank you for selecting the ${planName}! Payment integration modal redirect...`);
     onClose();

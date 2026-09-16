@@ -216,6 +216,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
                                             tier.cta.toLowerCase().includes('contact') ||
                                             tier.cta.toLowerCase().includes('book')
                                         ) {
+                                            window.open('https://cal.com/uddipan', '_blank');
                                             return;
                                         }
                                         handleCheckout(tier.productId);

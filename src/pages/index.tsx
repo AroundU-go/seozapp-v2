@@ -230,13 +230,15 @@ export default function SteepLandingPage() {
                     Start free audit
                   </button>
                 )}
-                <button
-                  type="button"
-                  className="bg-[#ffffff] text-[#17191c] border border-[#17191c]/20 hover:border-[#17191c] rounded-full px-8 py-3.5 text-[16px] font-normal transition-all w-full sm:w-auto inline-flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                <a
+                  href="https://cal.com/uddipan"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#ffffff] text-[#17191c] border border-[#17191c]/20 hover:border-[#17191c] rounded-full px-8 py-3.5 text-[16px] font-normal transition-all w-full sm:w-auto inline-flex items-center justify-center gap-2 shadow-sm"
                 >
                   <span>Book a demo</span>
                   <ArrowRight className="w-4 h-4 text-[#17191c]" />
-                </button>
+                </a>
               </div>
             </div>
 

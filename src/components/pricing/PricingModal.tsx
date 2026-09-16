@@ -117,6 +117,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
       tier.cta.toLowerCase().includes('book') ||
       tier.cta.toLowerCase().includes('contact')
     ) {
+      window.open('https://cal.com/uddipan', '_blank');
       return;
     }
 
@@ -249,9 +250,14 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
         {/* Contact Sales / Book Demo Callout */}
         <div className="mt-8 text-center pt-6 border-t border-[#17191c]/10 text-xs text-[#777b86]">
           Need a custom enterprise setup, custom API limits, or team walkthrough?{' '}
-          <span className="font-semibold text-[#17191c] underline hover:text-[#5d2a1a] transition-colors cursor-pointer">
+          <a
+            href="https://cal.com/uddipan"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-[#17191c] underline hover:text-[#5d2a1a] transition-colors"
+          >
             Book a Demo / Contact Sales
-          </span>
+          </a>
         </div>
       </div>
     </div>
