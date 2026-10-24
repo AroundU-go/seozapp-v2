@@ -35,12 +35,6 @@ const HERO_AI_ENGINES = [
     textColor: 'text-[#17191c]',
   },
   {
-    name: 'Claude',
-    provider: 'Anthropic',
-    icon: '/icon1.png',
-    textColor: 'text-[#d97706]',
-  },
-  {
     name: 'Gemini',
     provider: 'Google AI',
     icon: '/icon4.png',

@@ -75,7 +75,6 @@ export const EngineVisibilityChart: React.FC<ChartProps> = ({ isPlaceholder = tr
   const engineItems = [
     { name: 'ChatGPT', icon: '/icon2.png' },
     { name: 'Perplexity', icon: '/icon3.png' },
-    { name: 'Claude', icon: '/icon1.png' },
     { name: 'Gemini', icon: '/icon4.png' },
     { name: 'AI Overviews', icon: '/google-logo.png' },
   ];
