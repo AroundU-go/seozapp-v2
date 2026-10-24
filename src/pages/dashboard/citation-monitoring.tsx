@@ -87,7 +87,7 @@ export default function CitationMonitoringPage() {
   const getAllowedEngines = (): AiEngineId[] => {
     const pay = (paymentType || '').toLowerCase();
     if (isAdmin || pay.includes('enterprise') || pay.includes('scale')) {
-      return ['chatgpt', 'gemini', 'perplexity', 'ai_overview', 'claude'];
+      return ['chatgpt', 'gemini', 'perplexity', 'ai_overview'];
     }
     if (pay.includes('pro') || pay.includes('$99')) {
       return ['chatgpt', 'gemini', 'perplexity', 'ai_overview'];
@@ -1275,7 +1275,7 @@ export default function CitationMonitoringPage() {
                   <option value="gemini">Gemini</option>
                   <option value="perplexity">Perplexity</option>
                   <option value="ai_overview">AI Overviews</option>
-                  <option value="claude">Claude</option>
+
                 </select>
               </div>
 

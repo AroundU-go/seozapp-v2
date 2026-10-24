@@ -197,7 +197,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } else if (engine) {
       requestedPlatforms = [engine];
     } else {
-      requestedPlatforms = ['chatgpt', 'gemini', 'perplexity', 'ai_overview', 'claude'];
+      requestedPlatforms = ['chatgpt', 'gemini', 'perplexity', 'ai_overview'];
     }
 
     const platformList = requestedPlatforms.filter((p) => planLimits.allowedEngines.includes(p));

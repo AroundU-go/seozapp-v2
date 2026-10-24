@@ -44,7 +44,7 @@ export const ENTERPRISE_LIMITS: PlanLimits = {
   maxPrompts: 9999,
   maxCompetitors: 999,
   maxSites: 999,
-  allowedEngines: ['chatgpt', 'gemini', 'perplexity', 'ai_overview', 'claude'],
+  allowedEngines: ['chatgpt', 'gemini', 'perplexity', 'ai_overview'],
 };
 
 /**
